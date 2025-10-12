@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Hall 3D View</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      padding-bottom: 100px; /* space for footer */
+      background: #faf6ff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 60px; /* space for back button */
+      box-sizing: border-box;
+    }
+
+    /* Back button fixed top-left */
+    .back-button {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      padding: 10px 20px;
+      background: linear-gradient(135deg, #8a2be2 0%, #9370db 100%);
+      color: white;
+      font-weight: 700;
+      font-size: 1rem;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(138, 43, 226, 0.3);
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      user-select: none;
+      outline: none;
+      z-index: 1001;
+      white-space: nowrap;
+    }
+    .back-button:hover {
+      background-color: #6a0dad;
+      transform: translateY(-2px);
+      box-shadow: 0 15px 40px rgba(106, 13, 173, 0.5);
+    }
+    .back-button:active {
+      transform: translateY(0);
+    }
+
+    h1 {
+      color: #6a0dad;
+      margin-bottom: 40px;
+      font-size: 2.2rem;
+      font-weight: 700;
+      text-align: center;
+      max-width: 90vw;
+      word-wrap: break-word;
+    }
+
+    /* 3D view content container */
+    .content {
+      flex: 1;
+      width: 100%;
+      max-width: 900px;
+      text-align: center;
+      color: #555;
+      padding: 0 15px;
+      box-sizing: border-box;
+    }
+
+    /* Footer fixed at bottom with fully transparent background */
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: transparent; /* fully transparent */
+      padding: 10px 0;
+      display: flex;
+      justify-content: flex-start; /* align left */
+      user-select: none;
+      z-index: 1000;
+      box-sizing: border-box;
+
+      overflow-x: auto; /* horizontal scroll */
+      overflow-y: hidden; /* no vertical scroll */
+      white-space: nowrap;
+      scroll-padding-left: 15px;
+    }
+
+    /* Container for buttons */
+    .button-container {
+      display: flex;
+      gap: 10px;
+      padding: 0 15px;
+      flex-wrap: nowrap; /* no wrapping */
+      justify-content: flex-start;
+      box-sizing: border-box;
+      width: max-content; /* fit content width */
+    }
+
+    /* Individual button style */
+    .image-button {
+      background: white;
+      border-radius: 12px;
+      border: 2px solid #6a0dad;
+      width: 70px;
+      height: 90px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(106, 13, 173, 0.3);
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      flex-shrink: 0;
+      user-select: none;
+    }
+    .image-button:hover {
+      background-color: #d8b9ff;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(106, 13, 173, 0.5);
+    }
+    .image-button:active {
+      transform: translateY(0);
+    }
+
+    /* Image inside button */
+    .image-button img {
+      max-width: 50px;
+      max-height: 50px;
+      margin-bottom: 6px;
+      border-radius: 8px;
+      object-fit: contain;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* Label below image */
+    .image-button span {
+      font-weight: 700;
+      color: #6a0dad;
+      font-size: 0.9rem;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      .image-button {
+        width: 55px;
+        height: 75px;
+      }
+      .image-button img {
+        max-width: 40px;
+        max-height: 40px;
+      }
+      .image-button span {
+        font-size: 0.8rem;
+      }
+      h1 {
+        font-size: 1.8rem;
+        margin-bottom: 30px;
+      }
+      .content {
+        max-width: 95vw;
+        padding: 0 10px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      footer {
+        padding: 8px 0;
+      }
+      .button-container {
+        gap: 6px;
+        padding: 0 6px;
+      }
+      .image-button {
+        width: 45px;
+        height: 65px;
+      }
+      .image-button img {
+        max-width: 30px;
+        max-height: 30px;
+      }
+      .image-button span {
+        font-size: 0.7rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <button class="back-button" onclick="history.back()">Back</button>
+
+  <h1>Hall 3D View</h1>
+
+  <div class="content">
+    <p>3D view content goes here...</p>
+  </div>
+
+  <footer>
+    <div class="button-container" id="buttonContainer">
+
+      <button class="image-button" type="button" title="D1">
+        <img src="flooring.webp" alt="D1" />
+        <span>D1</span>
+      </button>
+
+      <button class="image-button" type="button" title="D2">
+        <img src="flooring.webp" alt="D2" />
+        <span>D2</span>
+      </button>
+
+      <button class="image-button" type="button" title="D3">
+        <img src="flooring.webp" alt="D3" />
+        <span>D3</span>
+      </button>
+
+      <button class="image-button" type="button" title="D4">
+        <img src="flooring.webp" alt="D4" />
+        <span>D4</span>
+      </button>
+
+      <button class="image-button" type="button" title="D5">
+        <img src="flooring.webp" alt="D5" />
+        <span>D5</span>
+      </button>
+
+      <button class="image-button" type="button" title="D6">
+        <img src="flooring.webp" alt="D6" />
+        <span>D6</span>
+      </button>
+
+      <button class="image-button" type="button" title="D7">
+        <img src="flooring.webp" alt="D7" />
+        <span>D7</span>
+      </button>
+
+      <button class="image-button" type="button" title="D8">
+        <img src="flooring.webp" alt="D8" />
+        <span>D8</span>
+      </button>
+
+      <button class="image-button" type="button" title="D9">
+        <img src="flooring.webp" alt="D9" />
+        <span>D9</span>
+      </button>
+
+      <button class="image-button" type="button" title="D10">
+        <img src="flooring.webp" alt="D10" />
+        <span>D10</span>
+      </button>
+
+      <button class="image-button" type="button" title="D11">
+        <img src="flooring.webp" alt="D11" />
+        <span>D11</span>
+      </button>
+
+      <button class="image-button" type="button" title="D12">
+        <img src="flooring.webp" alt="D12" />
+        <span>D12</span>
+      </button>
+
+      <button class="image-button" type="button" title="D13">
+        <img src="flooring.webp" alt="D13" />
+        <span>D13</span>
+      </button>
+
+      <button class="image-button" type="button" title="D14">
+        <img src="flooring.webp" alt="D14" />
+        <span>D14</span>
+      </button>
+
+      <button class="image-button" type="button" title="D15">
+        <img src="flooring.webp" alt="D15" />
+        <span>D15</span>
+      </button>
+
+      <button class="image-button" type="button" title="D16">
+        <img src="flooring.webp" alt="D16" />
+        <span>D16</span>
+      </button>
+
+      <button class="image-button" type="button" title="D17">
+        <img src="flooring.webp" alt="D17" />
+        <span>D17</span>
+      </button>
+
+      <button class="image-button" type="button" title="D18">
+        <img src="flooring.webp" alt="D18" />
+        <span>D18</span>
+      </button>
+
+      <button class="image-button" type="button" title="D19">
+        <img src="flooring.webp" alt="D19" />
+        <span>D19</span>
+      </button>
+
+      <button class="image-button" type="button" title="D20">
+        <img src="flooring.webp" alt="D20" />
+        <span>D20</span>
+      </button>
+
+    </div>
+  </footer>
+
+</body>
+</html>

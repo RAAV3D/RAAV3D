@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Shop Manager - Bathroom Image Upload</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      background: linear-gradient(135deg, #f5f0ff 0%, #faf6ff 100%);
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px 60px; /* extra bottom padding for button */
+      user-select: none;
+      position: relative;
+    }
+
+    /* Back button fixed top-left */
+    .back-button {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #8a2be2 0%, #9370db 100%);
+      color: white;
+      font-weight: 700;
+      font-size: 1rem;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(138, 43, 226, 0.3);
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      user-select: none;
+      outline: none;
+      z-index: 1000;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .back-button:hover {
+      background-color: #6a0dad;
+      transform: translateY(-2px);
+      box-shadow: 0 15px 40px rgba(106, 13, 173, 0.5);
+    }
+    .back-button:active {
+      transform: translateY(0);
+    }
+
+    h1 {
+      color: #6a0dad;
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 40px;
+      letter-spacing: 1.5px;
+      text-align: center;
+      max-width: 900px;
+      width: 100%;
+    }
+
+    /* Container grid */
+    .container-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      max-width: 900px;
+      width: 100%;
+      padding: 0 12px;
+    }
+
+    @media (max-width: 600px) {
+      .container-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Individual container style with different shadows */
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 30px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      user-select: none;
+      box-shadow: 0 15px 40px rgba(138, 43, 226, 0.15);
+      transition: box-shadow 0.3s ease;
+    }
+    .container:nth-child(1) {
+      box-shadow: 0 15px 40px rgba(138, 43, 226, 0.15);
+    }
+    .container:nth-child(2) {
+      box-shadow: 0 15px 40px rgba(106, 13, 173, 0.15);
+    }
+    .container:nth-child(3) {
+      box-shadow: 0 15px 40px rgba(147, 112, 219, 0.15);
+    }
+    .container:nth-child(4) {
+      box-shadow: 0 15px 40px rgba(123, 104, 238, 0.15);
+    }
+
+    /* Upload button and label container */
+    .upload-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .upload-btn {
+      padding: 14px 28px;
+      background: linear-gradient(135deg, #8a2be2 0%, #9370db 100%);
+      color: white;
+      font-weight: 700;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(138, 43, 226, 0.3);
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      user-select: none;
+      outline: none;
+      width: 140px;
+      text-align: center;
+    }
+    .upload-btn:hover {
+      background-color: #6a0dad;
+      transform: translateY(-2px);
+      box-shadow: 0 15px 40px rgba(106, 13, 173, 0.5);
+    }
+    .upload-btn:active {
+      transform: translateY(0);
+    }
+
+    /* Label buttons next to upload */
+    .label-btn {
+      padding: 10px 18px;
+      background: #6a0dad;
+      color: white;
+      font-weight: 700;
+      font-size: 1rem;
+      border-radius: 20px;
+      user-select: none;
+      cursor: default;
+      box-shadow: 0 6px 20px rgba(106, 13, 173, 0.4);
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    /* Image preview */
+    .image-preview {
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: 15px;
+      box-shadow: 0 8px 30px rgba(138, 43, 226, 0.2);
+      object-fit: contain;
+      display: none;
+      user-select: none;
+    }
+
+    /* Generate 3D button */
+    #generate3dBtn {
+      margin-top: 40px;
+      padding: 16px 36px;
+      background: linear-gradient(135deg, #8a2be2 0%, #9370db 100%);
+      color: white;
+      font-weight: 700;
+      font-size: 1.3rem;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 12px 40px rgba(138, 43, 226, 0.4);
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      user-select: none;
+      outline: none;
+      max-width: 300px;
+      width: 100%;
+      text-align: center;
+    }
+    #generate3dBtn:hover {
+      background-color: #6a0dad;
+      transform: translateY(-3px);
+      box-shadow: 0 18px 50px rgba(106, 13, 173, 0.6);
+    }
+    #generate3dBtn:active {
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <button class="back-button" onclick="history.back()">Back</button>
+
+  <h1> Upload Kitchen Tile</h1>
+  <div class="container-grid">
+
+    <div class="container" id="container1">
+      <div class="upload-row">
+        <button class="upload-btn" data-index="1">Upload Image</button>
+        <div class="label-btn">L</div>
+      </div>
+      <img class="image-preview" id="preview1" alt="Preview L" />
+      <input type="file" id="fileInput1" accept="image/*" style="display:none" />
+    </div>
+
+    <div class="container" id="container2">
+      <div class="upload-row">
+        <button class="upload-btn" data-index="2">Upload Image</button>
+        <div class="label-btn">HL</div>
+      </div>
+      <img class="image-preview" id="preview2" alt="Preview HL" />
+      <input type="file" id="fileInput2" accept="image/*" style="display:none" />
+    </div>
+
+    <div class="container" id="container3">
+      <div class="upload-row">
+        <button class="upload-btn" data-index="3">Upload Image</button>
+        <div class="label-btn">D</div>
+      </div>
+      <img class="image-preview" id="preview3" alt="Preview D" />
+      <input type="file" id="fileInput3" accept="image/*" style="display:none" />
+    </div>
+
+    <div class="container" id="container4">
+      <div class="upload-row">
+        <button class="upload-btn" data-index="4">Upload Image</button>
+        <div class="label-btn">F</div>
+      </div>
+      <img class="image-preview" id="preview4" alt="Preview F" />
+      <input type="file" id="fileInput4" accept="image/*" style="display:none" />
+    </div>
+
+  </div>
+
+  <button id="generate3dBtn">Generate 3D</button>
+
+  <script>
+    // Attach event listeners to all upload buttons
+    document.querySelectorAll('.upload-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        const index = button.getAttribute('data-index');
+        const fileInput = document.getElementById('fileInput' + index);
+        fileInput.click();
+      });
+    });
+
+    // Attach change event listeners to all file inputs
+    for (let i = 1; i <= 4; i++) {
+      const fileInput = document.getElementById('fileInput' + i);
+      const preview = document.getElementById('preview' + i);
+
+      fileInput.addEventListener('change', () => {
+        const file = fileInput.files[0];
+        if (file && file.type.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = e => {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+          };
+          reader.readAsDataURL(file);
+        } else {
+          alert('Please select a valid image file.');
+          preview.style.display = 'none';
+          preview.src = '';
+        }
+      });
+    }
+
+  generate3dBtn.addEventListener('click', () => {
+  // Navigate to kitchen3dview.html
+  window.location.href = 'kitchen3dview.html';
+});
+  </script>
+
+</body>
+</html>
