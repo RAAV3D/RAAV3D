@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Login - Shop Manager</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* CSS Code - Matching Theme and Fully Responsive */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f0ff 0%, #faf6ff 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            line-height: 1.6;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+        
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(138, 43, 226, 0.1);
+            border: 2px solid #8a2be2;
+            color: #8a2be2;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            z-index: 100;
+        }
+        
+        .back-button:hover {
+            background: #8a2be2;
+            color: white;
+            transform: translateX(-5px);
+        }
+        
+        .login-container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(138, 43, 226, 0.2);
+            width: 100%;
+            max-width: 400px;
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+        
+        .login-header {
+            margin-bottom: 30px;
+        }
+        
+        .login-header h1 {
+            font-size: 2.5rem;
+            color: #6a0dad;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .login-header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+            min-height: 50px; /* Touch-friendly */
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #8a2be2;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.1);
+        }
+        
+        .password-group {
+            position: relative;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #8a2be2;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 5px;
+        }
+        
+        .sign-in-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #8a2be2 0%, #9370db 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            min-height: 50px; /* Touch-friendly */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .sign-in-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(138, 43, 226, 0.3);
+        }
+        
+        .sign-in-btn:active {
+            transform: translateY(0);
+        }
+        
+        .sign-in-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .register-link {
+            color: #8a2be2;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+        
+        .register-link:hover {
+            color: #6a0dad;
+            text-decoration: underline;
+        }
+        
+        .register-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .register-section p {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        /* Responsive Design - Enhanced for All Devices */
+        @media (min-width: 1025px) {
+            .login-container {
+                max-width: 450px;
+                padding: 50px;
+            }
+            .login-header h1 {
+                font-size: 3rem;
+            }
+        }
+        
+        @media (max-width: 1024px) and (min-width: 481px) {
+            body { padding: 15px; }
+            .login-container { padding: 35px; max-width: 90%; }
+            .login-header h1 { font-size: 2.2rem; }
+            .sign-in-btn { font-size: 1.1rem; padding: 15px; }
+        }
+        
+        @media (max-width: 768px) and (min-width: 481px) {
+            .login-container { padding: 30px 25px; max-width: 85%; }
+            .login-header h1 { font-size: 2rem; }
+            .form-group input { padding: 14px; }
+        }
+        
+        @media (max-width: 480px) {
+            body { padding: 10px; }
+            .back-button { top: 15px; left: 15px; padding: 8px 16px; font-size: 0.9rem; }
+            .login-container { padding: 25px 20px; max-width: 95%; border-radius: 15px; }
+            .login-header h1 { font-size: 1.8rem; }
+            .login-header p { font-size: 1rem; }
+            .form-group { margin-bottom: 15px; }
+            .form-group input { padding: 12px; font-size: 1rem; min-height: 48px; }
+            .sign-in-btn { font-size: 1rem; padding: 14px; min-height: 48px; margin-bottom: 15px; }
+            .register-section { margin-top: 15px; padding-top: 15px; }
+            .register-link { font-size: 0.95rem; }
+        }
+        
+        @media (max-width: 360px) {
+            .login-container { padding: 20px 15px; }
+            .login-header h1 { font-size: 1.6rem; }
+            .form-group input { padding: 10px; }
+            .sign-in-btn { padding: 12px; font-size: 0.95rem; }
+        }
+        
+        @media (max-height: 500px) and (orientation: landscape) {
+            body { justify-content: flex-start; padding-top: 10px; }
+            .login-container { margin-top: 20px; }
+        }
+        
+        /* Animation */
+        .login-container {
+            animation: slideUp 0.6s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Back Button -->
+    <a href="index.html" class="back-button">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+
+    <!-- Login Container -->
+    <div class="login-container">
+        <div class="login-header">
+            <h1>Login</h1>
+            <p>Sign in to your Shop Manager account</p>
+        </div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email"><i class="fas fa-envelope"></i> Email ID</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    placeholder="Enter your email (e.g., user@example.com)" 
+                    required
+                >
+                <div class="error-message" id="emailError">Please enter a valid email address.</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password"><i class="fas fa-lock"></i> Password</label>
+                <div class="password-group">
+                    <input 
+                        type="password" 
+                        id="password" 
+                        placeholder="Enter your password" 
+                        required
+                        minlength="6"
+                    >
+                    <button type="button" class="password-toggle" onclick="togglePassword()" id="togglePasswordBtn">
+                        <i class="fas fa-eye" id="toggleIcon"></i>
+                    </button>
+                </div>
+                <div class="error-message" id="passwordError">Password must be at least 6 characters long.</div>
+            </div>
+            
+            <button type="submit" class="sign-in-btn" id="signinbtn">
+                <i class="fas fa-sign-in-alt"></i> Sign In
+            </button>
+        </form>
+        
+        <div class="register-section">
+            <p>Not registered yet?</p>
+            <a href="register.html" class="register-link">Register here</a>
+        </div>
+    </div>
+
+        <script>
+        // Toggle Password Visibility
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('toggleIcon');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+
+        // Client-side validation function
+        function validateLoginForm() {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const emailError = document.getElementById('emailError');
+            const passwordError = document.getElementById('passwordError');
+            const signinbtn = document.getElementById('signinbtn');
+
+            let isValid = true;
+
+            // Reset errors
+            emailError.style.display = 'none';
+            passwordError.style.display = 'none';
+
+            // Email validation
+            if (!email) {
+                emailError.textContent = 'Email is required.';
+                emailError.style.display = 'block';
+                isValid = false;
+            } else if (!/\S+@\S+\.\S+/.test(email)) {
+                emailError.textContent = 'Please enter a valid email address.';
+                emailError.style.display = 'block';
+                isValid = false;
+            }
+
+            // Password validation
+            if (!password) {
+                passwordError.textContent = 'Password is required.';
+                passwordError.style.display = 'block';
+                isValid = false;
+            } else if (password.length < 6) {
+                passwordError.textContent = 'Password must be at least 6 characters long.';
+                passwordError.style.display = 'block';
+                isValid = false;
+            }
+
+            // Enable/disable button
+            signinbtn.disabled = !isValid;
+
+            return isValid;
+        }
+
+        // Real-time validation on input change
+        ['email', 'password'].forEach(id => {
+            document.getElementById(id).addEventListener('input', validateLoginForm);
+        });
+
+        // Focus on email input on page load
+        window.addEventListener('load', function () {
+            document.getElementById('email').focus();
+        });
+    </script>
+
+    <!-- Firebase Integration -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+        import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDLwU2O2MQA3SWSlbw9Wa75_KByQ0EkZI8",
+            authDomain: "raav3d-50f8c.firebaseapp.com",
+            databaseURL: "https://raav3d-50f8c-default-rtdb.firebaseio.com",
+            projectId: "raav3d-50f8c",
+            storageBucket: "raav3d-50f8c.firebasestorage.app",
+            messagingSenderId: "528524618407",
+            appId: "1:528524618407:web:acb2c4fca0dcadd7934982"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const auth = getAuth();
+
+        // Login form submission with Firebase
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            if (!validateLoginForm()) return; // Client-side validation
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const signinbtn = document.getElementById('signinbtn');
+
+            // Show loading state
+            signinbtn.disabled = true;
+            signinbtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In...';
+
+            try {
+                // Sign in user
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                const uid = user.uid;
+
+                // Fetch all users to find shopId by matching uid
+                const usersRef = ref(database, 'users');
+                const snapshot = await get(usersRef);
+
+                if (!snapshot.exists()) {
+                    throw new Error('User  data not found in database.');
+                }
+
+                let foundShopId = null;
+                snapshot.forEach(childSnapshot => {
+                    const userData = childSnapshot.val();
+                    if (userData.uid === uid) {
+                        foundShopId = userData.shopId;
+                    }
+                });
+
+                if (!foundShopId) {
+                    throw new Error('Shop ID not found for this user.');
+                }
+
+                // Update last_login timestamp
+                await update(ref(database, 'users/' + foundShopId), {
+                    last_login: new Date().toISOString()
+                });
+
+                // Store shopId in localStorage
+                localStorage.setItem('shopId', foundShopId);
+
+                alert('Login successful! Redirecting...');
+                window.location.href = 'home.html';
+
+            } catch (error) {
+                let errorMessage = 'Login failed. Please try again.';
+                if (error.code === 'auth/user-not-found') {
+                    errorMessage = 'No user found with this email. Please register first.';
+                } else if (error.code === 'auth/wrong-password') {
+                    errorMessage = 'Invalid password. Please check and try again.';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = 'Invalid email format.';
+                } else if (error.code === 'auth/too-many-requests') {
+                    errorMessage = 'Too many failed attempts. Please try again later.';
+                } else if (error.message) {
+                    errorMessage = error.message;
+                }
+
+                alert(errorMessage);
+
+                // Reset button
+                signinbtn.disabled = false;
+                signinbtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+            }
+        });
+    </script>
+</body>
+</html>
