@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate QR Code</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f0ff 0%, #faf6ff 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(138, 43, 226, 0.1);
+            border: 2px solid #8a2be2;
+            color: #8a2be2;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            z-index: 100;
+        }
+        
+        .back-button:hover {
+            background: #8a2be2;
+            color: white;
+            transform: translateX(-5px);
+        }
+        
+
+        .upload-container, .qr-list-container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(138, 43, 226, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .upload-container h2, .qr-list-container h2 {
+            color: #6a0dad;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .upload-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .file-input {
+            padding: 15px;
+            border: 2px dashed #8a2be2;
+            border-radius: 12px;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .file-input:hover {
+            background: rgba(138, 43, 226, 0.1);
+        }
+
+        .name-input {
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .name-input:focus {
+            outline: none;
+            border-color: #8a2be2;
+            box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.1);
+        }
+
+        .convert-btn {
+            padding: 15px;
+            background: linear-gradient(135deg, #8a2be2 0%, #9370db 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .convert-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(138, 43, 226, 0.3);
+        }
+
+        .convert-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .search-input {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            width: 100%;
+            max-width: 300px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #8a2be2;
+            box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.1);
+        }
+
+        .qr-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .qr-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .qr-item canvas {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .qr-item p {
+            margin-top: 10px;
+            font-weight: 600;
+            color: #6a0dad;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: #666;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            color: #d9534f;
+        }
+
+        .error-message {
+            color: #d9534f;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        .success-message {
+            color: #5cb85c;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                gap: 20px;
+            }
+            .upload-container, .qr-list-container {
+                padding: 20px;
+            }
+            .qr-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+       <button class="back-button" onclick="history.back()">Back</button>
+    <div class="container">
+        <!-- First Container: Upload and Convert -->
+        <div class="upload-container">
+            <h2><i class="fas fa-upload"></i> Upload Image & Generate QR Code</h2>
+            <form class="upload-form" id="uploadForm">
+                <input type="file" id="imageInput" accept="image/*" class="file-input" required>
+                <input type="text" id="imageName" placeholder="Enter image name" class="name-input" required>
+                <button type="submit" class="convert-btn" id="convertBtn">
+                    <i class="fas fa-qrcode"></i> Convert & Save
+                </button>
+            </form>
+            <div id="uploadMessage"></div>
+        </div>
+
+        <!-- Second Container: QR Code List -->
+        <div class="qr-list-container">
+            <h2><i class="fas fa-list"></i> Saved QR Codes</h2>
+            <input type="text" id="searchInput" placeholder="Search by name..." class="search-input">
+            <div class="qr-grid" id="qrGrid"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-storage.js";
+        import { getDatabase, ref as dbRef, set, get, push, remove } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+        import QRCode from 'https://cdn.skypack.dev/qrcode@1.5.3';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDLwU2O2MQA3SWSlbw9Wa75_KByQ0EkZI8",
+            authDomain: "raav3d-50f8c.firebaseapp.com",
+            databaseURL: "https://raav3d-50f8c-default-rtdb.firebaseio.com",
+            projectId: "raav3d-50f8c",
+            storageBucket: "raav3d-50f8c.firebasestorage.app",
+            messagingSenderId: "528524618407",
+            appId: "1:528524618407:web:acb2c4fca0dcadd7934982"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const storage = getStorage(app);
+        const database = getDatabase(app);
+
+        // Get shopId from URL parameter (from login/validation)
+        const urlParams = new URLSearchParams(window.location.search);
+        const shopId = urlParams.get('shopId');
+        if (!shopId) {
+            alert('Shop ID is required. Redirecting to home.');
+            window.location.href = 'index.html';
+        }
+
+        // Elements
+        const uploadForm = document.getElementById('uploadForm');
+        const imageInput = document.getElementById('imageInput');
+        const imageNameInput = document.getElementById('imageName');
+        const convertBtn = document.getElementById('convertBtn');
+        const uploadMessage = document.getElementById('uploadMessage');
+        const searchInput = document.getElementById('searchInput');
+        const qrGrid = document.getElementById('qrGrid');
+
+        let qrCodes = [];
+
+        // Load existing QR codes for this shop ID
+        async function loadQRCodes() {
+            try {
+                const qrRef = dbRef(database, `users/${shopId}/qrCodes`);
+                const snapshot = await get(qrRef);
+                qrCodes = [];
+                if (snapshot.exists()) {
+                    snapshot.forEach((childSnapshot) => {
+                        qrCodes.push({
+                            id: childSnapshot.key,
+                            ...childSnapshot.val()
+                        });
+                    });
+                }
+                displayQRCodes(qrCodes);
+            } catch (error) {
+                console.error('Error loading QR codes:', error);
+            }
+        }
+
+        // Display QR codes
+        function displayQRCodes(codes) {
+            qrGrid.innerHTML = '';
+            codes.forEach(code => {
+                const qrItem = document.createElement('div');
+                qrItem.className = 'qr-item';
+                const canvas = document.createElement('canvas');
+                QRCode.toCanvas(canvas, code.url, { width: 200, height: 200 }, (error) => {
+                    if (error) console.error(error);
+                });
+                qrItem.appendChild(canvas);
+                const namePara = document.createElement('p');
+                namePara.textContent = code.name;
+                qrItem.appendChild(namePara);
+
+                // Add delete button (3 dots)
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.innerHTML = '<i class="fas fa-ellipsis-v"></i>';
+                deleteBtn.title = 'Delete QR Code';
+                deleteBtn.addEventListener('click', () => deleteQRCode(code.id));
+                qrItem.appendChild(deleteBtn);
+
+                qrGrid.appendChild(qrItem);
+            });
+        }
+
+        // Delete QR code (from Realtime Database and optionally from Storage)
+        async function deleteQRCode(qrId) {
+            if (confirm('Are you sure you want to delete this QR code?')) {
+                try {
+                    // Find the QR code data to get the image URL
+                    const code = qrCodes.find(c => c.id === qrId);
+                    if (!code) {
+                        alert('QR code not found.');
+                        return;
+                    }
+
+                    // Delete from Realtime Database
+                    const qrRef = dbRef(database, `users/${shopId}/qrCodes/${qrId}`);
+                    await remove(qrRef);
+                    console.log(`QR Code ${qrId} deleted successfully from database.`);
+
+                    // Optionally delete the image from Firebase Storage (uncomment to enable)
+                    // const imageRef = ref(storage, code.url); // Assuming code.url is the download URL
+                    // await deleteObject(imageRef);
+                    // console.log(`Image deleted successfully from storage.`);
+
+                    // Reload the list to update the display
+                    loadQRCodes();
+                } catch (error) {
+                    console.error('Error deleting QR code:', error);
+                    alert(`Failed to delete QR code: ${error.message}`);
+                }
+            }
+        }
+
+        // Search functionality
+        searchInput.addEventListener('input', () => {
+            const searchTerm = searchInput.value.toLowerCase();
+            const filteredCodes = qrCodes.filter(code => code.name.toLowerCase().includes(searchTerm));
+            displayQRCodes(filteredCodes);
+        });
+
+        // Handle form submission
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const file = imageInput.files[0];
+            const name = imageNameInput.value.trim();
+
+            if (!file || !name) {
+                showMessage('Please select an image and enter a name.', 'error');
+                return;
+            }
+
+            // Check for duplicate name under this shop ID
+            const existingCode = qrCodes.find(code => code.name.toLowerCase() === name.toLowerCase());
+            if (existingCode) {
+                showMessage('An image with this name already exists. Please choose a different name.', 'error');
+                return;
+            }
+
+            convertBtn.disabled = true;
+            convertBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+            try {
+                // Upload image to Firebase Storage under this shop ID
+                const storageRef = ref(storage, `users/${shopId}/images/${name}_${Date.now()}.${file.name.split('.').pop()}`);
+                const snapshot = await uploadBytes(storageRef, file);
+                const downloadURL = await getDownloadURL(snapshot.ref);
+
+                // Save QR code metadata to Realtime Database under this shop ID
+                const qrRef = dbRef(database, `users/${shopId}/qrCodes`);
+                const newQRRef = push(qrRef);
+                await set(newQRRef, {
+                    name: name,
+                    url: downloadURL,
+                    createdAt: new Date().toISOString()
+                });
+
+                showMessage('QR Code generated and saved successfully!', 'success');
+                imageInput.value = '';
+                imageNameInput.value = '';
+                loadQRCodes(); // Reload the list
+            } catch (error) {
+                console.error('Error uploading image:', error);
+                showMessage('Failed to upload image. Please try again.', 'error');
+            } finally {
+                convertBtn.disabled = false;
+                convertBtn.innerHTML = '<i class="fas fa-qrcode"></i> Convert & Save';
+            }
+        });
+
+        // Show message
+        function showMessage(message, type) {
+            uploadMessage.className = type === 'error' ? 'error-message' : 'success-message';
+            uploadMessage.textContent = message;
+            setTimeout(() => {
+                uploadMessage.textContent = '';
+            }, 5000);
+        }
+
+        // Load QR codes on page load
+        loadQRCodes();
+    </script>
+</body>
+</html>
