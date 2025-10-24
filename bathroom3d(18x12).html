@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Shop Manager - 3D Room Viewer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    /* Reset and base */
+    body {
+      background: linear-gradient(135deg, #f5f0ff 0%, #faf6ff 100%);
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 12px 40px;
+      line-height: 1.6;
+    }
+    .back-button {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(138, 43, 226, 0.1);
+      border: 2px solid #8a2be2;
+      color: #8a2be2;
+      padding: 10px 20px;
+      border-radius: 25px;
+      text-decoration: none;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .back-button:hover {
+      background: #8a2be2;
+      color: white;
+      transform: translateX(-5px);
+    }
+
+    /* Header */
+    h1 {
+      color: #6a0dad;
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin: 38px 0 20px;
+      letter-spacing: 1.5px;
+      user-select: none;
+      text-align: center;
+      max-width: 900px;
+      width: 100%;
+    }
+
+    /* Grid container */
+    .grid-container {
+      width: 100%;
+      max-width: 1200px; /* Increased max-width to accommodate more items */
+      margin: 0 auto 40px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      padding: 0 12px;
+    }
+
+    @media (min-width: 601px) {
+      .grid-container {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 801px) {
+      .grid-container {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 1001px) {
+      .grid-container {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    /* Grid items */
+    .grid-item {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 15px 40px rgba(138, 43, 226, 0.15);
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-start;
+      padding: 0;
+      min-width: 0;
+      /* height: 500px; */
+      transition: box-shadow 0.3s ease, transform 0.3s ease;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .grid-item:hover {
+      box-shadow: 0 20px 60px rgba(138, 43, 226, 0.3);
+      transform: translateY(-6px);
+    }
+
+    /* Images */
+    .card-img {
+      width: 100%;
+      height: 180px;
+      background: #f0e9ff;
+      object-fit: cover;
+      margin: 0;
+      display: block;
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+    }
+
+    @media (max-width: 800px) {
+      .card-img {
+        height: 130px;
+      }
+    }
+
+    @media (max-width: 540px) {
+      .card-img {
+        height: 100px;
+      }
+    }
+
+    /* Labels */
+    .card-label {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #6a0dad;
+      text-align: center;
+      letter-spacing: 0.4px;
+      margin: 20px 0 24px 0;
+      user-select: none;
+    }
+
+    @media (max-width: 800px) {
+      .card-label {
+        font-size: 1.1rem;
+        margin: 16px 0 18px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="back-button" onclick="history.back()">Back</button>
+  <h1>3D Room Viewer</h1>
+  <div class="grid-container">
+    <!-- 1. Flooring -->
+    <a class="grid-item" href="bathroom3d(18x12)1.html" aria-label="Flooring">
+      <img class="card-img" src="bathroom3d(18x12)1.png" alt="Flooring" />
+      <div class="card-label">DEGINE-1</div>
+    </a>
+    <!-- 2. Bathroom -->
+    <a class="grid-item" href="bathroom3d(18x12)2.html" aria-label="Bathroom">
+      <img class="card-img" src="bathroom3d(18x12)2.png" alt="Bathroom" />
+      <div class="card-label">DEGINE-2</div>
+    </a>
+    <!-- 3. Kitchen -->
+    <a class="grid-item" href="bathroom3d(18x12)3.html" aria-label="Kitchen">
+      <img class="card-img" src="bathroom3d(18x12)3.png" alt="Kitchen" />
+      <div class="card-label">DEGINE-3</div>
+    </a>
+    <!-- 4. Parking -->
+    <a class="grid-item" href="bathroom3d(18x12)4.html" aria-label="Parking">
+      <img class="card-img" src="bathroom3d(18x12)4.png" alt="Parking" />
+      <div class="card-label">DEGINE-4</div>
+    </a>
+    <!-- 5. Front Wall -->
+    <a class="grid-item" href="bathroom3d(18x12)5.html" aria-label="Front Wall">
+      <img class="card-img" src="bathroom3d(18x12)5.png" alt="Front Wall" />
+      <div class="card-label">DEGINE-5</div>
+    </a>
+    <!-- 6. Living Room -->
+    <a class="grid-item" href="bathroom3d(18x12)6.html" aria-label="Living Room">
+      <img class="card-img" src="bathroom3d(18x12)6.png" alt="Living Room" />
+      <div class="card-label">DEGINE-6</div>
+    </a>
+    <!-- 7. Bedroom -->
+    <a class="grid-item" href="bathroom3d(18x12)7.html" aria-label="Bedroom">
+      <img class="card-img" src="bathroom3d(18x12)7.png" alt="Bedroom" />
+      <div class="card-label">DEGINE-7</div>
+    </a>
+    <!-- 8. Dining Room -->
+    <a class="grid-item" href="bathroom3d(18x12)8.html" aria-label="Dining Room">
+      <img class="card-img" src="bathroom3d(18x12)8.png" alt="Dining Room" />
+      <div class="card-label">DEGINE-8</div>
+    </a>
+    <!-- 9. Backyard -->
+    <a class="grid-item" href="bathroom3d(18x12)9.html" aria-label="Backyard">
+      <img class="card-img" src="bathroom3d(18x12)9.png" alt="Backyard" />
+      <div class="card-label">DEGINE-9</div>
+    </a>
+    <!-- 10. Garage -->
+    <a class="grid-item" href="bathroom3d(18x12)10.html" aria-label="Garage">
+      <img class="card-img" src="bathroom3d(18x12)10.png" alt="Garage" />
+      <div class="card-label">DEGINE-10</div>
+    </a>
+    <!-- 11. Hallway -->
+    <a class="grid-item" href="bathroom3d(18x12)11.html" aria-label="Hallway">
+      <img class="card-img" src="bathroom3d(18x12)11.png" alt="Hallway" />
+      <div class="card-label">DEGINE-11</div>
+    </a>
+    <!-- 12. Staircase -->
+    <a class="grid-item" href="bathroom3d(18x12)12.html" aria-label="Staircase">
+      <img class="card-img" src="bathroom3d(18x12)12.png" alt="Staircase" />
+      <div class="card-label">DEGINE-12</div>
+    </a>
+    <!-- 13. Balcony -->
+    <a class="grid-item" href="bathroom3d(18x12)13.html" aria-label="Balcony">
+      <img class="card-img" src="bathroom3d(18x12)13.png" alt="Balcony" />
+      <div class="card-label">DEGINE-13</div>
+    </a>
+    <!-- 14. Terrace -->
+    <a class="grid-item" href="bathroom3d(18x12)14.html" aria-label="Terrace">
+      <img class="card-img" src="bathroom3d(18x12)14.png" alt="Terrace" />
+      <div class="card-label">DEGINE-14</div>
+    </a>
+    <!-- 15. Office -->
+    <a class="grid-item" href="bathroom3d(18x12)15.html" aria-label="Office">
+      <img class="card-img" src="bathroom3d(18x12)15.png" alt="Office" />
+      <div class="card-label">DEGINE-15</div>
+    </a>
+    <!-- 16. Gym -->
+    <a class="grid-item" href="bathroom3d(18x12)16.html" aria-label="Gym">
+      <img class="card-img" src="bathroom3d(18x12)16.png" alt="Gym" />
+      <div class="card-label">DEGINE-16</div>
+    </a>
+    <!-- 17. Library -->
+    <a class="grid-item" href="bathroom3d(18x12)17.html" aria-label="Library">
+      <img class="card-img" src="bathroom3d(18x12)17.png" alt="Library" />
+      <div class="card-label">DEGINE-17</div>
+    </a>
+    <!-- 18. Laundry Room -->
+    <a class="grid-item" href="bathroom3d(18x12)18.html" aria-label="Laundry Room">
+      <img class="card-img" src="bathroom3d(18x12)18.png" alt="Laundry Room" />
+      <div class="card-label">DEGINE-18</div>
+    </a>
+    <!-- 19. Storage -->
+    <a class="grid-item" href="bathroom3d(18x12)19.html" aria-label="Storage">
+      <img class="card-img" src="bathroom3d(18x12)19.png" alt="Storage" />
+      <div class="card-label">DEGINE-19</div>
+    </a>
+    <!-- 20. Patio -->
+    <a class="grid-item" href="bathroom3d(18x12)20.html" aria-label="Patio">
+      <img class="card-img" src="bathroom3d(18x12)20.png" alt="Patio" />
+      <div class="card-label">DEGINE-20</div>
+    </a>
+  </div>
+</body>
+</html>
