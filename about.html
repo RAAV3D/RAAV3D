@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAAV-3D-ABOUT</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* CSS Code - Separate Section */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f0ff 0%, #faf6ff 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(138, 43, 226, 0.1);
+            border: 2px solid #8a2be2;
+            color: #8a2be2;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .back-button:hover {
+            background: #8a2be2;
+            color: white;
+            transform: translateX(-5px);
+        }
+        
+        .services-container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(138, 43, 226, 0.2);
+            width: 100%;
+            max-width: 900px;
+            backdrop-filter: blur(10px);
+            margin: 20px auto;
+        }
+        
+        .services-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .services-header h1 {
+            font-size: 2.5rem;
+            color: #6a0dad;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .services-header p {
+            color: #666;
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .services-content {
+            margin-bottom: 30px;
+        }
+        
+        .services-content h2 {
+            font-size: 1.8rem;
+            color: #8a2be2;
+            margin: 25px 0 15px 0;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .services-content h2:first-child {
+            margin-top: 0;
+        }
+        
+        .services-content p {
+            margin-bottom: 15px;
+            color: #555;
+            text-align: justify;
+            font-size: 1rem;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background: rgba(138, 43, 226, 0.05);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid rgba(138, 43, 226, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(138, 43, 226, 0.15);
+            background: rgba(138, 43, 226, 0.08);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            color: #8a2be2;
+            margin-bottom: 10px;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.3rem;
+            color: #6a0dad;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .feature-card p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+        
+        .cta-section {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(138, 43, 226, 0.05);
+            border-radius: 12px;
+        }
+        
+        .cta-btn {
+            padding: 16px 36px;
+            background: linear-gradient(135deg, #8a2be2 0%, #9370db 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 18px rgba(138, 43, 226, 0.4);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            
+            .services-container {
+                padding: 30px 25px;
+                margin: 20px 0;
+            }
+            
+            .services-header h1 {
+                font-size: 2rem;
+            }
+            
+            .services-content h2 {
+                font-size: 1.5rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .back-button {
+                top: 15px;
+                left: 15px;
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .services-container {
+                padding: 25px 20px;
+            }
+            
+            .services-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .services-content p {
+                font-size: 0.95rem;
+            }
+            
+            .feature-card {
+                padding: 15px;
+            }
+            
+            .feature-icon {
+                font-size: 2rem;
+            }
+            
+            .cta-btn {
+                padding: 14px 28px;
+                font-size: 1.1rem;
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .back-button {
+                top: 10px;
+                left: 10px;
+                padding: 6px 12px;
+                font-size: 0.85rem;
+            }
+        }
+        
+        /* Animation */
+        .services-container {
+            animation: slideUp 0.6s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Back Button -->
+    <a href="index.html" class="back-button">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+
+    <!-- Services Container -->
+    <div class="services-container">
+        <div class="services-header">
+            <h1>Our Services</h1>
+            <p>Transform your vision into reality with our advanced 3D tile visualization platform. Explore endless designs and see how your space can come alive.</p>
+        </div>
+        
+        <div class="services-content">
+            <h2>3D Tile Visualization</h2>
+            <p>At the heart of our platform is cutting-edge 3D tile visualization technology designed specifically for homeowners, interior designers, and architects. Whether you're renovating your kitchen, bathroom, living room, or any space, our service allows you to upload room photos or use pre-built templates to virtually place and view hundreds of tile designs in stunning 3D. No more guesswork—see exactly how your chosen tiles will look under different lighting, angles, and layouts before making a purchase.</p>
+            
+            <p>Our extensive library features over 1,000+ tile designs, including ceramic, porcelain, marble, mosaic, and custom patterns in various colors, sizes, and textures. From modern minimalist to classic ornate styles, we cater to every aesthetic preference. Our intuitive tools let you rotate views, zoom in for details, and even simulate real-world wear and tear to ensure your selection is perfect for long-term use.</p>
+            
+            <h2>Key Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-cube feature-icon"></i>
+                    <h3>Interactive 3D Rendering</h3>
+                    <p>Real-time 3D previews with drag-and-drop functionality for seamless tile placement and customization.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <i class="fas fa-palette feature-icon"></i>
+                    <h3>Vast Design Library</h3>
+                    <p>Access thousands of high-quality tile designs, patterns, and materials updated regularly with the latest trends.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <i class="fas fa-mobile-alt feature-icon"></i>
+                    <h3>Mobile & Web Access</h3>
+                    <p>View and edit your projects anytime, anywhere—optimized for desktops, tablets, and smartphones.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <i class="fas fa-share-alt feature-icon"></i>
+                    <h3>Share & Collaborate</h3>
+                    <p>Easily share your 3D designs with clients, family, or contractors via links, exports, or social media.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <i class="fas fa-lightbulb feature-icon"></i>
+                    <h3>Lighting & Environment Simulation</h3>
+                    <p>Adjust lighting conditions and room environments to visualize tiles in natural daylight, evening ambiance, or artificial setups.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <i class="fas fa-chart-line feature-icon"></i>
+                    <h3>Cost Estimation Tools</h3>
+                    <p>Get instant material cost estimates based on your design, helping you budget effectively for your project.</p>
+                </div>
+            </div>
+            
+            <h2>How It Works</h2>
+            <p>Getting started is simple: Create a free account, upload your room dimensions or photo, select from our design catalog, and watch as our AI-powered engine generates photorealistic 3D renders. Fine-tune layouts, mix patterns, and experiment with combinations until you find the perfect match. Once satisfied, download high-resolution images, 360° views, or even AR previews for on-site visualization. Our premium subscriptions unlock unlimited projects, advanced editing tools, and priority support for professional users.</p>
+            
+            <p>We partner with leading tile manufacturers to ensure our designs reflect real products available for purchase, making the transition from virtual to actual installation seamless. Whether you're a DIY enthusiast or a professional, our service saves time, reduces waste, and boosts confidence in your flooring decisions.</p>
+        </div>
+        
+        <div class="cta-section">
+            <h2>Ready to Start Visualizing?</h2>
+            <p>Sign up today and bring your tile dreams to life in 3D!</p>
+            <a href="login.html" class="cta-btn">
+                <i class="fas fa-sign-in-alt"></i> Get Started
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // No specific JavaScript needed for this static page
+        // Optional: Add smooth scrolling or interactive elements if desired
+    </script>
+</body>
+</html>
