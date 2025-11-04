@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Register - RAAV-3D</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Add EmailJS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <style>
+        /* CSS Code - Matching Theme and Fully Responsive */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f0ff 0%, #faf6ff 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            line-height: 1.6;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+        
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(138, 43, 226, 0.1);
+            border: 2px solid #8a2be2;
+            color: #8a2be2;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            z-index: 100;
+        }
+        
+        .back-button:hover {
+            background: #8a2be2;
+            color: white;
+            transform: translateX(-5px);
+        }
+        
+        .register-container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(138, 43, 226, 0.2);
+            width: 100%;
+            max-width: 400px;
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+        
+        .register-header {
+            margin-bottom: 30px;
+        }
+        
+        .register-header h1 {
+            font-size: 2.5rem;
+            color: #6a0dad;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .register-header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+            min-height: 50px; /* Touch-friendly */
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #8a2be2;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.1);
+        }
+        
+        .password-group {
+            position: relative;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #8a2be2;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 5px;
+        }
+        
+        .sign-up-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #8a2be2 0%, #9370db 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            min-height: 50px; /* Touch-friendly */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .sign-up-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(138, 43, 226, 0.3);
+        }
+        
+        .sign-up-btn:active {
+            transform: translateY(0);
+        }
+        
+        .sign-up-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .login-link {
+            color: #8a2be2;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+        
+        .login-link:hover {
+            color: #6a0dad;
+            text-decoration: underline;
+        }
+        
+        .login-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .login-section p {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        /* Responsive Design - Enhanced for All Devices */
+        @media (min-width: 1025px) {
+            .register-container {
+                max-width: 450px;
+                padding: 50px;
+            }
+            
+            .register-header h1 {
+                font-size: 3rem;
+            }
+        }
+        
+        @media (max-width: 1024px) and (min-width: 481px) {
+            body {
+                padding: 15px;
+            }
+            
+            .register-container {
+                padding: 35px;
+                max-width: 90%;
+            }
+            
+            .register-header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .sign-up-btn {
+                font-size: 1.1rem;
+                padding: 15px;
+            }
+        }
+        
+        @media (max-width: 768px) and (min-width: 481px) {
+            .register-container {
+                padding: 30px 25px;
+                max-width: 85%;
+            }
+            
+            .register-header h1 {
+                font-size: 2rem;
+            }
+            
+            .form-group input {
+                padding: 14px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .back-button {
+                top: 15px;
+                left: 15px;
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+            
+            .register-container {
+                padding: 25px 20px;
+                max-width: 95%;
+                border-radius: 15px;
+            }
+            
+            .register-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .register-header p {
+                font-size: 1rem;
+            }
+            
+            .form-group {
+                margin-bottom: 15px;
+            }
+            
+            .form-group input {
+                padding: 12px;
+                font-size: 1rem;
+                min-height: 48px;
+            }
+            
+            .sign-up-btn {
+                font-size: 1rem;
+                padding: 14px;
+                min-height: 48px;
+                margin-bottom: 15px;
+            }
+            
+            .login-section {
+                margin-top: 15px;
+                padding-top: 15px;
+            }
+            
+            .login-link {
+                font-size: 0.95rem;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .register-container {
+                padding: 20px 15px;
+            }
+            
+            .register-header h1 {
+                font-size: 1.6rem;
+            }
+            
+            .form-group input {
+                padding: 10px;
+            }
+            
+            .sign-up-btn {
+                padding: 12px;
+                font-size: 0.95rem;
+            }
+        }
+        
+        @media (max-height: 500px) and (orientation: landscape) {
+            body {
+                justify-content: flex-start;
+                padding-top: 10px;
+            }
+            
+            .register-container {
+                margin-top: 20px;
+            }
+        }
+        
+        /* Animation */
+        .register-container {
+            animation: slideUp 0.6s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Back Button -->
+    <a href="login.html" class="back-button">
+        <i class="fas fa-arrow-left"></i> Back to Login
+    </a>
+
+    <!-- Register Container -->
+    <div class="register-container">
+        <div class="register-header">
+            <h1>Register</h1>
+            <p>Create your Shop Manager account</p>
+        </div>
+        
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="email"><i class="fas fa-envelope"></i> Email ID</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    placeholder="Enter your email (e.g., user@example.com)" 
+                    required
+                >
+                <div class="error-message" id="emailError">Please enter a valid email address.</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password"><i class="fas fa-lock"></i> Password</label>
+                <div class="password-group">
+                    <input 
+                        type="password" 
+                        id="password" 
+                        placeholder="Create a password (min 6 characters)" 
+                        required
+                        minlength="6"
+                    >
+                    <button type="button" class="password-toggle" onclick="togglePassword()" id="togglePasswordBtn">
+                        <i class="fas fa-eye" id="toggleIcon"></i>
+                    </button>
+                </div>
+                <div class="error-message" id="passwordError">Password must be at least 6 characters long.</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirmPassword"><i class="fas fa-lock"></i> Confirm Password</label>
+                <div class="password-group">
+                    <input 
+                        type="password" 
+                        id="confirmPassword" 
+                        placeholder="Confirm your password" 
+                        required
+                    >
+                    <button type="button" class="password-toggle" onclick="toggleConfirmPassword()" id="toggleConfirmPasswordBtn">
+                        <i class="fas fa-eye" id="confirmToggleIcon"></i>
+                    </button>
+                </div>
+                <div class="error-message" id="confirmPasswordError">Passwords do not match.</div>
+            </div>
+            
+            <button type="submit" class="sign-up-btn" id="signUpBtn">
+                <i class="fas fa-user-plus"></i> Sign Up
+            </button>
+        </form>
+        
+        <div class="login-section">
+            <p>Already registered?</p>
+            <a href="login.html" class="login-link">Login here</a>
+        </div>
+    </div>
+
+    <script>
+        // Toggle Password Visibility
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+
+        // Toggle Confirm Password Visibility
+        function toggleConfirmPassword() {
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            const confirmToggleIcon = document.getElementById('confirmToggleIcon');
+            
+            if (confirmPasswordInput.type === 'password') {
+                confirmPasswordInput.type = 'text';
+                confirmToggleIcon.classList.remove('fa-eye');
+                confirmToggleIcon.classList.add('fa-eye-slash');
+            } else {
+                confirmPasswordInput.type = 'password';
+                confirmToggleIcon.classList.remove('fa-eye-slash');
+                confirmToggleIcon.classList.add('fa-eye');
+            }
+        }
+
+        // Validate Form Fields
+        function validateForm() {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const confirmPassword = document.getElementById('confirmPassword').value.trim();
+            const emailError = document.getElementById('emailError');
+            const passwordError = document.getElementById('passwordError');
+            const confirmPasswordError = document.getElementById('confirmPasswordError');
+            const signUpBtn = document.getElementById('signUpBtn');
+
+            let isValid = true;
+
+            // Reset errors
+            emailError.style.display = 'none';
+            passwordError.style.display = 'none';
+            confirmPasswordError.style.display = 'none';
+
+            // Email validation
+            if (!email) {
+                emailError.textContent = 'Email is required.';
+                emailError.style.display = 'block';
+                isValid = false;
+            } else if (!/\S+@\S+\.\S+/.test(email)) {
+                emailError.textContent = 'Please enter a valid email address.';
+                emailError.style.display = 'block';
+                isValid = false;
+            }
+
+            // Password validation
+            if (!password) {
+                passwordError.textContent = 'Password is required.';
+                passwordError.style.display = 'block';
+                isValid = false;
+            } else if (password.length < 6) {
+                passwordError.textContent = 'Password must be at least 6 characters long.';
+                passwordError.style.display = 'block';
+                isValid = false;
+            }
+
+            // Confirm Password validation
+            if (!confirmPassword) {
+                confirmPasswordError.textContent = 'Please confirm your password.';
+                confirmPasswordError.style.display = 'block';
+                isValid = false;
+            } else if (password !== confirmPassword) {
+                confirmPasswordError.textContent = 'Passwords do not match.';
+                confirmPasswordError.style.display = 'block';
+                isValid = false;
+            }
+
+            // Enable/disable button based on validity
+            signUpBtn.disabled = !isValid;
+
+            return isValid;
+        }
+
+        // Real-time validation on input change
+        ['email', 'password', 'confirmPassword'].forEach(id => {
+            document.getElementById(id).addEventListener('input', validateForm);
+        });
+
+        // Focus on email input on page load
+        window.addEventListener('load', function() {
+            document.getElementById('email').focus();
+        });
+    </script>
+
+    <!-- Firebase Integration (Full and Complete - Fixed) -->
+  <script type="module">
+    // Import Firebase modules (use latest stable version from CDN)
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
+    import { getDatabase, ref, set, get } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js';
+    import { getAuth, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
+
+    // Your Firebase config (from Project Settings > CDN tab)
+    const firebaseConfig = {
+        apiKey: "AIzaSyDLwU2O2MQA3SWSlbw9Wa75_KByQ0EkZI8",
+        authDomain: "raav3d-50f8c.firebaseapp.com",
+        databaseURL: "https://raav3d-50f8c-default-rtdb.firebaseio.com",
+        projectId: "raav3d-50f8c",
+        storageBucket: "raav3d-50f8c.appspot.com",
+        messagingSenderId: "528524618407",
+        appId: "1:528524618407:web:acb2c4fca0dcadd7934982"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+
+    // Initialize EmailJS (replace with your actual public key)
+    emailjs.init('YOUR_PUBLIC_KEY');  // Replace 'YOUR_PUBLIC_KEY' with your EmailJS public key
+
+    // Function to generate a unique random 6-digit shopId
+    async function generateUniqueShopId() {
+        const maxAttempts = 10;  // Safety limit to avoid infinite loops
+        for (let attempt = 0; attempt < maxAttempts; attempt++) {
+            const randomShopId = Math.floor(100000 + Math.random() * 900000);  // 100000 to 999999
+            const shopIdRef = ref(db, 'users/' + randomShopId);
+            
+            // Check if this shopId already exists
+            const snapshot = await get(shopIdRef);
+            if (!snapshot.exists()) {
+                return randomShopId.toString();  // Return as string (e.g., "123456")
+            }
+            // If exists, try again (rare collision)
+        }
+        throw new Error('Unable to generate unique Shop ID. Please try again.');
+    }
+
+// Handle form submission
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();  // Prevent page reload
+
+    // Get form values
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const confirmPassword = document.getElementById('confirmPassword').value.trim();
+
+    // Quick validation
+    if (password !== confirmPassword || password.length < 6) {
+        alert('Passwords must match and be at least 6 characters.');
+        return;
+    }
+
+    // Show loading
+    const signUpBtn = document.getElementById('signUpBtn');
+    signUpBtn.disabled = true;
+    signUpBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
+
+    try {
+        // Step 1: Create user in Firebase Auth
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        const uid = user.uid;
+
+        // Step 2: Generate unique random 6-digit shopId
+        const randomShopId = await generateUniqueShopId();
+
+        // Step 3: Store user data in Database
+        const userData = {
+            email: email,
+            shopId: randomShopId,
+            uid: uid,
+            createdAt: new Date().toISOString()
+        };
+        await set(ref(db, 'users/' + randomShopId), userData);
+
+        // Step 4: Send welcome email with shop ID
+        const templateParams = {
+            to_email: email,
+            shop_id: randomShopId,
+            welcome_message: 'Welcome to Shop Manager! Your account has been successfully created. Use your Shop ID for all shop management activities.'
+        };
+
+        try {
+            await emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams);
+            console.log('Welcome email sent successfully.');
+        } catch (emailError) {
+            console.error('Email sending failed:', emailError);
+            alert('Registration successful, but email could not be sent. Your Shop ID is: ' + randomShopId);
+        }
+
+        // Step 5: Success popup
+        alert(`Registration successful!\nYour unique Shop ID is: ${randomShopId}\nA welcome email has been sent to your email address.`);
+
+        // Clear form and redirect
+        document.getElementById('registerForm').reset();
+        window.location.href = 'login.html';
+
+    } catch (error) {
+        // Handle errors
+        signUpBtn.disabled = false;
+        signUpBtn.innerHTML = '<i class="fas fa-user-plus"></i> Sign Up';
+        
+        let message = 'Registration failed. Please try again.';
+        if (error.code === 'auth/email-already-in-use') {
+            message = 'Email already registered. Please log in.';
+        } else if (error.code === 'auth/weak-password') {
+            message = 'Password too weak (min 6 characters).';
+        } else if (error.code === 'auth/invalid-email') {
+            message = 'Invalid email format.';
+        } else {
+            console.error('Error details:', error);
+            message = error.message || message;
+        }
+        alert(message);
+    }
+});</script>
+</body>
+</html>
