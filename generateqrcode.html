@@ -265,12 +265,11 @@
         const storage = getStorage(app);
         const database = getDatabase(app);
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
-
-        const auth = getAuth(app);
-        signInAnonymously(auth)
-        .then(() => console.log("Signed in anonymously"))
-        .catch((error) => console.error("Anonymous sign-in failed:", error));
-
+        
+const auth = getAuth(app);
+// signInAnonymously(auth)
+//   .then(() => console.log("Signed in anonymously"))
+//   .catch((error) => console.error("Anonymous sign-in failed:", error));
 
         // Get shopId from URL parameter (from login/validation)
         const urlParams = new URLSearchParams(window.location.search);
@@ -318,9 +317,18 @@
                 const qrItem = document.createElement('div');
                 qrItem.className = 'qr-item';
                 const canvas = document.createElement('canvas');
-                QRCode.toCanvas(canvas, code.url, { width: 200, height: 200 }, (error) => {
-                    if (error) console.error(error);
-                });
+QRCode.toCanvas(canvas, code.url, {
+    width: 220, // slightly larger = easier to scan
+    margin: 2,  // small border for scanners
+    errorCorrectionLevel: 'L', // make QR simpler (L = lowest correction)
+    color: {
+        dark: '#000000', // QR lines
+        light: '#FFFFFF' // background
+    }
+}, (error) => {
+    if (error) console.error(error);
+});
+
                 qrItem.appendChild(canvas);
                 const namePara = document.createElement('p');
                 namePara.textContent = code.name;

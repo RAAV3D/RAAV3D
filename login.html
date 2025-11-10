@@ -297,6 +297,10 @@
             <button type="submit" class="sign-in-btn" id="signinbtn">
                 <i class="fas fa-sign-in-alt"></i> Sign In
             </button>
+            <div style="text-align: right; margin-bottom: 15px;">
+  <a href="#" id="forgotPasswordLink" style="color: #8a2be2; font-weight: 500; text-decoration: none;">Forgot Password?</a>
+</div>
+
         </form>
         
         <div class="register-section">
@@ -471,6 +475,31 @@
                 signinbtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
             }
         });
+        // Forgot Password functionality
+document.getElementById('forgotPasswordLink').addEventListener('click', async (e) => {
+  e.preventDefault();
+  
+  const email = document.getElementById('email').value.trim();
+  
+  if (!email) {
+    alert("Please enter your email address first.");
+    document.getElementById('email').focus();
+    return;
+  }
+
+  try {
+    const { sendPasswordResetEmail } = await import("https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js");
+    await sendPasswordResetEmail(auth, email);
+    alert(`A password reset link has been sent to ${email}. Please check your inbox.`);
+  } catch (error) {
+    console.error("Password reset error:", error);
+    let msg = "Failed to send reset email. Please try again.";
+    if (error.code === "auth/user-not-found") msg = "No account found with this email.";
+    if (error.code === "auth/invalid-email") msg = "Invalid email address format.";
+    alert(msg);
+  }
+});
+
     </script>
 </body>
 </html>

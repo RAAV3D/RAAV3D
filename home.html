@@ -362,7 +362,7 @@
     });
 
     document.getElementById('subscriptionBtn').addEventListener('click', () => {
-      window.location.href = 'payment.html';
+      window.location.href = 'subscription.html';
     });
 
     // Open QR Code Modal
@@ -443,11 +443,11 @@
   </script>
 
   <!-- Firebase Integration for Shop ID Validation -->
-  <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-      import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+  import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
 
-  // Your web app's Firebase configuration
+  // Firebase config (same)
   const firebaseConfig = {
     apiKey: "AIzaSyDLwU2O2MQA3SWSlbw9Wa75_KByQ0EkZI8",
     authDomain: "raav3d-50f8c.firebaseapp.com",
@@ -458,30 +458,50 @@
     appId: "1:528524618407:web:acb2c4fca0dcadd7934982"
   };
 
-      // Initialize Firebase
-      const app = initializeApp(firebaseConfig);
-      const database = getDatabase(app);
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const database = getDatabase(app);
 
-      // Function to validate Shop ID and redirect if genuine for QR Code
-      window.validateAndRedirectQR = async function(shopId) {
-          try {
-              // Check if /users/{shopId} exists in Realtime Database
-              const userRef = ref(database, `users/${shopId}`);
-              const snapshot = await get(userRef);
+  // ✅ Updated: Validate Shop ID + Subscription before redirect
+  window.validateAndRedirectQR = async function (shopId) {
+    try {
+      // Lifetime free Shop ID (always allowed)
+      if (shopId === "572768") {
+        window.location.href = `generateqrcode.html?shopId=${encodeURIComponent(shopId)}`;
+        return;
+      }
 
-              if (snapshot.exists()) {
-                  // Genuine Shop ID found - redirect
-                  window.location.href = `generateqrcode.html?shopId=${encodeURIComponent(shopId)}`;
-              } else {
-                  // Not genuine - show error
-                  throw new Error('Invalid Shop ID');
-              }
-          } catch (error) {
-              // Invalid or permission denied - show error
-              throw new Error('Invalid Shop ID. Please enter a genuine 6-digit Shop ID generated during registration.');
-          }
-      };
-  </script>
+      // Check if shopId exists in /users
+      const userRef = ref(database, `users/${shopId}`);
+      const snapshot = await get(userRef);
+
+      if (!snapshot.exists()) {
+        throw new Error("Invalid Shop ID");
+      }
+
+      const userData = snapshot.val();
+
+      // Check subscription status — assuming your database stores something like
+      // subscriptionStatus: "active" or "inactive"
+      const subscriptionStatus = userData.subscriptionStatus || "inactive";
+
+      if (subscriptionStatus === "active") {
+        // Allow access
+        window.location.href = `generateqrcode.html?shopId=${encodeURIComponent(shopId)}`;
+      } else {
+        // Block access if inactive or missing subscription
+        alert(
+          "Your subscription is inactive. Please subscribe to access QR Code generation."
+        );
+        window.location.href = "subscription.html";
+      }
+    } catch (error) {
+      alert("Invalid or inactive Shop ID. Please try again or subscribe.");
+      console.error("Validation error:", error);
+    }
+  };
+</script>
+
 
 </body>
 </html>
