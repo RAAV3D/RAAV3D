@@ -532,105 +532,93 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const auth = getAuth(app);
+// ✅ Initialize EmailJS (you must use your real EmailJS public key)
+emailjs.init("kUh4OP7Ft8RFf248n"); // example key — replace with your own from emailjs.com dashboard
 
-    // Initialize EmailJS (replace with your actual public key)
-    emailjs.init('YOUR_PUBLIC_KEY');  // Replace 'YOUR_PUBLIC_KEY' with your EmailJS public key
-
-    // Function to generate a unique random 6-digit shopId
-    async function generateUniqueShopId() {
-        const maxAttempts = 10;  // Safety limit to avoid infinite loops
-        for (let attempt = 0; attempt < maxAttempts; attempt++) {
-            const randomShopId = Math.floor(100000 + Math.random() * 900000);  // 100000 to 999999
-            const shopIdRef = ref(db, 'users/' + randomShopId);
-            
-            // Check if this shopId already exists
-            const snapshot = await get(shopIdRef);
-            if (!snapshot.exists()) {
-                return randomShopId.toString();  // Return as string (e.g., "123456")
-            }
-            // If exists, try again (rare collision)
-        }
-        throw new Error('Unable to generate unique Shop ID. Please try again.');
-    }
+// Function to generate unique 6-digit shop ID
+async function generateUniqueShopId() {
+  const maxAttempts = 10;
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const randomShopId = Math.floor(100000 + Math.random() * 900000);
+    const shopIdRef = ref(db, "users/" + randomShopId);
+    const snapshot = await get(shopIdRef);
+    if (!snapshot.exists()) return randomShopId.toString();
+  }
+  throw new Error("Unable to generate unique Shop ID. Please try again.");
+}
 
 // Handle form submission
-document.getElementById('registerForm').addEventListener('submit', async (e) => {
-    e.preventDefault();  // Prevent page reload
+document.getElementById("registerForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-    // Get form values
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value.trim();
-    const confirmPassword = document.getElementById('confirmPassword').value.trim();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+  const confirmPassword = document.getElementById("confirmPassword").value.trim();
 
-    // Quick validation
-    if (password !== confirmPassword || password.length < 6) {
-        alert('Passwords must match and be at least 6 characters.');
-        return;
-    }
+  if (password !== confirmPassword || password.length < 6) {
+    alert("Passwords must match and be at least 6 characters.");
+    return;
+  }
 
-    // Show loading
-    const signUpBtn = document.getElementById('signUpBtn');
-    signUpBtn.disabled = true;
-    signUpBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
+  const signUpBtn = document.getElementById("signUpBtn");
+  signUpBtn.disabled = true;
+  signUpBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
+
+  try {
+    // Step 1: Register user in Firebase Auth
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    // Step 2: Generate shop ID
+    const randomShopId = await generateUniqueShopId();
+
+    // Step 3: Save user in Realtime Database
+    const userData = {
+      email: email,
+      shopId: randomShopId,
+      uid: user.uid,
+      createdAt: new Date().toISOString()
+    };
+    await set(ref(db, "users/" + randomShopId), userData);
+
+// Step 4: Send Welcome Email via EmailJS Template
+const templateParams = {
+  to_email: email,        // ✅ matches {{to_email}} in your template
+  shopId: randomShopId,   // ✅ matches {{shopId}} in your template
+};
+
+// Send email using EmailJS
+emailjs.send("service_xw6898u", "template_m3wnw8n", templateParams)
+  .then((response) => {
+    console.log("✅ Email sent successfully!", response);
+    alert("Registration successful! Your Shop ID has been emailed to you.");
+  })
+
 
     try {
-        // Step 1: Create user in Firebase Auth
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-        const uid = user.uid;
-
-        // Step 2: Generate unique random 6-digit shopId
-        const randomShopId = await generateUniqueShopId();
-
-        // Step 3: Store user data in Database
-        const userData = {
-            email: email,
-            shopId: randomShopId,
-            uid: uid,
-            createdAt: new Date().toISOString()
-        };
-        await set(ref(db, 'users/' + randomShopId), userData);
-
-        // Step 4: Send welcome email with shop ID
-        const templateParams = {
-            to_email: email,
-            shop_id: randomShopId,
-            welcome_message: 'Welcome to Shop Manager! Your account has been successfully created. Use your Shop ID for all shop management activities.'
-        };
-
-        try {
-            await emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams);
-            console.log('Welcome email sent successfully.');
-        } catch (emailError) {
-            console.error('Email sending failed:', emailError);
-            alert('Registration successful, but email could not be sent. Your Shop ID is: ' + randomShopId);
-        }
-
-        // Step 5: Success popup
-        alert(`Registration successful!\nYour unique Shop ID is: ${randomShopId}\nA welcome email has been sent to your email address.`);
-
-        // Clear form and redirect
-        document.getElementById('registerForm').reset();
-        window.location.href = 'login.html';
-
-    } catch (error) {
-        // Handle errors
-        signUpBtn.disabled = false;
-        signUpBtn.innerHTML = '<i class="fas fa-user-plus"></i> Sign Up';
-        
-        let message = 'Registration failed. Please try again.';
-        if (error.code === 'auth/email-already-in-use') {
-            message = 'Email already registered. Please log in.';
-        } else if (error.code === 'auth/weak-password') {
-            message = 'Password too weak (min 6 characters).';
-        } else if (error.code === 'auth/invalid-email') {
-            message = 'Invalid email format.';
-        } else {
-            console.error('Error details:', error);
-            message = error.message || message;
-        }
-        alert(message);
+      await emailjs.send("service_xw6898u", "template_aebyta5", templateParams);
+      console.log("✅ Welcome email sent to", email);
+    } catch (emailError) {
+      console.error("❌ Email sending failed:", emailError);
+      alert("Registered successfully, but welcome email could not be sent. Your Shop ID is " + randomShopId);
     }
-});</script>
+
+    alert(`Registration successful!\nYour Shop ID is: ${randomShopId}\nA welcome email has been sent to ${email}.`);
+
+    document.getElementById("registerForm").reset();
+    window.location.href = "login.html";
+  } catch (error) {
+    signUpBtn.disabled = false;
+    signUpBtn.innerHTML = '<i class="fas fa-user-plus"></i> Sign Up';
+
+    let msg = "Registration failed. Please try again.";
+    if (error.code === "auth/email-already-in-use") msg = "Email already registered. Please log in.";
+    else if (error.code === "auth/weak-password") msg = "Password too weak (min 6 characters).";
+    else if (error.code === "auth/invalid-email") msg = "Invalid email format.";
+    else msg = error.message;
+    alert(msg);
+  }
+});
+</script>
 </body>
 </html>
