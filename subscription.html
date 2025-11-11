@@ -101,11 +101,8 @@
     <button onclick="startSubscription('plan_Rcxl2mWVMEAWPg')">Subscribe</button>
   </div>
 <script>
-  const BASE_URL = "https://raav3d.onrender.com";
-
   const shopInput = document.getElementById("shopIdInput");
   const buttons = document.querySelectorAll(".plan button");
-  
 
   // Disable all plan buttons initially
   buttons.forEach(btn => (btn.disabled = true));
@@ -120,7 +117,7 @@
     }
 
     try {
-const res = await fetch(`${BASE_URL}/check-shop/${shopId}`);
+      const res = await fetch(`http://localhost:5000/check-shop/${shopId}`);
       const data = await res.json();
 
       if (data.exists) {
@@ -147,7 +144,7 @@ const res = await fetch(`${BASE_URL}/check-shop/${shopId}`);
         return;
       }
 
-const response = await fetch(`${BASE_URL}/create-subscription`, {
+      const response = await fetch("http://localhost:5000/create-subscription", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ planId, shopId })
@@ -168,7 +165,7 @@ const response = await fetch(`${BASE_URL}/create-subscription`, {
         handler: async function (response) {
           alert(`✅ Payment Successful!\nShop ID: ${shopId}\nPayment ID: ${response.razorpay_payment_id}`);
           try {
-const res = await fetch(`${BASE_URL}/payment-success`, {
+            const res = await fetch("http://localhost:5000/payment-success", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ shopId })
