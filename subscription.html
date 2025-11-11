@@ -101,21 +101,21 @@
     <button onclick="startSubscription('plan_Rcxl2mWVMEAWPg')">Subscribe</button>
   </div>
 <script>
-  const shopInput = document.getElementById("shopIdInput");
-  const buttons = document.querySelectorAll(".plan button");
-
-  // Your deployed backend base URL
+  // ✅ Replace with your live backend URL from Render
   const BASE_URL = "https://raav3d.onrender.com";
 
-  // Disable all plan buttons initially
-  buttons.forEach(btn => (btn.disabled = true));
+  const shopIdInput = document.getElementById("shopId");
+  const payButton = document.getElementById("payButton");
 
-  // Check Shop ID validity on every change
-  shopInput.addEventListener("input", async () => {
-    const shopId = shopInput.value.trim();
-    if (!shopId) {
-      shopInput.style.border = "1px solid #ccc";
-      buttons.forEach(btn => (btn.disabled = true));
+  // Disable pay button until valid shop ID
+  payButton.disabled = true;
+
+  // ✅ Check if the entered shop ID exists in Firebase (via your backend)
+  shopIdInput.addEventListener("input", async () => {
+    const shopId = shopIdInput.value.trim();
+    if (shopId === "") {
+      shopIdInput.style.border = "2px solid #ccc";
+      payButton.disabled = true;
       return;
     }
 
@@ -124,72 +124,78 @@
       const data = await res.json();
 
       if (data.exists) {
-        shopInput.style.border = "2px solid #28a745"; // green
-        shopInput.style.boxShadow = "0 0 8px rgba(40,167,69,0.5)";
-        buttons.forEach(btn => (btn.disabled = false));
+        // Shop exists → mark green
+        shopIdInput.style.border = "3px solid #28a745";
+        payButton.disabled = false;
       } else {
-        shopInput.style.border = "2px solid #dc3545"; // red
-        shopInput.style.boxShadow = "0 0 8px rgba(220,53,69,0.5)";
-        buttons.forEach(btn => (btn.disabled = true));
+        // Shop not found → mark red
+        shopIdInput.style.border = "3px solid #dc3545";
+        payButton.disabled = true;
       }
-    } catch (err) {
-      console.error("Shop check failed:", err);
-      shopInput.style.border = "2px solid #dc3545";
-      buttons.forEach(btn => (btn.disabled = true));
+    } catch (error) {
+      console.error("Shop check failed:", error);
+      shopIdInput.style.border = "3px solid #dc3545";
+      payButton.disabled = true;
     }
   });
 
-  async function startSubscription(planId) {
-    try {
-      const shopId = shopInput.value.trim();
-      if (!shopId) {
-        alert("⚠️ Please enter your Shop ID before subscribing.");
-        return;
-      }
+  // ✅ Handle Razorpay subscription creation and payment
+  document.getElementById("subscriptionForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
 
+    const shopId = shopIdInput.value.trim();
+    const planId = document.getElementById("planSelect").value;
+
+    if (!shopId || payButton.disabled) {
+      alert("Please enter a valid Shop ID before proceeding.");
+      return;
+    }
+
+    try {
+      // Create Razorpay subscription via backend
       const response = await fetch(`${BASE_URL}/create-subscription`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planId, shopId })
+        body: JSON.stringify({ planId, shopId }),
       });
 
       const data = await response.json();
+
       if (!data.id) {
-        alert("Error creating subscription: " + (data.error || "Unknown error"));
+        alert("Failed to create subscription. Please try again.");
         return;
       }
 
+      // ✅ Razorpay Checkout Integration
       const options = {
-        key: "rzp_test_RcyojogCAMFiUF",
+        key: "rzp_test_RcyojogCAMFiUF", // your Razorpay test key
         subscription_id: data.id,
         name: "RAAV 3D Subscription",
-        description: `Subscription for Shop ID ${shopId}`,
-        theme: { color: "#6c63ff" },
+        description: "Activate your plan",
         handler: async function (response) {
-          alert(`✅ Payment Successful!\nShop ID: ${shopId}\nPayment ID: ${response.razorpay_payment_id}`);
-          try {
-            const res = await fetch(`${BASE_URL}/payment-success`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ shopId })
-            });
-            const result = await res.json();
-            if (result.success) {
-              alert("🎉 Subscription activated successfully!");
-            } else {
-              alert("⚠️ Firebase update failed.");
-            }
-          } catch (err) {
-            alert("⚠️ Firebase update failed.");
-          }
-        }
+          alert("Payment successful!");
+
+          // Update subscription status in Firebase
+          await fetch(`${BASE_URL}/payment-success`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ shopId }),
+          });
+        },
+        prefill: {
+          name: "RAAV 3D User",
+          email: "raav2d3d@gmail.com",
+        },
+        theme: { color: "#3399cc" },
       };
-      const rzp = new Razorpay(options);
-      rzp.open();
+
+      const razor = new Razorpay(options);
+      razor.open();
     } catch (err) {
-      alert("Error: " + err.message);
+      console.error("Error creating subscription:", err);
+      alert("Something went wrong. Please try again later.");
     }
-  }
+  });
 </script>
 
 </body>
