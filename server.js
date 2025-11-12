@@ -35,10 +35,12 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// ✅ Serve frontend if added in "public" folder
-app.use(express.static(path.join(__dirname, "public")));
+// ✅ Serve static frontend files correctly (Render fix)
+app.use(express.static(path.resolve(__dirname, "public")));
 
-// Razorpay instance
+// ───────────────────────────────────────────────
+// ✅ Razorpay instance
+// ───────────────────────────────────────────────
 const razorpay = new Razorpay({
   key_id: process.env.RAZOR_KEY_ID,
   key_secret: process.env.RAZOR_KEY_SECRET,
@@ -116,13 +118,11 @@ app.get("/test-firebase", async (req, res) => {
 });
 
 // ───────────────────────────────────────────────
-// ✅ Root route (optional)
+// ✅ Root route (Render fix)
 // ───────────────────────────────────────────────
-// Default route - serve index.html
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  res.sendFile(path.resolve(__dirname, "public", "index.html"));
 });
-
 
 // ───────────────────────────────────────────────
 // ✅ Start the server (Render-compatible)
