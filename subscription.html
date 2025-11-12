@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Subscribe | RAAV 3D</title>
+  <title>Subscribe | Razorpay</title>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <style>
     body {
@@ -19,7 +19,7 @@
       display: inline-block;
       background: white;
       border-radius: 15px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
       padding: 20px 30px;
       margin: 15px;
       width: 250px;
@@ -38,17 +38,13 @@
       transform: translateY(-2px);
       box-shadow: 0 4px 10px rgba(76, 63, 255, 0.3);
     }
-    button:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
 
     /* Shop ID input section */
     .shop-id-box {
       margin: 25px auto 40px;
       background: #fff;
       border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       padding: 15px 25px;
       width: 320px;
       display: flex;
@@ -73,7 +69,7 @@
     }
     .shop-id-box input:focus {
       border-color: #6c63ff;
-      box-shadow: 0 0 4px rgba(108, 99, 255, 0.4);
+      box-shadow: 0 0 4px rgba(108,99,255,0.4);
     }
   </style>
 </head>
@@ -82,8 +78,8 @@
 
   <!-- ✅ Editable Shop ID Input -->
   <div class="shop-id-box">
-    <label for="shopIdInput">Enter Your Shop ID:</label>
-    <input type="text" id="shopIdInput" placeholder="Enter 6-digit Shop ID" maxlength="6" />
+    <label for="shopIdInput">Shop ID:</label>
+    <input type="text" id="shopIdInput" placeholder="Enter Shop ID" />
   </div>
 
   <!-- Subscription Plans -->
@@ -105,105 +101,117 @@
     <button onclick="startSubscription('plan_Rcxl2mWVMEAWPg')">Subscribe</button>
   </div>
 
-  <script>
+<script>
+  const shopInput = document.getElementById("shopIdInput");
+  const buttons = document.querySelectorAll(".plan button");
 
-  const storedShopId = localStorage.getItem("shopId");
-  if (!storedShopId) {
-    window.location.href = "/"; // redirect to login if not logged in
-  }
+  // Disable all plan buttons initially
+  buttons.forEach(btn => (btn.disabled = true));
 
+  // ✅ Auto-fill Shop ID from URL or localStorage
+  window.addEventListener("DOMContentLoaded", () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlShopId = urlParams.get("shopId");
+    const savedShopId = localStorage.getItem("shopId");
 
-const shopInput = document.getElementById("shopIdInput");
-shopInput.value = localStorage.getItem("shopId") || "";
-    const buttons = document.querySelectorAll(".plan button");
+    // Priority: URL > localStorage
+    if (urlShopId) {
+      shopInput.value = urlShopId;
+    } else if (savedShopId) {
+      shopInput.value = savedShopId;
+    }
 
-    // Disable all plan buttons initially
-    buttons.forEach(btn => (btn.disabled = true));
+    // Trigger validation automatically if we have a value
+    if (shopInput.value.trim()) {
+      shopInput.dispatchEvent(new Event("input"));
+    }
+  });
 
-    // Check Shop ID validity when input changes
-    shopInput.addEventListener("input", async () => {
-      const shopId = shopInput.value.trim();
+  // ✅ Listen for Shop ID changes and validate
+  shopInput.addEventListener("input", async () => {
+    const shopId = shopInput.value.trim();
+    if (!shopId) {
+      shopInput.style.border = "1px solid #ccc";
+      buttons.forEach(btn => (btn.disabled = true));
+      return;
+    }
 
-      // Allow only 6-digit numeric input
-      if (!/^\d{6}$/.test(shopId)) {
-        shopInput.style.border = "1px solid #ccc";
+    try {
+      const res = await fetch(`http://localhost:5000/check-shop/${shopId}`);
+      const data = await res.json();
+
+      if (data.exists) {
+        shopInput.style.border = "2px solid #28a745"; // green
+        shopInput.style.boxShadow = "0 0 8px rgba(40,167,69,0.5)";
+        buttons.forEach(btn => (btn.disabled = false));
+      } else {
+        shopInput.style.border = "2px solid #dc3545"; // red
+        shopInput.style.boxShadow = "0 0 8px rgba(220,53,69,0.5)";
         buttons.forEach(btn => (btn.disabled = true));
+      }
+    } catch (err) {
+      console.error("Shop check failed:", err);
+      shopInput.style.border = "2px solid #dc3545";
+      buttons.forEach(btn => (btn.disabled = true));
+    }
+  });
+
+  // ✅ Subscription creation + payment flow
+  async function startSubscription(planId) {
+    try {
+      const shopId = shopInput.value.trim();
+      if (!shopId) {
+        alert("⚠️ Please enter your Shop ID before subscribing.");
         return;
       }
 
-      try {
-        const res = await fetch(`/api/check-shop?shopId=${shopId}`);
-        const data = await res.json();
+      // Store the shop ID for future pages
+      localStorage.setItem("shopId", shopId);
 
-        if (data.exists) {
-          shopInput.style.border = "2px solid #28a745"; // green
-          shopInput.style.boxShadow = "0 0 8px rgba(40,167,69,0.5)";
-          buttons.forEach(btn => (btn.disabled = false));
-        } else {
-          shopInput.style.border = "2px solid #dc3545"; // red
-          shopInput.style.boxShadow = "0 0 8px rgba(220,53,69,0.5)";
-          buttons.forEach(btn => (btn.disabled = true));
-        }
-      } catch (err) {
-        console.error("Shop check failed:", err);
-        shopInput.style.border = "2px solid #dc3545";
-        buttons.forEach(btn => (btn.disabled = true));
+      const response = await fetch("http://localhost:5000/create-subscription", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ planId, shopId })
+      });
+
+      const data = await response.json();
+      if (!data.id) {
+        alert("Error creating subscription: " + (data.error || "Unknown error"));
+        return;
       }
-    });
 
-    async function startSubscription(planId) {
-      try {
-        const shopId = shopInput.value.trim();
-        if (!/^\d{6}$/.test(shopId)) {
-          alert("⚠️ Please enter a valid 6-digit Shop ID.");
-          return;
-        }
-
-        const response = await fetch("/api/create-subscription", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ planId, shopId }),
-        });
-
-        const data = await response.json();
-        if (!data.id) {
-          alert("Error creating subscription: " + (data.error || "Unknown error"));
-          return;
-        }
-
-        const options = {
-          key: "rzp_test_RcyojogCAMFiUF", // Replace with your live key in production
-          subscription_id: data.id,
-          name: "RAAV 3D Subscription",
-          description: `Subscription for Shop ID ${shopId}`,
-          theme: { color: "#6c63ff" },
-          handler: async function (response) {
-            alert(`✅ Payment Successful!\nShop ID: ${shopId}\nPayment ID: ${response.razorpay_payment_id}`);
-
-            try {
-              const res = await fetch("/api/payment-success", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ shopId }),
-              });
-              const result = await res.json();
-              if (result.success) {
-                alert("🎉 Subscription activated successfully!");
-              } else {
-                alert("⚠️ Firebase/DB update failed.");
-              }
-            } catch (err) {
-              alert("⚠️ Payment success callback failed.");
+      const options = {
+        key: "rzp_test_RcyojogCAMFiUF",
+        subscription_id: data.id,
+        name: "RAAV 3D Subscription",
+        description: `Subscription for Shop ID ${shopId}`,
+        theme: { color: "#6c63ff" },
+        handler: async function (response) {
+          alert(`✅ Payment Successful!\nShop ID: ${shopId}\nPayment ID: ${response.razorpay_payment_id}`);
+          try {
+            const res = await fetch("http://localhost:5000/payment-success", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ shopId })
+            });
+            const result = await res.json();
+            if (result.success) {
+              alert("🎉 Subscription activated successfully!");
+            } else {
+              alert("⚠️ Firebase update failed.");
             }
-          },
-        };
-
-        const rzp = new Razorpay(options);
-        rzp.open();
-      } catch (err) {
-        alert("Error: " + err.message);
-      }
+          } catch (err) {
+            alert("⚠️ Firebase update failed.");
+          }
+        }
+      };
+      const rzp = new Razorpay(options);
+      rzp.open();
+    } catch (err) {
+      alert("Error: " + err.message);
     }
-  </script>
+  }
+</script>
+
 </body>
 </html>
