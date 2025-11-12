@@ -9,7 +9,7 @@ import { fileURLToPath } from "url";
 
 dotenv.config();
 
-// ✅ Fix __dirname in ES modules
+// ✅ Fix __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -32,10 +32,22 @@ const db = admin.database();
 // ✅ Express + Middleware
 // ───────────────────────────────────────────────
 const app = express();
-app.use(cors());
+
+// ✅ Allow only your frontend domains
+app.use(
+  cors({
+    origin: [
+      "https://raav2d3d.vercel.app", // your frontend (Vercel)
+      "https://raav3d.onrender.com"  // your backend (Render)
+    ],
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
 app.use(bodyParser.json());
 
-// ✅ Serve static frontend files correctly (Render fix)
+// ✅ Serve static frontend files from "public"
 app.use(express.static(path.resolve(__dirname, "public")));
 
 // ───────────────────────────────────────────────
@@ -118,14 +130,14 @@ app.get("/test-firebase", async (req, res) => {
 });
 
 // ───────────────────────────────────────────────
-// ✅ Root route (Render fix)
+// ✅ Root route
 // ───────────────────────────────────────────────
 app.get("/", (req, res) => {
   res.sendFile(path.resolve(__dirname, "public", "index.html"));
 });
 
 // ───────────────────────────────────────────────
-// ✅ Start the server (Render-compatible)
+// ✅ Start the server
 // ───────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
