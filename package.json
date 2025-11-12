@@ -1,8 +1,8 @@
 {
-  "name": "raav-subscription",
-  "version": "1.1.0",
-  "type": "module",
+  "name": "raav3d",
+  "version": "1.1.1",
   "description": "RAAV 3D Subscription backend (Render ready)",
+  "type": "module",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
@@ -10,9 +10,12 @@
   "dependencies": {
     "express": "^4.19.2",
     "cors": "^2.8.5",
-    "body-parser": "^1.20.2",
+    "body-parser": "^1.20.3",
     "dotenv": "^16.4.5",
     "razorpay": "^2.9.6",
-    "firebase-admin": "^13.6.0"
+    "firebase-admin": "^11.10.1"
+  },
+  "engines": {
+    "node": ">=18.x"
   }
 }
