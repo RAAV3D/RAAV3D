@@ -118,9 +118,6 @@ app.get("/test-firebase", async (req, res) => {
 // ───────────────────────────────────────────────
 // ✅ Root route (optional)
 // ───────────────────────────────────────────────
-// Serve static frontend files from 'public'
-app.use(express.static(path.join(__dirname, "public")));
-
 // Default route - serve index.html
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
