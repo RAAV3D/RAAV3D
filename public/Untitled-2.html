@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | RAAV 3D</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f8f9fa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .login-box {
+      background: white;
+      padding: 30px 40px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      text-align: center;
+      margin-top: 10px;
+    }
+    button {
+      margin-top: 20px;
+      background: linear-gradient(135deg, #6c63ff, #4e54c8);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover { transform: translateY(-2px); }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h2>Shop Login</h2>
+    <input type="text" id="shopIdInput" placeholder="Enter 6-digit Shop ID" maxlength="6" />
+    <button onclick="login()">Login</button>
+  </div>
+
+  <script>
+    async function login() {
+      const shopId = document.getElementById("shopIdInput").value.trim();
+      if (!/^\d{6}$/.test(shopId)) {
+        alert("⚠️ Please enter a valid 6-digit Shop ID.");
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/check-shop?shopId=${shopId}`);
+        const data = await res.json();
+
+        if (data.exists) {
+          localStorage.setItem("shopId", shopId);
+          window.location.href = "/subscription.html";
+        } else {
+          alert("❌ Invalid Shop ID. Please try again.");
+        }
+      } catch (err) {
+        alert("Server error: " + err.message);
+      }
+    }
+  </script>
+</body>
+</html>
