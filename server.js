@@ -9,12 +9,11 @@ import { fileURLToPath } from "url";
 
 dotenv.config();
 
-// ✅ Fix __dirname in ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // ───────────────────────────────────────────────
-// ✅ Initialize Firebase Admin SDK
+// ✅ Firebase Initialization
 // ───────────────────────────────────────────────
 if (!admin.apps.length) {
   admin.initializeApp({
@@ -26,20 +25,44 @@ if (!admin.apps.length) {
     databaseURL: "https://raav3d-50f8c-default-rtdb.firebaseio.com",
   });
 }
+
 const db = admin.database();
-
-// ───────────────────────────────────────────────
-// ✅ Express + Middleware
-// ───────────────────────────────────────────────
 const app = express();
-app.use(cors());
-app.use(bodyParser.json());
 
-// ✅ Serve static frontend files correctly (Render fix)
+// ───────────────────────────────────────────────
+// ✅ Strong CORS Configuration (fix for localhost + Render + Vercel)
+// ───────────────────────────────────────────────
+const allowedOrigins = [
+  "https://raav2d3d.vercel.app", // frontend
+  "https://raav3d.onrender.com", // backend
+  "http://127.0.0.1:5501",       // local testing
+  "http://localhost:5501"
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) {
+        // Allow server-to-server or curl requests
+        return callback(null, true);
+      }
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      console.log("❌ Blocked by CORS:", origin);
+      return callback(new Error("Not allowed by CORS"));
+    },
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
+
+app.use(bodyParser.json());
 app.use(express.static(path.resolve(__dirname, "public")));
 
 // ───────────────────────────────────────────────
-// ✅ Razorpay instance
+// ✅ Razorpay Setup
 // ───────────────────────────────────────────────
 const razorpay = new Razorpay({
   key_id: process.env.RAZOR_KEY_ID,
@@ -47,7 +70,7 @@ const razorpay = new Razorpay({
 });
 
 // ───────────────────────────────────────────────
-// ✅ Check if Shop ID exists in Firebase
+// ✅ Routes
 // ───────────────────────────────────────────────
 app.get("/check-shop/:shopId", async (req, res) => {
   try {
@@ -63,9 +86,6 @@ app.get("/check-shop/:shopId", async (req, res) => {
   }
 });
 
-// ───────────────────────────────────────────────
-// ✅ Create Razorpay subscription
-// ───────────────────────────────────────────────
 app.post("/create-subscription", async (req, res) => {
   try {
     const { planId, shopId } = req.body;
@@ -81,9 +101,6 @@ app.post("/create-subscription", async (req, res) => {
   }
 });
 
-// ───────────────────────────────────────────────
-// ✅ After payment: mark active in Firebase
-// ───────────────────────────────────────────────
 app.post("/payment-success", async (req, res) => {
   try {
     const { shopId } = req.body;
@@ -103,9 +120,6 @@ app.post("/payment-success", async (req, res) => {
   }
 });
 
-// ───────────────────────────────────────────────
-// ✅ Firebase test route
-// ───────────────────────────────────────────────
 app.get("/test-firebase", async (req, res) => {
   try {
     const ref = db.ref("test_connection");
@@ -117,15 +131,13 @@ app.get("/test-firebase", async (req, res) => {
   }
 });
 
-// ───────────────────────────────────────────────
-// ✅ Root route (Render fix)
-// ───────────────────────────────────────────────
+// ✅ Root route
 app.get("/", (req, res) => {
   res.sendFile(path.resolve(__dirname, "public", "index.html"));
 });
 
 // ───────────────────────────────────────────────
-// ✅ Start the server (Render-compatible)
+// ✅ Start Server
 // ───────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
