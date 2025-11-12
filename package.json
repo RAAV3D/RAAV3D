@@ -1,21 +1,13 @@
 {
-  "name": "razorpay-subscriptions",
+  "name": "raav-subscription",
   "version": "1.0.0",
   "type": "module",
-  "description": "",
-  "main": "server.js",
+  "description": "RAAV 3D Subscription backend for Vercel serverless functions",
   "scripts": {
-    "start": "node server.js"
+    "dev": "vercel dev"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "body-parser": "^2.2.0",
-    "cors": "^2.8.5",
-    "dotenv": "^17.2.3",
-    "express": "^5.1.0",
-    "firebase-admin": "^13.6.0",
-    "razorpay": "^2.9.6"
+    "razorpay": "^2.9.6",
+    "firebase-admin": "^13.6.0"
   }
 }
