@@ -34,16 +34,30 @@ const db = admin.database();
 const app = express();
 
 // ✅ Allow only your frontend domains
+const allowedOrigins = [
+  "https://raav2d3d.vercel.app",  // Vercel (production)
+  "https://raav3d.onrender.com",  // Render (backend)
+  "http://127.0.0.1:5501",        // local testing
+  "http://localhost:5501"
+];
+
 app.use(
   cors({
-    origin: [
-      "https://raav2d3d.vercel.app", // your frontend (Vercel)
-      "https://raav3d.onrender.com"  // your backend (Render)
-    ],
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.log("❌ Blocked by CORS:", origin);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
   })
 );
+
 
 app.use(bodyParser.json());
 
