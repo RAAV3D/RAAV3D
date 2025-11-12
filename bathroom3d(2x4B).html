@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bathroom (2x4) Unified Viewer — 15 Designs</title>
+
+  <!-- three.js and extras -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+  <!-- QR scanner -->
+  <script src="https://unpkg.com/html5-qrcode"></script>
+
+  <style>
+    #rotationSpeed {
+  border: 1px solid #aaa;
+  border-radius: 6px;
+  padding: 3px 5px;
+  font-weight: bold;
+}
+
+    :root { --accent: #8a2be2; --muted: #ddd; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(to bottom, #f0f8ff, #e6e6fa);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: #6a0dad;
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        .upload-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+            max-width: 800px;
+        }
+
+        .tile-section {
+            background: white;
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            width: 200px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: border-color 0.3s, box-shadow 0.3s;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .tile-section:hover {
+            border-color: #8a2be2;
+            box-shadow: 0 4px 12px rgba(138, 43, 226, 0.2);
+        }
+
+        .tile-section.has-image {
+            border-color: #4caf50;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .tile-section h3 {
+            margin: 0 0 10px;
+            color: #6a0dad;
+            font-size: 1.1rem;
+        }
+
+        .tile-section input[type="file"] {
+            margin: 10px 0;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+        }
+    .preview { width: 160px; height: 110px; object-fit: cover; margin: 10px auto; border-radius: 8px; display:none; border:1px solid #ccc; }
+    .drag-text { color:#888; font-size:0.9rem; margin-top:6px; }
+
+    .btn-row { display:flex; gap:8px; justify-content:center; margin-top:8px; flex-wrap:wrap; }
+    .btn { padding:8px 10px; border-radius:6px; border:none; cursor:pointer; font-size:0.85rem; }
+    .scan-btn { background: var(--accent); color:white; }
+    .clear-btn { background:#ff5722; color:white; display:none; }
+
+    #generateBtn, #fullscreenBtn, #downloadBtn {
+      padding: 12px 18px;
+      border-radius: 24px;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+      margin: 12px;
+    }
+    #generateBtn { background: linear-gradient(135deg,var(--accent), #9370db); }
+    #fullscreenBtn { background: linear-gradient(135deg,#ff9800,#ff5722); }
+    #downloadBtn { background: linear-gradient(135deg,#4caf50,#45a049); }
+
+    canvas { display:none;
+      width:100vw; 
+      height:100vh;
+      margin-top:12px;
+      border-radius:6px;
+      box-shadow:0 8px 30px rgba(119, 40, 40, 0.2); }
+
+    /* Footer with 15 design buttons */
+    footer#designFooter {
+      position: fixed;
+      bottom: 8px;
+      left: 0;
+      right: 0;
+      display: none;
+      justify-content:center;
+      padding: 10px 6px;
+      gap: 8px;
+      background: #fff(255,255,255,0.0);
+      color: #fff;
+      z-index: 999;
+      flex-wrap: wrap;
+    }
+    footer#designFooter button {
+      background: black;
+      border: 1px solid #fff;
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 18px;
+      font-weight: 700;
+      cursor:pointer;
+      font-size: 0.9rem;
+    }
+    footer#designFooter button[disabled] { opacity: 0.35; cursor: not-allowed; }
+
+#qrScannerContainer {
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.9);
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+#qrOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, rgba(0,0,0,0) 35%, rgba(0,0,0,0.8) 36%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  pointer-events: none;
+}
+
+#qrFrame {
+  width: 240px;
+  height: 240px;
+  border: 4px solid white;
+  border-radius: 4px;
+  box-shadow: 0 0 25px rgba(255, 255, 255, 0.3);
+}
+
+#qrHint {
+  margin-top: 20px;
+  color: white;
+  font-size: 1.2em;
+  text-align: center;
+}
+
+#closeScannerBtn {
+  position: absolute;
+  top: 25px;
+  right: 25px;
+  background: rgba(255, 87, 34, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+    /* control row for rotation toggle and speed */
+    .controls-row { display:flex;
+       gap:10px;
+        align-items:center;
+         justify-content:center;
+          margin-bottom:8px;
+           flex-wrap:wrap; }
+
+    @media (max-width: 720px) {
+      .upload-container { gap: 12px; }
+      .tile-section { width: 90%; }
+      canvas { height: 70vh; }
+      footer#designFooter { padding:8px; gap:6px; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Bathroom (18x12)</h1>
+
+  <div class="upload-container">
+    <!-- L -->
+    <div class="tile-section" data-category="L" id="sectionL">
+      <h3>L Tile</h3>
+      <input id="fileInputL" type="file" accept="image/*" />
+      <div class="preview-container"><img id="previewL" class="preview" /></div>
+      <div class="drag-text">Drag & drop or choose image (JPG/PNG, ≤5MB)</div>
+      <div class="btn-row">
+        <button class="btn scan-btn" id="scanL">Scan</button>
+        <button class="btn clear-btn" id="clearL">Clear</button>
+      </div>
+      <div id="errorL" class="error" style="color:red; display:none; margin-top:6px;"></div>
+    </div>
+
+    <!-- D -->
+    <div class="tile-section" data-category="D" id="sectionD">
+      <h3>D Tile</h3>
+      <input id="fileInputD" type="file" accept="image/*" />
+      <div class="preview-container"><img id="previewD" class="preview" /></div>
+      <div class="drag-text">Drag & drop or choose image (JPG/PNG, ≤5MB)</div>
+      <div class="btn-row">
+        <button class="btn scan-btn" id="scanD">Scan</button>
+        <button class="btn clear-btn" id="clearD">Clear</button>
+      </div>
+      <div id="errorD" class="error" style="color:red; display:none; margin-top:6px;"></div>
+    </div>
+
+    <!-- HL -->
+    <div class="tile-section" data-category="HL" id="sectionHL">
+      <h3>HL Tile (optional)</h3>
+      <input id="fileInputHL" type="file" accept="image/*" />
+      <div class="preview-container"><img id="previewHL" class="preview" /></div>
+      <div class="drag-text">Drag & drop or choose image (JPG/PNG, ≤5MB)</div>
+      <div class="btn-row">
+        <button class="btn scan-btn" id="scanHL">Scan</button>
+        <button class="btn clear-btn" id="clearHL">Clear</button>
+      </div>
+      <div id="errorHL" class="error" style="color:red; display:none; margin-top:6px;"></div>
+    </div>
+  </div>
+
+  <div style="text-align:center;">
+    <button id="generateBtn">Generate Model</button>
+    <button id="fullscreenBtn">Full Screen</button>
+    <button id="downloadBtn">Download Screenshot</button>
+  </div>
+
+  <!-- rotation toggle & speed -->
+  <div class="controls-row">
+    <label><input type="checkbox" id="autoRotateToggle" checked /> Auto-rotate</label>
+<label>
+  Rotation speed:
+  <input
+    type="number"
+    id="rotationSpeed"
+    min="0"
+    max="2"
+    step="0.05"
+    value="0.3"
+    style="width:60px;text-align:center;"
+  />
+</label>
+  </div>
+
+  <!-- Canvas will be appended by JS -->
+
+  <footer id="designFooter" aria-hidden="true"></footer>
+
+<!-- Modern camera-style QR scanner overlay -->
+<div id="qrScannerContainer">
+  <div id="qrOverlay">
+    <div id="qrFrame"></div>
+    <p id="qrHint">Place the code inside the frame</p>
+  </div>
+  <div id="qrScanner"></div>
+  <button id="closeScannerBtn">✕</button>
+</div>
+
+
+  <script src="bathroom3d(2x4B).js"></script>
+</body>
+</html>

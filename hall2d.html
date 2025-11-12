@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RAAV-2D-HALL</title>
+  
+  <!-- CDNs for PDF Generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  
+  <!-- QR Code Scanner Library -->
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+  
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(to bottom, #f0f8ff, #e6e6fa);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 { color: #6a0dad; text-align: center; }
+
+      .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(138, 43, 226, 0.1);
+            border: 2px solid #8a2be2;
+            color: #8a2be2;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .back-button:hover {
+            background: #8a2be2;
+            color: white;
+            transform: translateX(-5px);
+        }
+    
+    /* Upload Container (Single) */
+    .upload-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin: 20px 0;
+      max-width: 800px;
+    }
+    .tile-section {
+      background: white;
+      border: 2px dashed #ddd;
+      border-radius: 10px;
+      padding: 15px;
+      text-align: center;
+      width: 180px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: border-color 0.3s, box-shadow 0.3s;
+      position: relative;
+      cursor: pointer;
+    }
+    .tile-section:hover {
+      border-color: #8a2be2;
+      box-shadow: 0 4px 12px rgba(138,43,226,0.2);
+    }
+    .tile-section.has-image {
+      border-color: #4caf50;
+      box-shadow: 0 4px 12px rgba(76,175,80,0.3);
+    }
+    .tile-section h3 { 
+      margin: 0 0 10px; 
+      color: #6a0dad; 
+      font-size: 1.1rem; 
+    }
+    .tile-section input[type="file"] {
+      margin: 10px 0;
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      width: 100%;
+    }
+    .scan-btn {
+      margin: 10px 0;
+      padding: 5px 10px;
+      background: #8a2be2;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .scan-btn:hover { background: #6a0dad; }
+    .preview {
+      width: 160px; /* Width:Height = 4:2 = 2:1 ratio (wide and short) */
+      height: 80px;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      margin: 10px auto;
+      object-fit: cover; /* Ensures image fits the wide rectangle without distortion */
+      display: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease; /* Smooth rotation */
+    }
+    .preview-container {
+      margin: 10px 0;
+      min-height: 80px; /* Adjusted to match preview height */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .rotate-btn {
+      background: #8a2be2;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      margin: 5px;
+      font-size: 0.9rem;
+      display: none; /* Show only when image is uploaded */
+    }
+    .rotate-btn:hover { background: #6a0dad; }
+    .clear-btn {
+      background: #ff5722;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 5px 10px;
+      cursor: pointer;
+      margin-top: 5px;
+      display: none;
+      font-size: 0.8rem;
+    }
+    .clear-btn:hover { background: #d32f2f; }
+    .error { 
+      color: red; 
+      font-size: 0.9rem; 
+      display: none; 
+      margin-top: 5px;
+    }
+    .drag-text {
+      font-size: 0.9rem;
+      color: #888;
+      margin: 10px 0;
+      display: block;
+    }
+    
+    /* Generate Button */
+    #generateBtn {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #8a2be2, #9370db);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      margin: 20px;
+      box-shadow: 0 4px 10px rgba(138,43,226,0.3);
+      transition: transform 0.2s;
+    }
+    #generateBtn:hover { transform: translateY(-2px); }
+    #generateBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    /* Error Display */
+    #error { color: red; text-align: center; display: none; margin: 10px; }
+    
+    /* Preview Container Styles (now with 2 design sections, 8x4 table) */
+    #previewContainer {
+      display: none;
+      max-width: 800px; /* Adjusted for 4 columns */
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      overflow-x: auto; /* For horizontal scroll on small screens */
+    }
+    #previewContainer h2 {
+      text-align: center;
+      color: #6a0dad;
+      margin-bottom: 20px;
+    }
+    .design-section {
+      margin-bottom: 40px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+      background: #f9f9f9;
+    }
+    .design-section h3 {
+      text-align: center;
+      color: #6a0dad;
+      margin-bottom: 15px;
+      font-size: 1.2rem;
+    }
+    .design-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0 auto;
+    }
+    .design-table th,
+    .design-table td {
+      border: 1px solid #ddd;
+      padding: 0;
+      width: calc(100% / 4); /* Equal 4 columns */
+      aspect-ratio: 2 / 1; /* 4:2 ratio (width:height = 2:1, wide cells) */
+      height: auto; /* Let aspect-ratio control height */
+      min-height: 40px; /* Minimum for wide cells */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      position: relative;
+      vertical-align: top;
+    }
+    /* Fallback for older browsers: Padding hack for 4:2 ratio (width:height = 2:1) */
+    .design-table td::before {
+      content: '';
+      display: block;
+      padding-bottom: 50%; /* Height = width / 2 = 50% of width */
+      float: left;
+    }
+    .design-table td > div {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    .design-table th {
+      aspect-ratio: 1 / 1; /* Square headers */
+      background-color: #f0f8ff;
+      font-weight: bold;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 0.9rem; /* Font for 4 columns */
+      color: #6a0dad;
+      height: 30px; /* Fixed for headers */
+    }
+    .cell-label {
+      position: absolute;
+      bottom: 5px;
+      left: 5px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: bold;
+      display: none; /* Show on hover */
+      z-index: 1;
+    }
+    .design-table td:hover .cell-label {
+      display: block; /* Show label on hover */
+    }
+    
+    /* Reset Button */
+    #resetBtn {
+      padding: 8px 16px;
+      background: #8a2be2;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      margin: 10px auto;
+      display: none;
+    }
+    #resetBtn:hover { background: #6a0dad; }
+    
+    /* Download Button */
+    #downloadBtn {
+      padding: 8px 16px;
+      background: linear-gradient(135deg, #4caf50, #45a049);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      margin: 10px auto;
+      display: none;
+      font-size: 1rem;
+    }
+    #downloadBtn:hover { background: linear-gradient(135deg, #45a049, #3d8b40); }
+    #downloadBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    /* QR Scanner Modal */
+    #qrScannerModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    #qrScannerModal.show { display: flex; }
+    .scanner-container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+    }
+    #qrVideo {
+      width: 100%;
+      max-width: 300px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+    }
+    #closeScanner {
+      margin-top: 10px;
+      padding: 8px 16px;
+      background: #ff5722;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #closeScanner:hover { background: #d32f2f; }
+    
+    @media (max-width: 600px) {
+      .upload-container { flex-direction: column; align-items: center; }
+      .tile-section { width: 90%; }
+      .preview { 
+        width: 120px; 
+        height: 60px; /* Maintain 2:1 ratio on mobile */
+      }
+      .preview-container { min-height: 60px; }
+      .design-table td { 
+        min-height: 30px; /* Adjusted for mobile and 4 columns */
+      }
+      .design-section { margin-bottom: 20px; padding: 10px; }
+      #previewContainer { padding: 10px; }
+    }
+  </style>
+</head>
+<body>
+   <button class="back-button" onclick="history.back()">Back</button>
+
+  <h1>Flooring Tile</h1>
+  
+  <div class="upload-container">
+    <!-- Single Tile Upload -->
+    <div class="tile-section" data-category="Tile">
+      <h3>Tile Image</h3>
+      <input type="file" id="fileTile" accept="image/*">
+      <button class="scan-btn" id="scanTile">Scan QR</button>
+      <div class="preview-container">
+        <img id="previewTile" class="preview" alt="Tile Preview">
+        <button class="rotate-btn" id="rotateTile">↻</button>
+        <span class="drag-text">Drag image here or click input</span>
+      </div>
+      <button class="clear-btn" id="clearTile">Clear</button>
+      <p class="error" id="errorTile">Please upload an image.</p>
+    </div>
+  </div>
+  
+  <button id="generateBtn">GENERATE PREVIEW</button>
+  <button id="resetBtn">Reset to Uploads</button>
+  
+  <div id="error"></div>
+  
+  <!-- Preview Container (2 designs, 8x4 table) -->
+  <div id="previewContainer">
+    <h2>Your Designs</h2>
+    
+    <!-- Design-1 Section -->
+    <div class="design-section">
+      <h3>Design-1</h3>
+      <table class="design-table">
+
+        <tbody id="design1Body">
+          <!-- Dynamically populated -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Design-2 Section -->
+    <div class="design-section">
+      <h3>Design-2</h3>
+      <table class="design-table">
+
+        <tbody id="design2Body">
+          <!-- Dynamically populated -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <button id="downloadBtn">Download PDF</button>
+
+  <!-- QR Scanner Modal -->
+  <div id="qrScannerModal">
+    <div class="scanner-container">
+      <h3>Scan QR Code</h3>
+      <video id="qrVideo" autoplay></video>
+      <p>Point your camera at a QR code to scan the image.</p>
+      <button id="closeScanner">Close</button>
+    </div>
+  </div>
+
+<script>
+    // DOM Elements (Single Tile)
+    const fileTile = document.getElementById('fileTile');
+    const scanTile = document.getElementById('scanTile');
+    const previewTile = document.getElementById('previewTile');
+    const errorTile = document.getElementById('errorTile');
+    const clearTile = document.getElementById('clearTile');
+    const rotateTile = document.getElementById('rotateTile');
+    const generateBtn = document.getElementById('generateBtn');
+    const errorDiv = document.getElementById('error');
+    const previewContainer = document.getElementById('previewContainer');
+    const resetBtn = document.getElementById('resetBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const qrScannerModal = document.getElementById('qrScannerModal');
+    const qrVideo = document.getElementById('qrVideo');
+    const closeScanner = document.getElementById('closeScanner');
+
+    // Array of 2 design table bodies
+    const designBodies = [
+      document.getElementById('design1Body'),
+      document.getElementById('design2Body')
+    ];
+
+    // Store uploaded image source and rotation (single)
+    let uploadedImages = {};
+    let rotations = { Tile: 0 }; // Rotation angles in degrees
+
+    // Enhanced upload handler for single container
+    function handleFileUpload(input, preview, error, clearBtn, container, dragText, rotateBtn) {
+      input.addEventListener('change', (e) => {
+        processFile(e.target.files[0], preview, error, clearBtn, container, dragText, rotateBtn);
+      });
+
+      container.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        container.style.borderColor = '#8a2be2';
+      });
+      container.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        if (!container.classList.contains('has-image')) container.style.borderColor = '#ddd';
+      });
+      container.addEventListener('drop', (e) => {
+        e.preventDefault();
+        container.style.borderColor = '#ddd';
+        const file = e.dataTransfer.files[0];
+        if (file) {
+          input.files = e.dataTransfer.files;
+          processFile(file, preview, error, clearBtn, container, dragText, rotateBtn);
+        }
+      });
+
+      // Rotation button handler
+      rotateBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent triggering container click
+        rotations['Tile'] = (rotations['Tile'] + 90) % 360;
+        preview.style.transform = `rotate(${rotations['Tile']}deg)`;
+        console.log(`Tile rotated to ${rotations['Tile']} degrees`);
+      });
+
+      clearBtn.addEventListener('click', () => {
+        input.value = '';
+        preview.src = '';
+        preview.style.display = 'none';
+        preview.style.transform = 'rotate(0deg)'; // Reset rotation
+        rotations['Tile'] = 0;
+        dragText.style.display = 'block';
+        error.style.display = 'none';
+        container.classList.remove('has-image');
+        clearBtn.style.display = 'none';
+        rotateBtn.style.display = 'none';
+        // Remove from uploadedImages
+        delete uploadedImages['Tile'];
+      });
+    }
+
+    function processFile(file, preview, error, clearBtn, container, dragText, rotateBtn) {
+      if (file) {
+        if (file.type.startsWith('image/') && file.size <= 5 * 1024 * 1024) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            preview.style.transform = `rotate(${rotations['Tile']}deg)`; // Apply current rotation
+            dragText.style.display = 'none';
+            error.style.display = 'none';
+            container.classList.add('has-image');
+            clearBtn.style.display = 'inline-block';
+            rotateBtn.style.display = 'block'; // Show rotation button
+            // Store image source
+            uploadedImages['Tile'] = e.target.result;
+            console.log('Image uploaded for Tile.');
+          };
+          reader.readAsDataURL(file);
+        } else {
+          error.textContent = 'Invalid image (must be JPG/PNG, <=5MB).';
+          error.style.display = 'block';
+          preview.style.display = 'none';
+          dragText.style.display = 'block';
+          container.classList.remove('has-image');
+          clearBtn.style.display = 'none';
+          rotateBtn.style.display = 'none';
+        }
+      }
+    }
+
+    // Attach handler for single section
+    const section = {
+      input: fileTile,
+      preview: previewTile,
+      error: errorTile,
+      clear: clearTile,
+      container: document.querySelector('[data-category="Tile"]'),
+      dragText: document.querySelector('[data-category="Tile"] .drag-text'),
+      rotateBtn: rotateTile
+    };
+    handleFileUpload(section.input, section.preview, section.error, section.clear, section.container, section.dragText, section.rotateBtn);
+
+    // QR Scanner functionality
+    let stream = null;
+    scanTile.addEventListener('click', () => {
+      qrScannerModal.classList.add('show');
+      startScanner();
+    });
+
+    closeScanner.addEventListener('click', () => {
+      qrScannerModal.classList.remove('show');
+      stopScanner();
+    });
+
+    function startScanner() {
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+        .then((mediaStream) => {
+          stream = mediaStream;
+          qrVideo.srcObject = stream;
+          qrVideo.play();
+          scanQRCode();
+        })
+        .catch((error) => {
+          console.error('Error accessing camera:', error);
+          alert('Unable to access camera. Please check permissions.');
+        });
+    }
+
+    function stopScanner() {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+      }
+      qrVideo.srcObject = null;
+    }
+
+    function scanQRCode() {
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      const scan = () => {
+        if (qrVideo.readyState === qrVideo.HAVE_ENOUGH_DATA) {
+          canvas.width = qrVideo.videoWidth;
+          canvas.height = qrVideo.videoHeight;
+          context.drawImage(qrVideo, 0, 0, canvas.width, canvas.height);
+          const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+          const code = jsQR(imageData.data, imageData.width, imageData.height);
+          if (code) {
+            console.log('QR Code detected:', code.data);
+            // Assume QR code data is the image URL directly
+            loadImageFromQR(code.data);
+            stopScanner();
+            qrScannerModal.classList.remove('show');
+          }
+        }
+        requestAnimationFrame(scan);
+      };
+      scan();
+    }
+
+    async function loadImageFromQR(qrData) {
+      console.log('QR Code data received:', qrData); // Log to check what the QR contains
+      
+      // Assume qrData is the image URL directly from the QR code
+      try {
+        // Create a new Image object to test loading
+        const img = new Image();
+        img.onload = () => {
+          // If image loads successfully, set it to preview
+          previewTile.src = qrData;
+          previewTile.style.display = 'block';
+          previewTile.style.transform = `rotate(${rotations['Tile']}deg)`;
+          section.dragText.style.display = 'none';
+          section.error.style.display = 'none';
+          section.container.classList.add('has-image');
+          section.clear.style.display = 'inline-block';
+          section.rotateBtn.style.display = 'block';
+          uploadedImages['Tile'] = qrData;
+          console.log('Image loaded successfully from QR code.');
+        };
+        img.onerror = () => {
+          console.error('Failed to load image from QR data:', qrData);
+          alert('The QR code does not contain a valid image URL. Please scan a QR code with a direct image link.');
+        };
+        img.src = qrData; // Trigger loading
+      } catch (error) {
+        console.error('Error processing QR data:', error);
+        alert('Failed to process the QR code data.');
+      }
+    }
+
+    // Load saved image and rotation from localStorage on page load
+    const savedData = localStorage.getItem('uploadedImagesAndRotations');
+    if (savedData) {
+      try {
+        const parsedData = JSON.parse(savedData);
+        uploadedImages = parsedData.images || {};
+        rotations = parsedData.rotations || { Tile: 0 };
+        // Restore preview if image exists
+        if (uploadedImages['Tile']) {
+          previewTile.src = uploadedImages['Tile'];
+          previewTile.style.display = 'block';
+          previewTile.style.transform = `rotate(${rotations['Tile']}deg)`;
+          section.dragText.style.display = 'none';
+          section.error.style.display = 'none';
+          section.container.classList.add('has-image');
+          section.clear.style.display = 'inline-block';
+          section.rotateBtn.style.display = 'block';
+        }
+        console.log('Loaded saved image and rotation from localStorage.');
+      } catch (e) {
+        console.warn('Invalid saved data in localStorage:', e);
+      }
+    }
+
+    // Generate button: Validates upload, shows preview container with 2 designs
+    generateBtn.addEventListener('click', () => {
+      let valid = true;
+      const required = ['Tile']; // Only Tile required
+      if (!uploadedImages['Tile']) {
+        errorTile.textContent = 'Please upload Tile image.';
+        errorTile.style.display = 'block';
+        valid = false;
+      }
+
+      if (!valid) {
+        errorDiv.textContent = 'Please upload the Tile image before generating.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      errorDiv.style.display = 'none';
+      generateBtn.style.display = 'none';
+      resetBtn.style.display = 'block';
+      downloadBtn.style.display = 'block'; // Show download button
+
+      // Show preview container and populate all 2 designs
+      previewContainer.style.display = 'block';
+      populateAllDesigns();
+
+      // Save to localStorage
+      localStorage.setItem('uploadedImagesAndRotations', JSON.stringify({ images: uploadedImages, rotations: rotations }));
+
+      console.log('All 2 designs generated with uploaded image.');
+    });
+
+    // Design-specific cell positions (row, col) for Tile image (8 rows x 4 columns, 2 designs)
+    // Example configurations - customize as needed; unassigned cells are default
+    const designConfigs = [
+      // Design-1: Example positions for Tile (most cells assigned)
+      {
+        Tile: [
+          [1,1],[1,2],[1,3],[1,4],
+          [2,1],[2,2],[2,3],[2,4],
+          [3,1],[3,2],[3,3],[3,4],
+          [4,1],[4,2],[4,3],[4,4],
+          [5,1],[5,2],[5,3],[5,4],
+          [6,1],[6,2],[6,3],[6,4],
+          [7,1],[7,2],[7,3],[7,4],
+          [8,1],[8,2],[8,3],[8,4]
+        ]
+      },
+      // Design-2: Example - Partial pattern for Tile
+      {
+        Tile: [
+         [1,1],[1,2],[1,3],[1,4],
+          [2,1],[2,2],[2,3],[2,4],
+          [3,1],[3,2],[3,3],[3,4],
+          [4,1],[4,2],[4,3],[4,4],
+          [5,1],[5,2],[5,3],[5,4],
+          [6,1],[6,2],[6,3],[6,4],
+          [7,1],[7,2],[7,3],[7,4],
+          [8,1],[8,2],[8,3],[8,4]
+        ]
+      }
+    ];
+
+    // Function to populate all 2 designs with custom cell assignments (8 rows x 4 columns)
+    function populateAllDesigns() {
+      designBodies.forEach((body, designIndex) => {
+        body.innerHTML = ''; // Clear previous for this design
+
+        const config = designConfigs[designIndex];
+        const tilePositions = new Set(config.Tile.map(pos => `${pos[0]},${pos[1]}`));
+
+        // Create 8 rows for this design
+        for (let row = 1; row <= 8; row++) {
+          const tr = document.createElement('tr');
+
+          // Create 4 cells per row
+          for (let col = 1; col <= 4; col++) {
+            const td = document.createElement('td');
+            const posKey = `${row},${col}`;
+            let imageSrc = '';
+            let labelText = `Design-${designIndex + 1} (${row},${col})`;
+
+            // Assign image based on position (only Tile)
+            if (tilePositions.has(posKey)) {
+              imageSrc = uploadedImages.Tile;
+              labelText += ' Tile';
+              // Apply rotation to the cell
+              td.style.transform = `rotate(${rotations['Tile']}deg)`;
+              td.style.transformOrigin = 'center center';
+            } else {
+              // Default for unassigned cells
+              td.style.backgroundColor = '#f0f0f0';
+              labelText += ' Default';
+            }
+
+            td.id = `design${designIndex + 1}-cell-r${row}c${col}`; // Unique ID
+            td.style.backgroundImage = imageSrc ? `url(${imageSrc})` : 'none';
+            td.innerHTML = `<div class="cell-label">${labelText}</div>`;
+            tr.appendChild(td);
+          }
+
+          body.appendChild(tr);
+        }
+      });
+    }
+
+    // Download PDF function using jsPDF and html2canvas
+    downloadBtn.addEventListener('click', async () => {
+      downloadBtn.disabled = true;
+      downloadBtn.textContent = 'Generating PDF...';
+      
+      try {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4'); // Portrait for taller 8-row tables
+        let yPosition = 10; // Starting Y position
+        const pageHeight = pdf.internal.pageSize.height - 20; // Leave margins
+
+        // Add title
+        pdf.setFontSize(16);
+        pdf.text('Bathroom Tile Designs PDF', pdf.internal.pageSize.width / 2, yPosition, { align: 'center' });
+        yPosition += 15;
+
+        // Loop through each design section and add to PDF
+        const designSections = document.querySelectorAll('.design-section');
+        for (let i = 0; i < designSections.length; i++) {
+          const section = designSections[i];
+          const canvas = await html2canvas(section, {
+            scale: 2, // Higher scale for better quality
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: '#ffffff'
+          });
+
+          const imgData = canvas.toDataURL('image/png');
+          const imgWidth = pdf.internal.pageSize.width - 20; // Full width minus margins
+          const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+          // Check if it fits on current page
+          if (yPosition + imgHeight > pageHeight) {
+            pdf.addPage();
+            yPosition = 10;
+          }
+
+          pdf.addImage(imgData, 'PNG', 10, yPosition, imgWidth, imgHeight);
+          yPosition += imgHeight + 10; // Space between sections
+
+          // Add page break if needed for next section
+          if (i < designSections.length - 1 && yPosition > pageHeight - 50) {
+            pdf.addPage();
+            yPosition = 10;
+          }
+        }
+
+        // Save the PDF
+        const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+        pdf.save(`Bathroom_Tile_Designs_${timestamp}.pdf`);
+
+        console.log('PDF downloaded successfully.');
+      } catch (error) {
+        console.error('Error generating PDF:', error);
+        errorDiv.textContent = 'Error generating PDF. Please try again.';
+        errorDiv.style.display = 'block';
+      } finally {
+        downloadBtn.disabled = false;
+        downloadBtn.textContent = 'Download PDF';
+      }
+    });
+
+    // Reset button listener
+    resetBtn.addEventListener('click', () => {
+      // Reset everything
+      uploadedImages = {};
+      rotations = { Tile: 0 };
+      section.input.value = '';
+      section.preview.src = '';
+      section.preview.style.display = 'none';
+      section.preview.style.transform = 'rotate(0deg)';
+      section.dragText.style.display = 'block';
+      section.error.style.display = 'none';
+      section.container.classList.remove('has-image');
+      section.clear.style.display = 'none';
+      section.rotateBtn.style.display = 'none';
+      previewContainer.style.display = 'none';
+      // Clear all design bodies
+      designBodies.forEach(body => body.innerHTML = '');
+      generateBtn.style.display = 'block';
+      resetBtn.style.display = 'none';
+      downloadBtn.style.display = 'none'; // Hide download button
+      errorDiv.style.display = 'none';
+      // Clear localStorage
+      localStorage.removeItem('uploadedImagesAndRotations');
+      console.log('Reset to upload state.');
+    });
+
+    // Final script load confirmation
+    console.log('Bathroom Tile Uploader & Preview Generator loaded completely.');
+  </script>
+
+</body>
+</html>

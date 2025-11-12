@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Shop Manager - Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      background: linear-gradient(135deg, #f5f0ff 0%, #faf6ff 100%);
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      padding: 40px 20px 40px;
+      gap: 40px;
+      user-select: none;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+   .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(138, 43, 226, 0.1);
+            border: 2px solid #8a2be2;
+            color: #8a2be2;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            z-index: 100;
+        }
+        
+        .back-button:hover {
+            background: #8a2be2;
+            color: white;
+            transform: translateX(-5px);
+        }
+        
+    .back-button:active {
+      transform: translateY(0);
+    }
+
+    /* Shop ID display container */
+    .shop-id-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: white;
+      padding: 8px 16px;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(138, 43, 226, 0.15);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #6a0dad;
+      max-width: 400px;
+      width: 100%;
+      justify-content: center;
+      user-select: text;
+      margin-top: 60px; /* To avoid overlap with fixed back button */
+    }
+
+    .shop-id-box {
+      background: #f0e7ff;
+      border: 1.5px solid #8a2be2;
+      border-radius: 8px;
+      padding: 4px 12px;
+      font-weight: 700;
+      color: #4b0082;
+      font-size: 0.85rem;
+      min-width: 100px;
+      text-align: center;
+      user-select: all;
+    }
+
+    .subscriptionContainer:hover {
+      box-shadow: 0 20px 50px rgba(138, 43, 226, 0.3);
+    }
+
+    .subscriptionContainer {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 15px 40px rgba(138, 43, 226, 0.15);
+      padding: 40px 30px;  /* Unchanged */
+      width: 320px;  /* Unchanged */
+      max-width: 90vw;  /* Unchanged */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+      text-align: center;
+      user-select: none;
+      transition: box-shadow 0.3s ease;
+    }
+
+    #subscriptionBtn {
+      color: gold;  /* Added for gold text color as per your request */
+    }
+
+    .action-btn {
+      padding: 16px 24px;
+      background: linear-gradient(135deg, #8a2be2 0%, #9370db 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 50px; /* Touch-friendly on mobile */
+    }
+
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(138, 43, 226, 0.3);
+    }
+
+    .action-btn:active {
+      transform: translateY(0);
+    }
+
+    h2 {
+      color: #6a0dad;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: #555;
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 16px 36px;
+      background: linear-gradient(135deg, #8a2be2 0%, #9370db 100%);
+      color: white;
+      font-weight: 700;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 12px 40px rgba(138, 43, 226, 0.4);
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      user-select: none;
+      outline: none;
+      width: 100%;
+      max-width: 250px;
+      text-align: center;
+    }
+    button:hover {
+      background-color: #6a0dad;
+      transform: translateY(-3px);
+      box-shadow: 0 18px 50px rgba(106, 13, 173, 0.6);
+    }
+    button:active {
+      transform: translateY(0);
+    }
+
+    /* Modal Styles for QR Code Popup - Fully Responsive */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(5px);
+    }
+
+    .modal-content {
+        background-color: rgba(255, 255, 255, 0.95);
+        margin: 10% auto; /* Reduced top margin for small screens */
+        padding: 30px;
+        border-radius: 20px;
+        width: 90%;
+        max-width: 400px;
+        max-height: 80vh; /* Prevent overflow on small screens */
+        overflow-y: auto; /* Scroll if content is too tall */
+        text-align: center;
+        box-shadow: 0 15px 40px rgba(138, 43, 226, 0.3);
+        backdrop-filter: blur(10px);
+        animation: slideUp 0.3s ease-out;
+        position: relative;
+    }
+
+    .modal-header {
+        margin-bottom: 20px;
+    }
+
+    .modal-header h2 {
+        color: #6a0dad;
+        font-size: 1.8rem;
+        margin-bottom: 10px;
+    }
+
+    .modal-header p {
+        color: #666;
+        font-size: 1rem;
+    }
+
+    .shop-id-input {
+        width: 100%;
+        padding: 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        font-size: 1rem;
+        margin-bottom: 20px;
+        background: #f8f9fa;
+        transition: all 0.3s ease;
+        text-align: center;
+        min-height: 50px; /* Touch-friendly */
+    }
+
+    .shop-id-input:focus {
+        outline: none;
+        border-color: #8a2be2;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.1);
+    }
+
+    .submit-shop-id {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #8a2be2 0%, #9370db 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-height: 50px; /* Touch-friendly */
+    }
+
+    .submit-shop-id:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(138, 43, 226, 0.3);
+    }
+
+    .close-modal {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        position: absolute;
+        right: 20px;
+        top: 15px;
+        z-index: 1001;
+        touch-action: manipulation;
+    }
+
+    .close-modal:hover {
+        color: #8a2be2;
+    }
+
+    /* Error message styling */
+    .error-message {
+        display: none;
+        color: #d9534f;
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+        font-weight: 500;
+    }
+
+    /* Responsive */
+    @media (max-width: 700px) {
+      body {
+        flex-direction: column;
+        padding: 30px 15px;
+      }
+      .subscriptionContainer {
+        width: 100%;
+        max-width: 400px;
+      }
+      .qrCodeContainer {
+        width: 100%;
+        max-width: 400px;
+      }
+      .shop-id-container {
+        max-width: 90vw;
+        font-size: 0.85rem;
+        margin-top: 50px;
+      }
+      .shop-id-box {
+        min-width: 80px;
+        font-size: 0.8rem;
+        padding: 3px 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+    <!-- Back Button -->
+    <a href="index.html" class="back-button">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+
+  <div class="shop-id-container">
+    <span>Your Shop ID is:</span>
+    <div class="shop-id-box" id="shopIdDisplay">SHOP123</div>
+  </div>
+
+  <div class="subscriptionContainer" id="subscriptionContainer">
+    <h3>Subscription</h3>
+    <button id="subscriptionBtn">Subscribe</button>
+    <button class="action-btn" onclick="openQRCodeModal()">
+      <i class="fas fa-qrcode"></i> Generate QR Code
+    </button>
+  </div>
+
+  <!-- QR Code Modal Popup -->
+  <div id="qrCodeModal" class="modal">
+      <div class="modal-content">
+          <span class="close-modal" onclick="closeQRCodeModal()">&times;</span>
+          <div class="modal-header">
+              <h2>Enter Your Shop ID</h2>
+              <p>Please enter your genuine 6-digit Shop ID to generate the QR code.</p>
+          </div>
+          <input 
+              type="text" 
+              id="qrShopIdInput" 
+              class="shop-id-input" 
+              placeholder="Enter 6-digit Shop ID (e.g., 123456)"
+              maxlength="6"
+          >
+          <div class="error-message" id="qrShopIdError">Invalid Shop ID. Please enter a genuine 6-digit Shop ID generated during registration.</div>
+          <button class="submit-shop-id" onclick="submitQRShopId()" id="submitQRShopIdBtn">Enter</button>
+      </div>
+  </div>
+
+  <script>
+    // On page load, get the shopId from localStorage and display it
+    window.addEventListener('DOMContentLoaded', () => {
+      const shopId = localStorage.getItem('shopId');
+      if (shopId) {
+        document.getElementById('shopIdDisplay').textContent = shopId;
+      } else {
+        // Optional: handle missing shopId, e.g., redirect to login page
+        console.warn('Shop ID not found in localStorage.');
+        // window.location.href = 'login.html'; // Uncomment if you want to redirect
+      }
+    });
+
+    document.getElementById('subscriptionBtn').addEventListener('click', () => {
+      window.location.href = 'subscription.html';
+    });
+
+    // Open QR Code Modal
+    function openQRCodeModal() {
+        document.getElementById('qrCodeModal').style.display = 'block';
+        document.getElementById('qrShopIdInput').focus();
+        // Clear any previous errors
+        clearQRShopIdError();
+    }
+
+    // Close QR Code Modal
+    function closeQRCodeModal() {
+        document.getElementById('qrCodeModal').style.display = 'none';
+        document.getElementById('qrShopIdInput').value = '';
+        clearQRShopIdError();
+    }
+
+    // Clear error message and styling for QR
+    function clearQRShopIdError() {
+        const input = document.getElementById('qrShopIdInput');
+        const error = document.getElementById('qrShopIdError');
+        const btn = document.getElementById('submitQRShopIdBtn');
+        input.classList.remove('error');
+        error.style.display = 'none';
+        btn.disabled = false;
+        btn.innerHTML = 'Enter';
+    }
+
+    // Show error message and styling for QR
+    function showQRShopIdError(message) {
+        const input = document.getElementById('qrShopIdInput');
+        const error = document.getElementById('qrShopIdError');
+        const btn = document.getElementById('submitQRShopIdBtn');
+        input.classList.add('error');
+        error.textContent = message;
+        error.style.display = 'block';
+        btn.disabled = false;
+        btn.innerHTML = 'Enter';
+        input.focus();
+    }
+
+    // Submit Shop ID for QR with Firebase Validation
+    async function submitQRShopId() {
+        const shopIdInput = document.getElementById('qrShopIdInput').value.trim();
+        const btn = document.getElementById('submitQRShopIdBtn');
+
+        // Basic client-side validation: Must be exactly 6 digits
+        if (!shopIdInput || !/^\d{6}$/.test(shopIdInput)) {
+            showQRShopIdError('Please enter a valid 6-digit Shop ID (numbers only).');
+            return;
+        }
+
+        // Show loading state
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+
+        try {
+            // Firebase validation will be handled in the module script
+            // This function is called from the module script below
+            await validateAndRedirectQR(shopIdInput);
+        } catch (error) {
+            showQRShopIdError('Verification failed. Please try again.');
+            console.error('Validation error:', error);
+        }
+    }
+
+    // Enter key submission for QR shop ID input
+    document.getElementById('qrShopIdInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            submitQRShopId();
+        }
+    });
+
+    // Expose functions to global scope for onclick
+    window.openQRCodeModal = openQRCodeModal;
+    window.closeQRCodeModal = closeQRCodeModal;
+    window.submitQRShopId = submitQRShopId;
+  </script>
+
+  <!-- Firebase Integration for Shop ID Validation -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+  import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+
+  // Firebase config (same)
+  const firebaseConfig = {
+    apiKey: "AIzaSyDLwU2O2MQA3SWSlbw9Wa75_KByQ0EkZI8",
+    authDomain: "raav3d-50f8c.firebaseapp.com",
+    databaseURL: "https://raav3d-50f8c-default-rtdb.firebaseio.com",
+    projectId: "raav3d-50f8c",
+    storageBucket: "raav3d-50f8c.firebasestorage.app",
+    messagingSenderId: "528524618407",
+    appId: "1:528524618407:web:acb2c4fca0dcadd7934982"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const database = getDatabase(app);
+
+  // ✅ Updated: Validate Shop ID + Subscription before redirect
+  window.validateAndRedirectQR = async function (shopId) {
+    try {
+      // Lifetime free Shop ID (always allowed)
+      if (shopId === "572768") {
+        window.location.href = `generateqrcode.html?shopId=${encodeURIComponent(shopId)}`;
+        return;
+      }
+
+      // Check if shopId exists in /users
+      const userRef = ref(database, `users/${shopId}`);
+      const snapshot = await get(userRef);
+
+      if (!snapshot.exists()) {
+        throw new Error("Invalid Shop ID");
+      }
+
+      const userData = snapshot.val();
+
+      // Check subscription status — assuming your database stores something like
+      // subscriptionStatus: "active" or "inactive"
+      const subscriptionStatus = userData.subscriptionStatus || "inactive";
+
+      if (subscriptionStatus === "active") {
+        // Allow access
+        window.location.href = `generateqrcode.html?shopId=${encodeURIComponent(shopId)}`;
+      } else {
+        // Block access if inactive or missing subscription
+        alert(
+          "Your subscription is inactive. Please subscribe to access QR Code generation."
+        );
+        window.location.href = "subscription.html";
+      }
+    } catch (error) {
+      alert("Invalid or inactive Shop ID. Please try again or subscribe.");
+      console.error("Validation error:", error);
+    }
+  };
+</script>
+
+
+</body>
+</html>

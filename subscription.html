@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Subscribe | Razorpay</title>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f8f9fa;
+      text-align: center;
+      padding: 40px;
+    }
+    h2 {
+      color: #333;
+    }
+    .plan {
+      display: inline-block;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      padding: 20px 30px;
+      margin: 15px;
+      width: 250px;
+    }
+    button {
+      background: linear-gradient(135deg, #6c63ff, #4e54c8);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(76, 63, 255, 0.3);
+    }
+
+    /* Shop ID input section */
+    .shop-id-box {
+      margin: 25px auto 40px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 15px 25px;
+      width: 320px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .shop-id-box label {
+      font-weight: 600;
+      color: #4e54c8;
+    }
+    .shop-id-box input {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      text-align: center;
+      background: #fff;
+      color: #333;
+      outline: none;
+    }
+    .shop-id-box input:focus {
+      border-color: #6c63ff;
+      box-shadow: 0 0 4px rgba(108,99,255,0.4);
+    }
+  </style>
+</head>
+<body>
+  <h2>Choose Your Subscription Plan</h2>
+
+  <!-- ✅ Editable Shop ID Input -->
+  <div class="shop-id-box">
+    <label for="shopIdInput">Enter Your Shop ID:</label>
+    <input type="text" id="shopIdInput" placeholder="Enter Shop ID" />
+  </div>
+
+  <!-- Subscription Plans -->
+  <div class="plan">
+    <h3>3-Month Plan</h3>
+    <p>₹3,537</p>
+    <button onclick="startSubscription('plan_ReOWHjvTDNLxjo')">Subscribe</button>
+  </div>
+
+  <div class="plan">
+    <h3>6-Month Plan</h3>
+    <p>₹5,657</p>
+    <button onclick="startSubscription('plan_Rcq1CywkIigiBs')">Subscribe</button>
+  </div>
+
+  <div class="plan">
+    <h3>12-Month Plan</h3>
+    <p>₹7,066</p>
+    <button onclick="startSubscription('plan_Rcxl2mWVMEAWPg')">Subscribe</button>
+  </div>
+<script>
+  const shopInput = document.getElementById("shopIdInput");
+  const buttons = document.querySelectorAll(".plan button");
+
+  // Disable all plan buttons initially
+  buttons.forEach(btn => (btn.disabled = true));
+
+  // Check Shop ID validity on every change
+  shopInput.addEventListener("input", async () => {
+    const shopId = shopInput.value.trim();
+    if (!shopId) {
+      shopInput.style.border = "1px solid #ccc";
+      buttons.forEach(btn => (btn.disabled = true));
+      return;
+    }
+
+    try {
+      const res = await fetch(`http://localhost:5000/check-shop/${shopId}`);
+      const data = await res.json();
+
+      if (data.exists) {
+        shopInput.style.border = "2px solid #28a745"; // green
+        shopInput.style.boxShadow = "0 0 8px rgba(40,167,69,0.5)";
+        buttons.forEach(btn => (btn.disabled = false));
+      } else {
+        shopInput.style.border = "2px solid #dc3545"; // red
+        shopInput.style.boxShadow = "0 0 8px rgba(220,53,69,0.5)";
+        buttons.forEach(btn => (btn.disabled = true));
+      }
+    } catch (err) {
+      console.error("Shop check failed:", err);
+      shopInput.style.border = "2px solid #dc3545";
+      buttons.forEach(btn => (btn.disabled = true));
+    }
+  });
+
+  async function startSubscription(planId) {
+    try {
+      const shopId = shopInput.value.trim();
+      if (!shopId) {
+        alert("⚠️ Please enter your Shop ID before subscribing.");
+        return;
+      }
+
+      const response = await fetch("http://localhost:5000/create-subscription", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ planId, shopId })
+      });
+
+      const data = await response.json();
+      if (!data.id) {
+        alert("Error creating subscription: " + (data.error || "Unknown error"));
+        return;
+      }
+
+      const options = {
+        key: "rzp_test_RcyojogCAMFiUF",
+        subscription_id: data.id,
+        name: "RAAV 3D Subscription",
+        description: `Subscription for Shop ID ${shopId}`,
+        theme: { color: "#6c63ff" },
+        handler: async function (response) {
+          alert(`✅ Payment Successful!\nShop ID: ${shopId}\nPayment ID: ${response.razorpay_payment_id}`);
+          try {
+            const res = await fetch("http://localhost:5000/payment-success", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ shopId })
+            });
+            const result = await res.json();
+            if (result.success) {
+              alert("🎉 Subscription activated successfully!");
+            } else {
+              alert("⚠️ Firebase update failed.");
+            }
+          } catch (err) {
+            alert("⚠️ Firebase update failed.");
+          }
+        }
+      };
+      const rzp = new Razorpay(options);
+      rzp.open();
+    } catch (err) {
+      alert("Error: " + err.message);
+    }
+  }
+</script>
+
+</body>
+</html>
