@@ -1,7 +1,7 @@
 {
   "name": "raav3d",
-  "version": "1.1.1",
-  "description": "RAAV 3D Subscription backend (Render ready)",
+  "version": "1.0.0",
+  "description": "RAAV3D backend",
   "type": "module",
   "main": "server.js",
   "scripts": {

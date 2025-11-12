@@ -137,7 +137,7 @@
     }
 
     try {
-      const res = await fetch(`http://localhost:5000/check-shop/${shopId}`);
+const res = await fetch(`https://raav3d.onrender.com/check-shop/${shopId}`);
       const data = await res.json();
 
       if (data.exists) {
@@ -168,11 +168,12 @@
       // Store the shop ID for future pages
       localStorage.setItem("shopId", shopId);
 
-      const response = await fetch("http://localhost:5000/create-subscription", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planId, shopId })
-      });
+const response = await fetch("https://raav3d.onrender.com/create-subscription", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ planId, shopId })
+});
+
 
       const data = await response.json();
       if (!data.id) {
@@ -189,11 +190,12 @@
         handler: async function (response) {
           alert(`✅ Payment Successful!\nShop ID: ${shopId}\nPayment ID: ${response.razorpay_payment_id}`);
           try {
-            const res = await fetch("http://localhost:5000/payment-success", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ shopId })
-            });
+const res = await fetch("https://raav3d.onrender.com/payment-success", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ shopId })
+});
+
             const result = await res.json();
             if (result.success) {
               alert("🎉 Subscription activated successfully!");

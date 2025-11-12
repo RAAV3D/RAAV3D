@@ -29,34 +29,33 @@ if (!admin.apps.length) {
 const db = admin.database();
 const app = express();
 
-// ───────────────────────────────────────────────
-// ✅ Strong CORS Configuration (fix for localhost + Render + Vercel)
-// ───────────────────────────────────────────────
+// ✅ Strong & safe CORS setup
 const allowedOrigins = [
-  "https://raav2d3d.vercel.app", // frontend
-  "https://raav3d.onrender.com", // backend
-  "http://127.0.0.1:5501",       // local testing
+  "https://raav2d3d.vercel.app", // your frontend
+  "https://www.raav2d3d.vercel.app", // just in case www
+  "https://raav3d.onrender.com", // your backend itself
+  "http://127.0.0.1:5501",       // for local testing
   "http://localhost:5501"
 ];
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin) {
-        // Allow server-to-server or curl requests
-        return callback(null, true);
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.log("❌ Blocked by CORS:", origin);
+        callback(new Error("CORS not allowed"));
       }
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-      console.log("❌ Blocked by CORS:", origin);
-      return callback(new Error("Not allowed by CORS"));
     },
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
+
+// Ensure OPTIONS preflight is handled
+app.options("*", cors());
 
 app.use(bodyParser.json());
 app.use(express.static(path.resolve(__dirname, "public")));
