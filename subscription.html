@@ -106,7 +106,15 @@
   </div>
 
   <script>
-    const shopInput = document.getElementById("shopIdInput");
+
+  const storedShopId = localStorage.getItem("shopId");
+  if (!storedShopId) {
+    window.location.href = "/"; // redirect to login if not logged in
+  }
+
+
+const shopInput = document.getElementById("shopIdInput");
+shopInput.value = localStorage.getItem("shopId") || "";
     const buttons = document.querySelectorAll(".plan button");
 
     // Disable all plan buttons initially

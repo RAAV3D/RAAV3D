@@ -7,7 +7,7 @@
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/subscription", "dest": "/subscription.html" },
-    { "src": "/login", "dest": "/login.html" },
-    { "src": "/", "dest": "/login.html" }
+    { "src": "/login", "dest": "/index.html" },
+    { "src": "/", "dest": "/index.html" }
   ]
 }
