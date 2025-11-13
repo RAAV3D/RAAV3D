@@ -1,11 +1,21 @@
 import express from "express";
-import cors from "cors";
 import bodyParser from "body-parser";
 import Razorpay from "razorpay";
 import dotenv from "dotenv";
 import admin from "firebase-admin";
 import path from "path";
 import { fileURLToPath } from "url";
+import cors from "cors";
+
+app.use(cors({
+  origin: [
+    "https://raav2d3d.vercel.app", // your Vercel frontend
+    "http://localhost:5500"        // optional: for local testing
+  ],
+  methods: ["GET", "POST"],
+  credentials: true
+}));
+
 
 dotenv.config();
 
