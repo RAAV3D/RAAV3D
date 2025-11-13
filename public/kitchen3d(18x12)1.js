@@ -47,7 +47,7 @@ let uploadedTextureL = null;  // Store the uploaded texture for L
 let uploadedTextureD = null;  // Store the uploaded texture for D
 let uploadedTextureHL = null;  // Store the uploaded texture for HL
 loader.load(
-    'kitchen(18x12)1.glb',  // File name as specified
+    '/public/models/kitchen(18x12)1.glb',  // File name as specified
     function (gltf) {
         gltfScene = gltf.scene;
         gltfScene.position.set(3, -1, 4.5);

@@ -46,7 +46,7 @@ let modelLoaded = false;  // Flag to check if model is loaded
 let uploadedTextureD = null;  // Store the uploaded texture for D
 let uploadedTextureHL = null;  // Store the uploaded texture for HL
 loader.load(
-    'bathroom(18x12)11.glb',  // File name as specified
+    '/public/models/bathroom(18x12)11.glb',  // File name as specified
     function (gltf) {
         gltfScene = gltf.scene;
         gltfScene.position.set(-1, -2, 3.5);
