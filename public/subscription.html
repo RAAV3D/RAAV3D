@@ -127,7 +127,8 @@
       localStorage.setItem("shopId", shopId);
 
       // Directly create subscription (no Firebase check)
-      const response = await fetch("https://raav3d.onrender.com/create-subscription", {
+      const response = await fetch("/api/create-subscription", {
+
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ planId, shopId })
@@ -148,7 +149,8 @@
         handler: async function (response) {
           alert(`✅ Payment Successful!\nShop ID: ${shopId}\nPayment ID: ${response.razorpay_payment_id}`);
           try {
-            const res = await fetch("https://raav3d.onrender.com/payment-success", {
+            const res = await fetch("/api/payment-success", {
+
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ shopId })
