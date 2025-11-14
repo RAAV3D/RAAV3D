@@ -47,7 +47,7 @@ let uploadedTextureL = null;  // Store the uploaded texture for L
 let uploadedTextureD = null;  // Store the uploaded texture for D
 let uploadedTextureHL = null;  // Store the uploaded texture for HL
 loader.load(
-    '/public/models/bathroom(18x12)2.glb',  // File name as specified
+    '/models/bathroom(18x12)2.glb',  // File name as specified
     function (gltf) {
         gltfScene = gltf.scene;
         gltfScene.position.set(-1, -2, 3.5);
