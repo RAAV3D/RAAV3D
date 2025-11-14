@@ -45,7 +45,7 @@ let gltfScene;  // Store the loaded scene
 let modelLoaded = false;  // Flag to check if model is loaded
 let uploadedTextureL = null;  // Store the uploaded texture for L
 loader.load(
-    '/public/models/kitchen(2x4)1.glb',  // File name as specified
+    '/public/models/kitchen_2x4_1.glb',  // File name as specified
     function (gltf) {
         gltfScene = gltf.scene;
         gltfScene.position.set(3, -1, 4.5);
