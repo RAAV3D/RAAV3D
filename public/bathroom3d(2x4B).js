@@ -5,23 +5,23 @@
 
 /* ========== Put your GLB filenames/URLs here (15 entries) ========== */
 const modelPaths = [
-  "/public/models/bathroom(2x4)1.glb", // Design 1
-  "/public/models/bathroom(2x4)2.glb", // Design 2
-  "/public/models/bathroom(2x4)3.glb", // Design 3
-  "/public/models/bathroom(2x4)4.glb", // Design 4
-  "/public/models/bathroom(2x4)5.glb", // Design 5
-  "/public/models/bathroom(2x4)6.glb", // Design 6
-  "/public/models/bathroom(2x4)7.glb", // Design 7
-  "/public/models/bathroom(2x4)8.glb", // Design 8
-  "/public/models/bathroom(2x4)9.glb", // Design 9
-  "/public/models/bathroom(2x4)10.glb", // Design 10
-  "/public/models/bathroom(2x4)11.glb", // Design 11
-  "/public/models/bathroom(2x4)12.glb", // Design 12
-  "/public/models/bathroom(2x4)13.glb", // Design 13
-  "/public/models/bathroom(2x4)14.glb", // Design 14
-  "/public/models/bathroom(2x4)15.glb", // Design 15
-  "/public/models/bathroom(2x4)16.glb", // Design 16
-  "/public/models/bathroom(2x4)17.glb", // Design 17
+  "/models/bathroom(2x4)1.glb", // Design 1
+  "/models/bathroom(2x4)2.glb", // Design 2
+  "/models/bathroom(2x4)3.glb", // Design 3
+  "/models/bathroom(2x4)4.glb", // Design 4
+  "/models/bathroom(2x4)5.glb", // Design 5
+  "/models/bathroom(2x4)6.glb", // Design 6
+  "/models/bathroom(2x4)7.glb", // Design 7
+  "/models/bathroom(2x4)8.glb", // Design 8
+  "/models/bathroom(2x4)9.glb", // Design 9
+  "/models/bathroom(2x4)10.glb", // Design 10
+  "/models/bathroom(2x4)11.glb", // Design 11
+  "/models/bathroom(2x4)12.glb", // Design 12
+  "/models/bathroom(2x4)13.glb", // Design 13
+  "/models/bathroom(2x4)14.glb", // Design 14
+  "/models/bathroom(2x4)15.glb", // Design 15
+  "/models/bathroom(2x4)16.glb", // Design 16
+  "/models/bathroom(2x4)17.glb", // Design 17
   ""  // Design 18
 ];
 /* =================================================================== */
