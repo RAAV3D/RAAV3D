@@ -3,174 +3,176 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Subscribe | Razorpay</title>
+  <title>RAAV 3D – Subscription</title>
+
+  <!-- Razorpay Script -->
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
   <style>
     body {
-      font-family: "Segoe UI", sans-serif;
-      background: #f8f9fa;
-      text-align: center;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f6ff;
       padding: 40px;
+      text-align: center;
     }
+
     h2 {
       color: #333;
     }
-    .plan {
-      display: inline-block;
-      background: white;
-      border-radius: 15px;
+
+    .shop-id-box {
+      background: #fff;
+      padding: 20px;
+      width: 320px;
+      margin: 20px auto;
+      border-radius: 12px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-      padding: 20px 30px;
-      margin: 15px;
-      width: 250px;
-    }
-    button {
-      background: linear-gradient(135deg, #6c63ff, #4e54c8);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 10px rgba(76, 63, 255, 0.3);
     }
 
-    /* Shop ID input section */
-    .shop-id-box {
-      margin: 25px auto 40px;
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      padding: 15px 25px;
-      width: 320px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-    }
-    .shop-id-box label {
-      font-weight: 600;
-      color: #4e54c8;
-    }
     .shop-id-box input {
       width: 100%;
+      font-size: 18px;
       padding: 10px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
       text-align: center;
-      background: #f4f4f4;
-      color: #333;
-      outline: none;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      background: #f1f1f1;
+    }
+
+    .plan {
+      display: inline-block;
+      width: 250px;
+      background: white;
+      padding: 20px;
+      margin: 15px;
+      border-radius: 12px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+    }
+
+    button {
+      background: linear-gradient(135deg, #6a5af9, #4e53c8);
+      padding: 10px 20px;
+      color: white;
+      border-radius: 10px;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      opacity: 0.9;
     }
   </style>
 </head>
+
 <body>
-  <h2>Choose Your Subscription Plan</h2>
 
-  <!-- 🔒 Locked Shop ID Input -->
-  <div class="shop-id-box">
-    <label for="shopIdInput">Shop ID:</label>
-    <input type="text" id="shopIdInput" readonly />
-  </div>
+<h2>Choose Your RAAV 3D Subscription Plan</h2>
 
-  <!-- Subscription Plans -->
-  <div class="plan">
-    <h3>3-Month Plan</h3>
-    <p>₹3,537</p>
-    <button onclick="startSubscription('plan_Rcyh4PRfgFadRU')">Subscribe</button>
-  </div>
+<!-- SHOP ID BOX -->
+<div class="shop-id-box">
+  <label>Shop ID</label>
+  <input type="text" id="shopIdInput" readonly />
+</div>
 
-  <div class="plan">
-    <h3>6-Month Plan</h3>
-    <p>₹5,657</p>
-    <button onclick="startSubscription('plan_Rcq1CywkIigiBs')">Subscribe</button>
-  </div>
+<!-- PLANS -->
+<div class="plan">
+  <h3>3 Month Plan</h3>
+  <p>₹1</p>
+  <button onclick="payNow(1, 3)">Subscribe</button>
+</div>
 
-  <div class="plan">
-    <h3>12-Month Plan</h3>
-    <p>₹7,066</p>
-    <button onclick="startSubscription('plan_Rcxl2mWVMEAWPg')">Subscribe</button>
-  </div>
+<div class="plan">
+  <h3>6 Month Plan</h3>
+  <p>₹7073</p>
+  <button onclick="payNow(7073, 6)">Subscribe</button>
+</div>
+
+<div class="plan">
+  <h3>12 Month Plan</h3>
+  <p>₹9898</p>
+  <button onclick="payNow(9898, 12)">Subscribe</button>
+</div>
+
+<div class="plan">
+  <h3>24 Month Plan</h3>
+  <p>₹11300</p>
+  <button onclick="payNow(11300, 24)">Subscribe</button>
+</div>
+
+
 
 <script>
   const shopInput = document.getElementById("shopIdInput");
 
-  // ✅ Auto-fill Shop ID from URL or localStorage
+  // Auto-fill Shop ID
   window.addEventListener("DOMContentLoaded", () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const urlShopId = urlParams.get("shopId");
-    const savedShopId = localStorage.getItem("shopId");
+    const params = new URLSearchParams(window.location.search);
+    const urlShopId = params.get("shopId");
+    const savedId = localStorage.getItem("shopId");
 
-    // Priority: URL > localStorage
-    if (urlShopId) {
-      shopInput.value = urlShopId;
-    } else if (savedShopId) {
-      shopInput.value = savedShopId;
-    }
+    if (urlShopId) shopInput.value = urlShopId;
+    else if (savedId) shopInput.value = savedId;
   });
 
-  // ✅ Subscription creation + payment flow
-  async function startSubscription(planId) {
-    try {
-      const shopId = shopInput.value.trim();
-      if (!shopId) {
-        alert("⚠️ Shop ID is missing. Please log in again.");
-        return;
-      }
+  // MAIN PAYMENT FUNCTION
+  async function payNow(amount, months) {
+    const shopId = shopInput.value.trim();
 
-      // Store the shop ID for future use
-      localStorage.setItem("shopId", shopId);
-
-      // Directly create subscription (no Firebase check)
-      const response = await fetch("https://raav3d.onrender.com/create-subscription", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planId, shopId })
-      });
-
-      const data = await response.json();
-      if (!data.id) {
-        alert("Error creating subscription: " + (data.error || "Unknown error"));
-        return;
-      }
-
-      const options = {
-        key: "rzp_test_RcyojogCAMFiUF",
-        subscription_id: data.id,
-        name: "RAAV 3D Subscription",
-        description: `Subscription for Shop ID ${shopId}`,
-        theme: { color: "#6c63ff" },
-        handler: async function (response) {
-          alert(`✅ Payment Successful!\nShop ID: ${shopId}\nPayment ID: ${response.razorpay_payment_id}`);
-          try {
-            const res = await fetch("https://raav3d.onrender.com/payment-success", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ shopId })
-            });
-
-            const result = await res.json();
-            if (result.success) {
-              alert("🎉 Subscription activated successfully!");
-            } else {
-              alert("⚠️ Firebase update failed.");
-            }
-          } catch (err) {
-            alert("⚠️ Firebase update failed.");
-          }
-        }
-      };
-
-      const rzp = new Razorpay(options);
-      rzp.open();
-    } catch (err) {
-      alert("Error: " + err.message);
+    if (!shopId) {
+      alert("Shop ID missing. Please login again.");
+      return;
     }
+
+    localStorage.setItem("shopId", shopId);
+
+    // 1️⃣ CREATE ORDER FROM BACKEND
+    const orderRes = await fetch("https://raav3d.onrender.com/create-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ amount })
+    });
+
+    const order = await orderRes.json();
+
+    if (!order.id) {
+      alert("Error creating order.");
+      return;
+    }
+
+    // 2️⃣ RAZORPAY CHECKOUT
+    const options = {
+      key: "rzp_live_RgQ0Q9BFkhBJtY",
+      amount: order.amount,
+      currency: "INR",
+      order_id: order.id,
+      name: "RAAV 3D Subscription",
+      description: `${months}-month plan`,
+      theme: { color: "#6c63ff" },
+
+      handler: async function(response) {
+        alert("Payment Successful!");
+
+        // 3️⃣ ACTIVATE PLAN IN FIREBASE
+        const activateRes = await fetch("https://raav3d.onrender.com/activate-plan", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ shopId, months })
+        });
+
+        const result = await activateRes.json();
+
+        if (result.success) {
+          alert("🎉 Subscription Activated Successfully!");
+        } else {
+          alert("⚠️ Payment done, but activation failed.");
+        }
+      }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.open();
   }
 </script>
 

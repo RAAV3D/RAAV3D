@@ -29,12 +29,14 @@ if (!admin.apps.length) {
 const db = admin.database();
 const app = express();
 
-// ✅ Strong & safe CORS setup
+// ───────────────────────────────────────────────
+// 🔐 Strong CORS
+// ───────────────────────────────────────────────
 const allowedOrigins = [
-  "https://raav2d3d.vercel.app", // your frontend
-  "https://www.raav2d3d.vercel.app", // just in case www
-  "https://raav3d.onrender.com", // your backend itself
-  "http://127.0.0.1:5501",       // for local testing
+  "https://raav2d3d.vercel.app",
+  "https://www.raav2d3d.vercel.app",
+  "https://raav3d.onrender.com",
+  "http://127.0.0.1:5501",
   "http://localhost:5501"
 ];
 
@@ -54,9 +56,7 @@ app.use(
   })
 );
 
-// Ensure OPTIONS preflight is handled
 app.options("*", cors());
-
 app.use(bodyParser.json());
 app.use(express.static(path.resolve(__dirname, "public")));
 
@@ -69,11 +69,12 @@ const razorpay = new Razorpay({
 });
 
 // ───────────────────────────────────────────────
-// ✅ Routes
+// ✅ Check Shop ID
 // ───────────────────────────────────────────────
 app.get("/check-shop/:shopId", async (req, res) => {
   try {
     const { shopId } = req.params;
+
     if (shopId === "572768") return res.json({ exists: true });
 
     const ref = db.ref(`users/${shopId}`);
@@ -85,40 +86,62 @@ app.get("/check-shop/:shopId", async (req, res) => {
   }
 });
 
-app.post("/create-subscription", async (req, res) => {
+// ───────────────────────────────────────────────
+// 🚀 NEW ROUTE #1 – Create Normal Razorpay Order
+// ───────────────────────────────────────────────
+app.post("/create-order", async (req, res) => {
   try {
-    const { planId, shopId } = req.body;
-    const subscription = await razorpay.subscriptions.create({
-      plan_id: planId,
-      customer_notify: 1,
-      total_count: 1,
+    const { amount } = req.body;  // amount in rupees
+
+    const order = await razorpay.orders.create({
+      amount: amount * 100,        // ₹ to paise
+      currency: "INR",
+      receipt: "receipt_" + Date.now(),
     });
-    res.json({ id: subscription.id });
+
+    res.json(order);
   } catch (err) {
-    console.error("Subscription creation failed:", err);
-    res.status(500).json({ error: "Failed to create subscription" });
+    console.error("❌ Order creation failed:", err);
+    res.status(500).json({ error: "Error creating order" });
   }
 });
 
-app.post("/payment-success", async (req, res) => {
+// ───────────────────────────────────────────────
+// 🚀 NEW ROUTE #2 – Activate Subscription Plan
+// ───────────────────────────────────────────────
+app.post("/activate-plan", async (req, res) => {
   try {
-    const { shopId } = req.body;
-    if (!shopId) return res.status(400).send("Missing shopId");
+    const { shopId, months } = req.body;
+
+    if (!shopId || !months) {
+      return res.status(400).json({ success: false, error: "Missing data" });
+    }
 
     const userRef = db.ref(`users/${shopId}`);
+
+    const now = new Date();
+    const expiry = new Date();
+    expiry.setMonth(expiry.getMonth() + parseInt(months));
+
     await userRef.update({
       subscriptionStatus: "active",
-      subscriptionActivatedAt: new Date().toISOString(),
+      subscriptionMonths: months,
+      subscriptionActivatedAt: now.toISOString(),
+      subscriptionExpiresAt: expiry.toISOString(),
     });
 
-    console.log(`✅ Firebase updated for shopId: ${shopId}`);
-    res.json({ success: true, message: "Subscription activated!" });
+    console.log(`✅ Plan Activated for Shop ID: ${shopId}`);
+    res.json({ success: true });
+
   } catch (err) {
-    console.error("❌ Firebase update failed:", err);
+    console.error("❌ Plan activation failed:", err);
     res.status(500).json({ success: false });
   }
 });
 
+// ───────────────────────────────────────────────
+// TEST ROUTE
+// ───────────────────────────────────────────────
 app.get("/test-firebase", async (req, res) => {
   try {
     const ref = db.ref("test_connection");
@@ -130,13 +153,15 @@ app.get("/test-firebase", async (req, res) => {
   }
 });
 
-// ✅ Root route
+// ───────────────────────────────────────────────
+// Root route
+// ───────────────────────────────────────────────
 app.get("/", (req, res) => {
   res.sendFile(path.resolve(__dirname, "public", "index.html"));
 });
 
 // ───────────────────────────────────────────────
-// ✅ Start Server
+// Start Server
 // ───────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

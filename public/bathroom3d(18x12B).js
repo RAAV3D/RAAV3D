@@ -503,7 +503,7 @@ function createFooterButtons() {
         activeBtn.style.color = "white";
         activeBtn.style.border = "1px solid #fff";
       }
-      btn.style.background = "#FFD700"; // gold highlight for active
+      btn.style.background = "#6c63ff"; // gold highlight for active
       btn.style.color = "black";
       btn.style.border = "2px solid black";
       activeBtn = btn;
