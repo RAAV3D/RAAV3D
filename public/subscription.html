@@ -5,63 +5,113 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RAAV 3D – Subscription</title>
 
-  <!-- Razorpay Script -->
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #f4f6ff;
+      background: #eef2ff;
+      margin: 0;
       padding: 40px;
       text-align: center;
     }
 
     h2 {
-      color: #333;
+      color: #111;
+      font-size: 28px;
+      margin-bottom: 20px;
     }
 
+    /* Shop ID Box */
     .shop-id-box {
-      background: #fff;
+      background: #ffffff;
       padding: 20px;
-      width: 320px;
-      margin: 20px auto;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      width: 330px;
+      margin: 10px auto 30px auto;
+      border-radius: 14px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     }
 
     .shop-id-box input {
       width: 100%;
       font-size: 18px;
-      padding: 10px;
+      padding: 12px;
       text-align: center;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      background: #f1f1f1;
+      border-radius: 10px;
+      border: 1.5px solid #c9c9c9;
+      background: #f6f6f6;
     }
 
+    /* Plan Cards Container */
+    .plans-container {
+      display: flex;
+      justify-content: center;
+      gap: 25px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    /* Plan Cards */
     .plan {
-      display: inline-block;
-      width: 250px;
+      width: 300px;
       background: white;
-      padding: 20px;
-      margin: 15px;
-      border-radius: 12px;
-      box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+      padding: 25px;
+      border-radius: 16px;
+      text-align: center;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+      transition: 0.3s ease;
+      border: 2px solid transparent;
     }
 
+    .plan:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 10px 26px rgba(0,0,0,0.16);
+      border: 2px solid #4d5eff;
+    }
+
+    .plan h3 {
+      margin-bottom: 8px;
+      font-size: 22px;
+      color: #202020;
+      font-weight: bold;
+    }
+
+    .plan p.price {
+      font-size: 26px;
+      font-weight: bold;
+      margin: 8px 0;
+      color: #2d3ecf;
+    }
+
+    .plan p.subtext {
+      color: #444;
+      font-size: 15px;
+      margin-bottom: 10px;
+    }
+
+    /* Button */
     button {
-      background: linear-gradient(135deg, #6a5af9, #4e53c8);
-      padding: 10px 20px;
+      background: linear-gradient(135deg, #4d5eff, #3747d4);
+      padding: 12px 25px;
       color: white;
       border-radius: 10px;
       font-size: 16px;
       border: none;
       cursor: pointer;
-      margin-top: 10px;
+      width: 80%;
+      font-weight: bold;
+      transition: 0.2s;
     }
 
     button:hover {
-      opacity: 0.9;
+      opacity: 0.92;
+      transform: scale(1.04);
+    }
+
+    /* GREEN button after select */
+    .selected-btn {
+      background: linear-gradient(135deg, #0dbb4a, #0a9c3c) !important;
+      transform: scale(1.05);
     }
   </style>
 </head>
@@ -70,39 +120,55 @@
 
 <h2>Choose Your RAAV 3D Subscription Plan</h2>
 
-<!-- SHOP ID BOX -->
 <div class="shop-id-box">
-  <label>Shop ID</label>
+  <label><strong>Shop ID</strong></label>
   <input type="text" id="shopIdInput" readonly />
 </div>
 
-<!-- 3 MONTH PLAN -->
-<div class="plan">
-  <h3>3 Month Plan</h3>
-  <p>₹3537</p>
-  <button onclick="payNow(3537, 3)">Subscribe</button>
+<!-- PLAN CARDS -->
+<div class="plans-container">
+
+  <!-- 3 MONTH PLAN -->
+  <div class="plan">
+    <h3>3 Months</h3>
+    <p class="subtext">Basic plan 3-month package</p>
+    <p class="price">₹3537</p>
+    <p class="subtext" style="font-weight:bold;color:#333;">₹999 / Month</p>
+    <button onclick="selectPlan(this); payNow(3537, 3)">Select</button>
+  </div>
+
+  <!-- 6 MONTH PLAN -->
+  <div class="plan">
+    <h3>12 Months</h3>
+    <p class="subtext">Starter plan with full access</p>
+    <p class="price">₹9190</p>
+    <p class="subtext" style="font-weight:bold;color:#333;">₹649 / Month</p>
+    <button onclick="selectPlan(this); payNow(9190, 12)">Select</button>
+  </div>
+
+  <!-- 24 MONTH PLAN -->
+  <div class="plan">
+    <h3>24 Months</h3>
+    <p class="subtext">Pro plan with maximum features</p>
+    <p class="price">₹11300</p>
+    <p class="subtext" style="font-weight:bold;color:#333;">₹399 / Month</p>
+    <button onclick="selectPlan(this); payNow(11300, 24)">Select</button>
+  </div>
+
 </div>
-
-<!-- 6 MONTH PLAN -->
-<div class="plan">
-  <h3>6 Month Plan</h3>
-  <p>₹7073</p>
-  <button onclick="payNow(7073, 6)">Subscribe</button>
-</div>
-
-<!-- 24 MONTH PLAN -->
-<div class="plan">
-  <h3>24 Month Plan</h3>
-  <p>₹11300</p>
-  <button onclick="payNow(11300, 24)">Subscribe</button>
-</div>
-
-
 
 <script>
+
+  /* GREEN BUTTON SELECT FUNCTION */
+  function selectPlan(button) {
+    document.querySelectorAll("button").forEach(btn => {
+      btn.classList.remove("selected-btn");
+    });
+    button.classList.add("selected-btn");
+  }
+
   const shopInput = document.getElementById("shopIdInput");
 
-  // Auto-fill Shop ID
   window.addEventListener("DOMContentLoaded", () => {
     const params = new URLSearchParams(window.location.search);
     const urlShopId = params.get("shopId");
@@ -112,10 +178,8 @@
     else if (savedId) shopInput.value = savedId;
   });
 
-  // MAIN PAYMENT FUNCTION
   async function payNow(amount, months) {
     const shopId = shopInput.value.trim();
-
     if (!shopId) {
       alert("Shop ID missing. Please login again.");
       return;
@@ -123,7 +187,6 @@
 
     localStorage.setItem("shopId", shopId);
 
-    // 1️⃣ CREATE ORDER FROM BACKEND
     const orderRes = await fetch("https://raav3d.onrender.com/create-order", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -131,13 +194,11 @@
     });
 
     const order = await orderRes.json();
-
     if (!order.id) {
       alert("Error creating order.");
       return;
     }
 
-    // 2️⃣ RAZORPAY CHECKOUT
     const options = {
       key: "rzp_live_RgQ0Q9BFkhBJtY",
       amount: order.amount,
@@ -145,12 +206,11 @@
       order_id: order.id,
       name: "RAAV 3D Subscription",
       description: `${months}-month plan`,
-      theme: { color: "#6c63ff" },
+      theme: { color: "#4d5eff" },
 
       handler: async function(response) {
         alert("Payment Successful!");
 
-        // 3️⃣ ACTIVATE PLAN IN FIREBASE
         const activateRes = await fetch("https://raav3d.onrender.com/activate-plan", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
