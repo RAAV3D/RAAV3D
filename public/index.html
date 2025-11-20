@@ -524,7 +524,7 @@
                 <i class="fas fa-cube"></i> 3D View
             </button>
             
-            <button class="action-btn" onclick="goTo2DView()">
+            <button class="action-btn" onclick="open2DViewModal()">
                 <i class="fas fa-image"></i> 2D View
             </button>
         </div>
@@ -547,6 +547,26 @@
             >
             <div class="error-message" id="shopIdError">Invalid Shop ID. Please enter a genuine 6-digit Shop ID generated during registration.</div>
             <button class="submit-shop-id" onclick="submitShopId()" id="submitShopIdBtn">Enter</button>
+        </div>
+    </div>
+
+    <!-- 2D View Modal Popup -->
+    <div id="shopIdModal2D" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="close2DViewModal()">&times;</span>
+            <div class="modal-header">
+                <h2>Enter Your Shop ID</h2>
+                <p>Please enter your genuine 6-digit Shop ID to access the 2D view.</p>
+            </div>
+            <input 
+                type="text" 
+                id="shopIdInput2D" 
+                class="shop-id-input" 
+                placeholder="Enter 6-digit Shop ID (e.g., 123456)"
+                maxlength="6"
+            >
+            <div class="error-message" id="shopIdError2D">Invalid Shop ID. Please enter a genuine 6-digit Shop ID generated during registration.</div>
+            <button class="submit-shop-id" onclick="submitShopId2D()" id="submitShopIdBtn2D">Enter</button>
         </div>
     </div>
 
@@ -636,11 +656,79 @@ async function submitShopId() {
     }
 }
 
+// Open 2D View Modal
+function open2DViewModal() {
+    document.getElementById('shopIdModal2D').style.display = 'block';
+    document.getElementById('shopIdInput2D').focus();
+    // Clear any previous errors
+    clearShopIdError2D();
+}
+
+// Close 2D View Modal
+function close2DViewModal() {
+    document.getElementById('shopIdModal2D').style.display = 'none';
+    document.getElementById('shopIdInput2D').value = '';
+    clearShopIdError2D();
+}
+
+// Clear error message and styling for 2D
+function clearShopIdError2D() {
+    const input = document.getElementById('shopIdInput2D');
+    const error = document.getElementById('shopIdError2D');
+    const btn = document.getElementById('submitShopIdBtn2D');
+    input.classList.remove('error');
+    error.style.display = 'none';
+    btn.disabled = false;
+    btn.innerHTML = 'Enter';
+}
+
+// Show error message and styling for 2D
+function showShopIdError2D(message) {
+    const input = document.getElementById('shopIdInput2D');
+    const error = document.getElementById('shopIdError2D');
+    const btn = document.getElementById('submitShopIdBtn2D');
+    input.classList.add('error');
+    error.textContent = message;
+    error.style.display = 'block';
+    btn.disabled = false;
+    btn.innerHTML = 'Enter';
+    input.focus();
+}
+
+// Submit Shop ID for 2D View with Firebase Validation
+async function submitShopId2D() {
+    const shopIdInput = document.getElementById('shopIdInput2D').value.trim();
+    const btn = document.getElementById('submitShopIdBtn2D');
+
+    // Basic client-side validation: Must be exactly 6 digits
+    if (!shopIdInput || !/^\d{6}$/.test(shopIdInput)) {
+        showShopIdError2D('Please enter a valid 6-digit Shop ID (numbers only).');
+        return;
+    }
+
+    // Show loading state
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+
+    try {
+        // Firebase validation will be handled in the module script
+        // This function is called from the module script below
+        await validateAndRedirect2D(shopIdInput);
+    } catch (error) {
+        showShopIdError2D('Verification failed. Please try again.');
+        console.error('Validation error:', error);
+    }
+}
+
 // Close modal on outside click
 window.onclick = function(event) {
-    const modal = document.getElementById('shopIdModal');
-    if (event.target === modal) {
+    const modal3D = document.getElementById('shopIdModal');
+    const modal2D = document.getElementById('shopIdModal2D');
+    if (event.target === modal3D) {
         close3DViewModal();
+    }
+    if (event.target === modal2D) {
+        close2DViewModal();
     }
 }
 
@@ -651,10 +739,20 @@ document.getElementById('shopIdInput').addEventListener('keypress', function(e) 
     }
 });
 
+// Enter key submission for shop ID input 2D
+document.getElementById('shopIdInput2D').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        submitShopId2D();
+    }
+});
+
 // Expose functions to global scope for onclick
 window.submitShopId = submitShopId;
 window.open3DViewModal = open3DViewModal;
 window.close3DViewModal = close3DViewModal;
+window.submitShopId2D = submitShopId2D;
+window.open2DViewModal = open2DViewModal;
+window.close2DViewModal = close2DViewModal;
 </script>
 
 <!-- Firebase Integration for Shop ID Validation -->
@@ -711,10 +809,31 @@ window.close3DViewModal = close3DViewModal;
       console.error("Validation error:", error);
     }
   };
+
+  // ✅ Validate Shop ID for 2D View (no subscription check)
+  window.validateAndRedirect2D = async function(shopId) {
+    try {
+      // Lifetime free shop ID (always allowed)
+      if (shopId === "572768") {
+        window.location.href = `2Dview.html?shopId=${encodeURIComponent(shopId)}`;
+        return;
+      }
+
+      // Check if user exists
+      const userRef = ref(database, `users/${shopId}`);
+      const snapshot = await get(userRef);
+
+      if (!snapshot.exists()) {
+        throw new Error("Invalid Shop ID");
+      }
+
+      // For 2D View, no subscription check required
+      window.location.href = `2Dview.html?shopId=${encodeURIComponent(shopId)}`;
+    } catch (error) {
+      alert("Invalid Shop ID. Please try again.");
+      console.error("Validation error:", error);
+    }
+  };
 </script>
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
-
-</body>
-</html>

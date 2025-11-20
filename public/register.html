@@ -367,6 +367,29 @@
             </div>
             
             <div class="form-group">
+                <label for="name"><i class="fas fa-user"></i> Name</label>
+                <input 
+                    type="text" 
+                    id="name" 
+                    placeholder="Enter your full name" 
+                    required
+                >
+                <div class="error-message" id="nameError">Name must be at least 2 characters and contain only letters and spaces.</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="mobile"><i class="fas fa-phone"></i> Mobile Number</label>
+                <input 
+                    type="tel" 
+                    id="mobile" 
+                    placeholder="Enter your 10-digit mobile number" 
+                    required
+                    maxlength="10"
+                >
+                <div class="error-message" id="mobileError">Please enter a valid 10-digit mobile number.</div>
+            </div>
+            
+            <div class="form-group">
                 <label for="password"><i class="fas fa-lock"></i> Password</label>
                 <div class="password-group">
                     <input 
@@ -446,9 +469,13 @@
         // Validate Form Fields
         function validateForm() {
             const email = document.getElementById('email').value.trim();
+            const name = document.getElementById('name').value.trim();
+            const mobile = document.getElementById('mobile').value.trim();
             const password = document.getElementById('password').value.trim();
             const confirmPassword = document.getElementById('confirmPassword').value.trim();
             const emailError = document.getElementById('emailError');
+            const nameError = document.getElementById('nameError');
+            const mobileError = document.getElementById('mobileError');
             const passwordError = document.getElementById('passwordError');
             const confirmPasswordError = document.getElementById('confirmPasswordError');
             const signUpBtn = document.getElementById('signUpBtn');
@@ -457,6 +484,8 @@
 
             // Reset errors
             emailError.style.display = 'none';
+            nameError.style.display = 'none';
+            mobileError.style.display = 'none';
             passwordError.style.display = 'none';
             confirmPasswordError.style.display = 'none';
 
@@ -471,154 +500,173 @@
                 isValid = false;
             }
 
-            // Password validation
-            if (!password) {
-                passwordError.textContent = 'Password is required.';
-                passwordError.style.display = 'block';
+            // Name validation
+            if (!name) {
+                nameError.textContent = 'Name is required.';
+                nameError.style.display = 'block';
                 isValid = false;
-            } else if (password.length < 6) {
-                passwordError.textContent = 'Password must be at least 6 characters long.';
-                passwordError.style.display = 'block';
-                isValid = false;
-            }
-
-            // Confirm Password validation
-            if (!confirmPassword) {
-                confirmPasswordError.textContent = 'Please confirm your password.';
-                confirmPasswordError.style.display = 'block';
-                isValid = false;
-            } else if (password !== confirmPassword) {
-                confirmPasswordError.textContent = 'Passwords do not match.';
-                confirmPasswordError.style.display = 'block';
-                isValid = false;
-            }
-
-            // Enable/disable button based on validity
-            signUpBtn.disabled = !isValid;
-
-            return isValid;
-        }
-
-        // Real-time validation on input change
-        ['email', 'password', 'confirmPassword'].forEach(id => {
-            document.getElementById(id).addEventListener('input', validateForm);
-        });
-
-        // Focus on email input on page load
-        window.addEventListener('load', function() {
-            document.getElementById('email').focus();
-        });
-    </script>
-
-    <!-- Firebase Integration (Full and Complete - Fixed) -->
-  <script type="module">
-    // Import Firebase modules (use latest stable version from CDN)
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
-    import { getDatabase, ref, set, get } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js';
-    import { getAuth, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
-
-    // Your Firebase config (from Project Settings > CDN tab)
-    const firebaseConfig = {
-        apiKey: "AIzaSyDLwU2O2MQA3SWSlbw9Wa75_KByQ0EkZI8",
-        authDomain: "raav3d-50f8c.firebaseapp.com",
-        databaseURL: "https://raav3d-50f8c-default-rtdb.firebaseio.com",
-        projectId: "raav3d-50f8c",
-        storageBucket: "raav3d-50f8c.appspot.com",
-        messagingSenderId: "528524618407",
-        appId: "1:528524618407:web:acb2c4fca0dcadd7934982"
-    };
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const auth = getAuth(app);
-// ✅ Initialize EmailJS (you must use your real EmailJS public key)
-emailjs.init("kUh4OP7Ft8RFf248n"); // example key — replace with your own from emailjs.com dashboard
-
-// Function to generate unique 6-digit shop ID
-async function generateUniqueShopId() {
-  const maxAttempts = 10;
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const randomShopId = Math.floor(100000 + Math.random() * 900000);
-    const shopIdRef = ref(db, "users/" + randomShopId);
-    const snapshot = await get(shopIdRef);
-    if (!snapshot.exists()) return randomShopId.toString();
-  }
-  throw new Error("Unable to generate unique Shop ID. Please try again.");
+            } else if (name.length < 2 || !/^[a-zA-Z\s]+$/.test(name)) {
+    nameError.textContent = 'Name must be at least 2 characters and contain only letters and spaces.';
+    nameError.style.display = 'block';
+    isValid = false;
 }
 
-// Handle form submission
-document.getElementById("registerForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
+// Mobile validation
+if (!mobile) {
+    mobileError.textContent = 'Mobile number is required.';
+    mobileError.style.display = 'block';
+    isValid = false;
+} else if (!/^\d{10}$/.test(mobile)) {
+    mobileError.textContent = 'Please enter a valid 10-digit mobile number.';
+    mobileError.style.display = 'block';
+    isValid = false;
+}
 
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value.trim();
-  const confirmPassword = document.getElementById("confirmPassword").value.trim();
+// Password validation
+if (!password) {
+    passwordError.textContent = 'Password is required.';
+    passwordError.style.display = 'block';
+    isValid = false;
+} else if (password.length < 6) {
+    passwordError.textContent = 'Password must be at least 6 characters long.';
+    passwordError.style.display = 'block';
+    isValid = false;
+}
 
-  if (password !== confirmPassword || password.length < 6) {
-    alert("Passwords must match and be at least 6 characters.");
-    return;
+// Confirm Password validation
+if (!confirmPassword) {
+    confirmPasswordError.textContent = 'Please confirm your password.';
+    confirmPasswordError.style.display = 'block';
+    isValid = false;
+} else if (password !== confirmPassword) {
+    confirmPasswordError.textContent = 'Passwords do not match.';
+    confirmPasswordError.style.display = 'block';
+    isValid = false;
+}
+
+// Enable/disable button based on validity
+signUpBtn.disabled = !isValid;
+
+return isValid;
+}
+
+// Real-time validation on input change
+['email', 'name', 'mobile', 'password', 'confirmPassword'].forEach(id => {
+    document.getElementById(id).addEventListener('input', validateForm);
+});
+
+// Focus on email input on page load
+window.addEventListener('load', function() {
+    document.getElementById('email').focus();
+});
+</script>
+
+<!-- Firebase Integration (Full and Complete - Fixed) -->
+<script type="module">
+  // Import Firebase modules (use latest stable version from CDN)
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
+  import { getDatabase, ref, set, get } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js';
+  import { getAuth, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
+
+  // Your Firebase config (from Project Settings > CDN tab)
+  const firebaseConfig = {
+      apiKey: "AIzaSyDLwU2O2MQA3SWSlbw9Wa75_KByQ0EkZI8",
+      authDomain: "raav3d-50f8c.firebaseapp.com",
+      databaseURL: "https://raav3d-50f8c-default-rtdb.firebaseio.com",
+      projectId: "raav3d-50f8c",
+      storageBucket: "raav3d-50f8c.appspot.com",
+      messagingSenderId: "528524618407",
+      appId: "1:528524618407:web:acb2c4fca0dcadd7934982"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const auth = getAuth(app);
+
+  // ✅ Initialize EmailJS (you must use your real EmailJS public key)
+  emailjs.init("kUh4OP7Ft8RFf248n"); // example key — replace with your own from emailjs.com dashboard
+
+  // Function to generate unique 6-digit shop ID
+  async function generateUniqueShopId() {
+    const maxAttempts = 10;
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      const randomShopId = Math.floor(100000 + Math.random() * 900000);
+      const shopIdRef = ref(db, "users/" + randomShopId);
+      const snapshot = await get(shopIdRef);
+      if (!snapshot.exists()) return randomShopId.toString();
+    }
+    throw new Error("Unable to generate unique Shop ID. Please try again.");
   }
 
-  const signUpBtn = document.getElementById("signUpBtn");
-  signUpBtn.disabled = true;
-  signUpBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
+  // Handle form submission
+  document.getElementById("registerForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-  try {
-    // Step 1: Register user in Firebase Auth
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
+    const email = document.getElementById("email").value.trim();
+    const name = document.getElementById("name").value.trim();
+    const mobile = document.getElementById("mobile").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const confirmPassword = document.getElementById("confirmPassword").value.trim();
 
-    // Step 2: Generate shop ID
-    const randomShopId = await generateUniqueShopId();
-
-    // Step 3: Save user in Realtime Database
-    const userData = {
-      email: email,
-      shopId: randomShopId,
-      uid: user.uid,
-      createdAt: new Date().toISOString()
-    };
-    await set(ref(db, "users/" + randomShopId), userData);
-
-// Step 4: Send Welcome Email via EmailJS Template
-const templateParams = {
-  to_email: email,        // ✅ matches {{to_email}} in your template
-  shopId: randomShopId,   // ✅ matches {{shopId}} in your template
-};
-
-// Send email using EmailJS
-emailjs.send("service_xw6898u", "template_m3wnw8n", templateParams)
-  .then((response) => {
-    console.log("✅ Email sent successfully!", response);
-    alert("Registration successful! Your Shop ID has been emailed to you.");
-  })
-
-
-    try {
-      await emailjs.send("service_xw6898u", "template_aebyta5", templateParams);
-      console.log("✅ Welcome email sent to", email);
-    } catch (emailError) {
-      console.error("❌ Email sending failed:", emailError);
-      alert("Registered successfully, but welcome email could not be sent. Your Shop ID is " + randomShopId);
+    if (password !== confirmPassword || password.length < 6) {
+      alert("Passwords must match and be at least 6 characters.");
+      return;
     }
 
-    alert(`Registration successful!\nYour Shop ID is: ${randomShopId}\nA welcome email has been sent to ${email}.`);
+    const signUpBtn = document.getElementById("signUpBtn");
+    signUpBtn.disabled = true;
+    signUpBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
 
-    document.getElementById("registerForm").reset();
-    window.location.href = "login.html";
-  } catch (error) {
-    signUpBtn.disabled = false;
-    signUpBtn.innerHTML = '<i class="fas fa-user-plus"></i> Sign Up';
+    try {
+      // Step 1: Register user in Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
 
-    let msg = "Registration failed. Please try again.";
-    if (error.code === "auth/email-already-in-use") msg = "Email already registered. Please log in.";
-    else if (error.code === "auth/weak-password") msg = "Password too weak (min 6 characters).";
-    else if (error.code === "auth/invalid-email") msg = "Invalid email format.";
-    else msg = error.message;
-    alert(msg);
-  }
-});
+      // Step 2: Generate shop ID
+      const randomShopId = await generateUniqueShopId();
+
+      // Step 3: Save user in Realtime Database
+      const userData = {
+        email: email,
+        name: name,
+        mobileNumber: mobile,
+        shopId: randomShopId,
+        uid: user.uid,
+        createdAt: new Date().toISOString()
+      };
+      await set(ref(db, "users/" + randomShopId), userData);
+
+      // Step 4: Send Welcome Email via EmailJS Template
+      const templateParams = {
+        to_email: email,        // ✅ matches {{to_email}} in your template
+        shopId: randomShopId,   // ✅ matches {{shopId}} in your template
+      };
+
+      try {
+        await emailjs.send("service_xw6898u", "template_aebyta5", templateParams);
+        console.log("✅ Welcome email sent to", email);
+      } catch (emailError) {
+        console.error("❌ Email sending failed:", emailError);
+        alert("Registered successfully, but welcome email could not be sent. Your Shop ID is " + randomShopId);
+      }
+
+      alert(`Registration successful!\nYour Shop ID is: ${randomShopId}\nA welcome email has been sent to ${email}.`);
+
+      document.getElementById("registerForm").reset();
+      window.location.href = "login.html";
+    } catch (error) {
+      signUpBtn.disabled = false;
+      signUpBtn.innerHTML = '<i class="fas fa-user-plus"></i> Sign Up';
+
+      let msg = "Registration failed. Please try again.";
+      if (error.code === "auth/email-already-in-use") msg = "Email already registered. Please log in.";
+      else if (error.code === "auth/weak-password") msg = "Password too weak (min 6 characters).";
+      else if (error.code === "auth/invalid-email") msg = "Invalid email format.";
+      else msg = error.message;
+      alert(msg);
+    }
+  });
 </script>
 </body>
 </html>
