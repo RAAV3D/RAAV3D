@@ -391,11 +391,11 @@ QRCode.toCanvas(canvas, code.url, {
             link.click();
         }
 
-        // Delete QR code (from Realtime Database and optionally from Storage)
+        // Delete QR code (from Realtime Database and Firebase Storage)
         async function deleteQRCode(qrId) {
             if (confirm('Are you sure you want to delete this QR code?')) {
                 try {
-                    // Find the QR code data to get the image URL
+                    // Find the QR code data to get the image path
                     const code = qrCodes.find(c => c.id === qrId);
                     if (!code) {
                         alert('QR code not found.');
@@ -407,10 +407,10 @@ QRCode.toCanvas(canvas, code.url, {
                     await remove(qrRef);
                     console.log(`QR Code ${qrId} deleted successfully from database.`);
 
-                    // Optionally delete the image from Firebase Storage (uncomment to enable)
-                    // const imageRef = ref(storage, code.url); // Assuming code.url is the download URL
-                    // await deleteObject(imageRef);
-                    // console.log(`Image deleted successfully from storage.`);
+                    // Delete the image from Firebase Storage using the stored path
+                    const imageRef = ref(storage, code.path);
+                    await deleteObject(imageRef);
+                    console.log(`Image deleted successfully from storage.`);
 
                     // Reload the list to update the display
                     loadQRCodes();
@@ -427,7 +427,6 @@ QRCode.toCanvas(canvas, code.url, {
             const filteredCodes = qrCodes.filter(code => code.name.toLowerCase().includes(searchTerm));
             displayQRCodes(filteredCodes);
         });
-
         // Handle form submission
         uploadForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -461,6 +460,7 @@ QRCode.toCanvas(canvas, code.url, {
                 await set(newQRRef, {
                     name: name,
                     url: downloadURL,
+                    path: storageRef.fullPath,  // Added path for deletion
                     createdAt: new Date().toISOString()
                 });
 
