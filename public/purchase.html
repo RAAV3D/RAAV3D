@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase - Stock Management</title>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --bg-color: #f0f2f5;
+            --white: #ffffff;
+            --shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header h1 { margin: 0; font-size: 1.5rem; }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 15px;
+            flex: 1;
+        }
+
+        .purchase-list {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+        }
+
+        .purchase-list h2 {
+            margin-top: 0;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .purchase-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .purchase-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .purchase-item.active {
+            background: #d4edda;
+            border-left-color: var(--success-color);
+        }
+
+        .purchase-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .purchase-number {
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        .purchase-date {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .purchase-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .purchase-detail-item {
+            font-size: 0.9rem;
+        }
+
+        .purchase-detail-label {
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        .purchase-detail-value {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .add-purchase-btn {
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 25px;
+            transition: background 0.2s;
+        }
+
+        .add-purchase-btn:hover {
+            background-color: #219150;
+        }
+
+        .purchase-form {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            display: none;
+        }
+
+        .purchase-form.active {
+            display: block;
+        }
+
+        .purchase-form h2 {
+            margin-top: 0;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            text-transform: uppercase;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        .items-table th {
+            background: var(--primary-color);
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .items-table td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .items-table input, .items-table select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .items-table input:focus, .items-table select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .items-table input.error {
+            border-color: var(--danger-color);
+            background-color: #fff5f5;
+        }
+
+        .error-message {
+            color: var(--danger-color);
+            font-size: 0.8rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .remove-item-btn {
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .remove-item-btn:hover {
+            background: #c0392b;
+        }
+
+        .add-item-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .add-item-btn:hover {
+            background: #2980b9;
+        }
+
+        .payment-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .payment-section h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .payment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .payment-item {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+
+        .payment-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .payment-item-title {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .payment-status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .payment-status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .payment-status.clear {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .payment-amount {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .payment-date {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .toggle-status-btn {
+            background: var(--warning-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .toggle-status-btn:hover {
+            background: #e67e22;
+        }
+
+        .submit-btn {
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        .submit-btn:hover {
+            background-color: #219150;
+        }
+
+        .submit-btn:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        /* ✅ MOBILE RESPONSIVE TABLE FIX */
+@media (max-width: 768px) {
+
+    .items-table {
+        display: block;
+        width: 100%;
+        overflow-x: auto; /* 👉 horizontal scroll */
+        white-space: nowrap;
+    }
+
+    .items-table thead {
+        display: table;
+        width: 100%;
+    }
+
+    .items-table tbody {
+        display: table;
+        width: 100%;
+    }
+
+    .items-table th, 
+    .items-table td {
+        min-width: 140px; /* 👉 prevents squishing */
+    }
+
+    /* Better input spacing on mobile */
+    .items-table input,
+    .items-table select {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    /* Buttons spacing */
+    .remove-item-btn {
+        padding: 10px;
+    }
+}
+.status-clear {
+    color: #27ae60;
+    background: rgba(39, 174, 96, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.status-pending {
+    color: #e74c3c;
+    background: rgba(231, 76, 60, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1><i class="fas fa-shopping-cart"></i> Purchase Management</h1>
+    </header>
+
+    <div class="container">
+        
+        <!-- Add Purchase Button (MOVED TO TOP) -->
+        <button class="add-purchase-btn" onclick="showAddPurchaseForm()">
+            <i class="fas fa-plus-circle"></i> Add New Purchase
+        </button>
+
+
+
+        <!-- Purchase Form -->
+        <div id="purchaseForm" class="purchase-form">
+            <h2><i class="fas fa-edit"></i> <span id="formTitle">Add Purchase</span></h2>
+            
+            <form id="form" onsubmit="handlePurchase(event)">
+                <div class="form-group">
+                    <label for="date">Purchase Date</label>
+                    <input type="date" id="date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="supplier">Supplier Name</label>
+                    <input type="text" id="supplier" placeholder="Supplier name" oninput="this.value = this.value.toUpperCase()">
+                </div>
+
+                <!-- Items Table -->
+                <div class="form-group">
+                    <label><i class="fas fa-boxes"></i> Items</label>
+                    <table class="items-table" id="itemsTable">
+                        <thead>
+                            <tr>
+                                <th>Size Name</th>
+                                <th>Tile Name</th>
+                                <th>Number of Boxes</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="itemsTableBody">
+                            <!-- Items will be added here -->
+                        </tbody>
+                    </table>
+                    <button type="button" class="add-item-btn" onclick="addItem()">
+                        <i class="fas fa-plus"></i> Add Item
+                    </button>
+                </div>
+
+                <!-- Payment Section -->
+                <div class="payment-section">
+                    <h3><i class="fas fa-money-bill-wave"></i> Payment Details</h3>
+                    <div class="payment-grid">
+                        <div class="payment-item">
+                            <div class="payment-item-header">
+                                <span class="payment-item-title">RTGS to Company</span>
+                                <span class="payment-status pending" id="rtgsCompanyStatus">Pending</span>
+                            </div>
+                            <div class="payment-amount">₹<input type="number" id="rtgsCompanyAmount" placeholder="0.00" min="0" step="0.01" oninput="updatePaymentAmount('rtgsCompany', this.value)"></div>
+                            <div class="payment-date">
+                                Last Updated:
+                                <input type="date" id="rtgsCompanyDateInput" 
+                                    onchange="updatePaymentDate('rtgsCompany', this.value)">
+                            </div>
+                            <button type="button" class="toggle-status-btn" onclick="togglePaymentStatus('rtgsCompany')">
+                                Toggle Status
+                            </button>
+                        </div>
+
+                        <div class="payment-item">
+                            <div class="payment-item-header">
+                                <span class="payment-item-title">Cash to Company</span>
+                                <span class="payment-status pending" id="cashCompanyStatus">Pending</span>
+                            </div>
+                            <div class="payment-amount">₹<input type="number" id="cashCompanyAmount" placeholder="0.00" min="0" step="0.01" oninput="updatePaymentAmount('cashCompany', this.value)"></div>
+                            <div class="payment-date">
+                                Last Updated:
+                                <input type="date" id="cashCompanyDateInput" 
+                                    onchange="updatePaymentDate('cashCompany', this.value)">
+                            </div>
+                            <button type="button" class="toggle-status-btn" onclick="togglePaymentStatus('cashCompany')">
+                                Toggle Status
+                            </button>
+                        </div>
+
+                        <div class="payment-item">
+                            <div class="payment-item-header">
+                                <span class="payment-item-title">RTGS to Transport</span>
+                                <span class="payment-status pending" id="rtgsTransportStatus">Pending</span>
+                            </div>
+                            <div class="payment-amount">₹<input type="number" id="rtgsTransportAmount" placeholder="0.00" min="0" step="0.01" oninput="updatePaymentAmount('rtgsTransport', this.value)"></div>
+                            <div class="payment-date">
+                                Last Updated:
+                                <input type="date" id="rtgsTransportDateInput" 
+                                    onchange="updatePaymentDate('rtgsTransport', this.value)">
+                            </div>
+                            <button type="button" class="toggle-status-btn" onclick="togglePaymentStatus('rtgsTransport')">
+                                Toggle Status
+                            </button>
+                        </div>
+
+                        <div class="payment-item">
+                            <div class="payment-item-header">
+                                <span class="payment-item-title">Cash to Transport</span>
+                                <span class="payment-status pending" id="cashTransportStatus">Pending</span>
+                            </div>
+                            <div class="payment-amount">₹<input type="number" id="cashTransportAmount" placeholder="0.00" min="0" step="0.01" oninput="updatePaymentAmount('cashTransport', this.value)"></div>
+                            <div class="payment-date">
+                                Last Updated:
+                            <input type="date" id="cashTransportDateInput" 
+                                onchange="updatePaymentDate('cashTransport', this.value)">
+                            </div>
+                            <button type="button" class="toggle-status-btn" onclick="togglePaymentStatus('cashTransport')">
+                                Toggle Status
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="submit-btn" id="updatePaymentBtn" onclick="updateOnlyPayment()" style="display:none;">
+    <i class="fas fa-money-check-alt"></i> Update Payment Details
+</button>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <i class="fas fa-save"></i> Save Purchase
+                </button>
+            </form>
+
+            <!-- Success Message -->
+            <div id="successMessage" class="success-message">
+                <i class="fas fa-check-circle"></i> Purchase saved successfully!
+            </div>
+        </div>
+        <!-- Purchase List -->
+        <div class="purchase-list">
+            <h2><i class="fas fa-list"></i> Purchase History</h2>
+            <div id="purchaseListContainer">
+                <div class="loading">Loading purchases...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <script>
+        // 1. Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDLwU2O2MQA3SWSlbw9Wa75_KByQ0EkZI8",
+            authDomain: "raav3d-50f8c.firebaseapp.com",
+            databaseURL: "https://raav3d-50f8c-default-rtdb.firebaseio.com",
+            projectId: "raav3d-50f8c",
+            storageBucket: "raav3d-50f8c.firebasestorage.app",
+            messagingSenderId: "528524618407",
+            appId: "1:528524618407:web:acb2c4fca0dcadd7934982"
+        };
+
+        // 2. Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // 3. Get Shop ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const shopID = urlParams.get('shopId') || "";
+
+        if (!shopID) {
+            alert("Error: Shop ID is missing! Please navigate from the dashboard.");
+            window.location.href = "myshop.html";
+        }
+
+        // Current Purchase ID being edited
+        let currentPurchaseId = null;
+        
+        // Items array
+        let items = [];
+        
+        // Payment status tracking
+        let paymentStatus = {
+            rtgsCompany: { status: 'pending', lastUpdated: null, amount: 0 },
+            cashCompany: { status: 'pending', lastUpdated: null, amount: 0 },
+            rtgsTransport: { status: 'pending', lastUpdated: null, amount: 0 },
+            cashTransport: { status: 'pending', lastUpdated: null, amount: 0 }
+        };
+
+        // All sizes and tiles data
+        let allSizesData = [];
+        
+        // Track if we're editing existing purchase
+        let isEditingExistingPurchase = false;
+        
+        // Set default date to today
+        document.getElementById('date').valueAsDate = new Date();
+
+        // 4. Load All Sizes and Tiles
+        function loadAllSizesAndTiles() {
+            database.ref('shops/' + shopID + '/credentials').on('value', (snapshot) => {
+                allSizesData = [];
+                
+                if (snapshot.exists()) {
+                    snapshot.forEach((childSnapshot) => {
+                        const sizeData = childSnapshot.val();
+                        const sizeId = childSnapshot.key;
+                        
+                        allSizesData.push({
+                            id: sizeId,
+                            name: sizeData.name,
+                            sqftPerBox: sizeData.sqftPerBox || 0,
+                            tiles: sizeData.tiles || {}
+                        });
+                    });
+                }
+            });
+        }
+
+        // 5. Initialize Items Table
+        function initializeItemsTable() {
+            const tbody = document.getElementById('itemsTableBody');
+            tbody.innerHTML = '';
+            items.forEach((item, index) => {
+                addRowToTable(item, index);
+            });
+        }
+
+// 6. Add Row to Table - UPDATED TO FILTER TILES BY SELECTED SIZE
+function addRowToTable(item, index) {
+    const tbody = document.getElementById('itemsTableBody');
+    const row = document.createElement('tr');
+    
+    // Get size options
+    const sizeOptions = allSizesData.map(size => 
+        `<option value="${size.name}" ${size.name === item.sizeName ? 'selected' : ''}>${size.name}</option>`
+    ).join('');
+    
+    // FIXED: Get tiles ONLY from the SELECTED size
+    const selectedSize = allSizesData.find(size => size.name === item.sizeName);
+    let sizeSpecificTiles = [];
+    if (selectedSize && selectedSize.tiles) {
+        sizeSpecificTiles = Object.values(selectedSize.tiles);
+    }
+    
+    const tileOptions = sizeSpecificTiles
+        .filter(tile => tile.name.toUpperCase().includes(item.tileName || ''))
+        .map(tile => 
+            `<option value="${tile.name}" ${tile.name === item.tileName ? 'selected' : ''}>${tile.name}</option>`
+        ).join('');
+
+    const disabled = isEditingExistingPurchase ? 'disabled' : '';
+    const removeBtn = isEditingExistingPurchase ? 'style="display:none;"' : '';
+
+    row.innerHTML = `
+        <td>
+            <select class="item-size sizeSelect" onchange="updateItem(${index}, 'sizeName', this.value); updateTileOptions(${index}, this.value); validateSize(${index})" ${disabled}>
+                <option value="">Select Size</option>
+                ${sizeOptions}
+            </select>
+            <div class="error-message" id="sizeError${index}">Size not found</div>
+        </td>
+        <td>
+            <input type="text" class="item-tile tileName" value="${item.tileName || ''}" placeholder="Tile Name" oninput="checkTileName(this, this.closest('tr').querySelector('.sizeSelect')); updateItem(${index}, 'tileName', this.value); validateTile(${index})" list="tileSuggestions${index}" ${disabled}>
+            <datalist id="tileSuggestions${index}">
+                ${tileOptions}
+            </datalist>
+            <div class="error-message" id="tileError${index}">Tile not found</div>
+        </td>
+        <td>
+            <input type="number" class="item-boxes" value="${item.boxes || 1}" placeholder="Boxes" min="1" oninput="updateItem(${index}, 'boxes', this.value)" ${disabled}>
+        </td>
+        <td><button type="button" class="remove-item-btn" onclick="removeItem(${index})" ${removeBtn}><i class="fas fa-trash"></i></button></td>
+    `;
+    tbody.appendChild(row);
+}
+// NEW: Update tile dropdown options based on selected size
+function updateTileOptions(index, sizeName) {
+    const row = document.querySelectorAll('#itemsTableBody tr')[index];
+    if (!row) return;
+    
+    const tileInput = row.querySelector('.item-tile');
+    const datalist = row.querySelector('datalist');
+    
+    // Get tiles for selected size only
+    const selectedSize = allSizesData.find(size => size.name === sizeName);
+    let sizeSpecificTiles = [];
+    if (selectedSize && selectedSize.tiles) {
+        sizeSpecificTiles = Object.values(selectedSize.tiles);
+    }
+    
+    // Update datalist options
+    datalist.innerHTML = sizeSpecificTiles
+        .map(tile => `<option value="${tile.name}">`)
+        .join('');
+}
+
+        // Helper function to get all tiles
+        function getAllTiles() {
+            let allTiles = [];
+            allSizesData.forEach(size => {
+                if (size.tiles) {
+                    Object.values(size.tiles).forEach(tile => {
+                        allTiles.push({
+                            name: tile.name,
+                            sizeName: size.name
+                        });
+                    });
+                }
+            });
+            return allTiles;
+        }
+
+        // 7. Add Item
+        function addItem() {
+            items.push({ sizeName: '', tileName: '', boxes: 1, exists: false });
+            addRowToTable(items[items.length - 1], items.length - 1);
+        }
+
+        // 8. Remove Item
+        function removeItem(index) {
+            items.splice(index, 1);
+            initializeItemsTable();
+        }
+
+        // 9. Update Item
+        function updateItem(index, field, value) {
+            if (field === 'sizeName') {
+                items[index].sizeName = value.toUpperCase();
+                validateSize(index);
+            } else if (field === 'tileName') {
+                items[index].tileName = value.toUpperCase();
+                validateTile(index);
+            } else if (field === 'boxes') {
+items[index].boxes = Math.max(0, parseInt(value) || 0);            }
+        }
+
+        // 10. Validate Size - FIXED with null checks
+        function validateSize(index) {
+            const sizeName = items[index].sizeName;
+            const sizeError = document.getElementById(`sizeError${index}`);
+            const sizeInput = document.querySelector(`.item-size:nth-of-type(${index + 1})`);
+            
+            // Add null checks to prevent errors
+            if (!sizeError || !sizeInput) return;
+            
+            const sizeExists = allSizesData.some(s => s.name === sizeName);
+            
+            if (sizeName && !sizeExists) {
+                sizeError.classList.add('show');
+                sizeInput.classList.add('error');
+            } else {
+                sizeError.classList.remove('show');
+                sizeInput.classList.remove('error');
+            }
+        }
+
+        // 11. Validate Tile - FIXED with null checks
+        function validateTile(index) {
+            const tileName = items[index].tileName;
+            const tileError = document.getElementById(`tileError${index}`);
+            const tileInput = document.querySelector(`.item-tile:nth-of-type(${index + 1})`);
+            
+            // Add null checks to prevent errors
+            if (!tileError || !tileInput) return;
+            
+            const sizeName = items[index].sizeName;
+            const selectedSize = allSizesData.find(s => s.name === sizeName);
+            
+            let tileExists = false;
+            if (selectedSize && selectedSize.tiles) {
+                tileExists = Object.values(selectedSize.tiles).some(tile => tile.name === tileName);
+            }
+            
+            if (tileName && !tileExists) {
+                tileError.classList.remove('show'); 
+                tileInput.classList.remove('error');
+            }
+        }
+
+        // 12. Check Tile Name - NEW FUNCTION
+        function checkTileName(input, sizeSelect) {
+            const row = input.closest("tr");
+            const index = row.rowIndex - 1;
+
+            const tileName = input.value.trim().toUpperCase();
+            const size = sizeSelect.value;
+
+            if (!tileName || !size) {
+                input.style.border = "2px solid #ddd";
+                items[index].exists = null;
+                return;
+            }
+
+            database.ref("shops/" + shopID + "/credentials/" + size + "/tiles")
+            .once("value")
+            .then(snapshot => {
+
+                let exists = false;
+
+                if(snapshot.exists()){
+                    snapshot.forEach(child=>{
+                        if(child.val().name.toUpperCase() === tileName){
+                            exists = true;
+                        }
+                    });
+                }
+
+                if(exists){
+                    input.style.border = "2px solid green";
+                    items[index].exists = true;
+                } else {
+                    input.style.border = "2px solid red";
+                    items[index].exists = false;
+                }
+
+            });
+        }
+
+        // 13. Show Add Purchase Form
+function showAddPurchaseForm() {
+    currentPurchaseId = null;
+    isEditingExistingPurchase = false;
+    document.getElementById('formTitle').textContent = 'Add Purchase';
+    document.getElementById('purchaseForm').classList.add('active');
+    document.getElementById('form').reset();
+    document.getElementById('date').valueAsDate = new Date();
+    items = [];
+    initializeItemsTable();
+    
+    // Reset payment status
+    paymentStatus = {
+        rtgsCompany: { status: 'pending', lastUpdated: null, amount: 0 },
+        cashCompany: { status: 'pending', lastUpdated: null, amount: 0 },
+        rtgsTransport: { status: 'pending', lastUpdated: null, amount: 0 },
+        cashTransport: { status: 'pending', lastUpdated: null, amount: 0 }
+    };
+    updatePaymentUI();
+
+    // ✅ ADD THIS (IMPORTANT)
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '<i class="fas fa-save"></i> Save Purchase';
+    // ❌ Hide Update Payment button
+document.getElementById('updatePaymentBtn').style.display = 'none';
+}
+// 14. Update Payment UI - UPDATED
+function updatePaymentUI() {
+    Object.keys(paymentStatus).forEach(key => {
+        const status = paymentStatus[key].status;
+        const lastUpdated = paymentStatus[key].lastUpdated;
+        
+        const statusElement = document.getElementById(key + 'Status');
+        const dateElement = document.getElementById(key + 'Date');
+        const dateInput = document.getElementById(key + 'DateInput');
+        
+        if (statusElement) {
+            statusElement.textContent = status === 'clear' ? 'Clear' : 'Pending';
+            statusElement.className = 'payment-status ' + status;
+        }
+        
+        if (dateInput) {
+            if (lastUpdated) {
+                const dateStr = new Date(lastUpdated).toISOString().split('T')[0];
+                dateInput.value = dateStr;
+            } else {
+                dateInput.value = '';
+            }
+        }
+    });
+}
+
+// ✅ ADD HERE 👇 (NEW FUNCTION)
+function updateOnlyPayment() {
+    if (!currentPurchaseId) {
+        alert("No purchase selected!");
+        return;
+    }
+
+    // ✅ Get button safely (no event needed)
+    const btn = document.getElementById('updatePaymentBtn');
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+
+    firebase.database().ref('shops/' + shopID + '/purchases/' + currentPurchaseId).update({
+        paymentStatus: paymentStatus,
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+    })
+    .then(() => {
+        btn.innerHTML = '<i class="fas fa-check"></i> Updated';
+        setTimeout(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-money-check-alt"></i> Update Payment Details';
+        }, 1500);
+    })
+    .catch(err => {
+        alert("Error updating payment: " + err.message);
+        btn.disabled = false;
+    });
+}
+
+// 15. Update Payment Amount
+function updatePaymentAmount(key, value) {
+    const amount = parseFloat(value) || 0;
+    paymentStatus[key].amount = amount;
+
+    // ✅ Auto status
+    paymentStatus[key].status = amount > 0 ? 'clear' : 'pending';
+
+    // ✅ Auto date
+    if (amount > 0) {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById(key + 'DateInput').value = today;
+        paymentStatus[key].lastUpdated = new Date(today).getTime();
+    }
+
+    updatePaymentUI();
+}
+
+// ✅ ADD HERE (STEP 2 FUNCTION)
+function updatePaymentDate(key, dateValue) {
+    if (!dateValue) return;
+
+    paymentStatus[key].lastUpdated = new Date(dateValue).getTime();
+    updatePaymentUI();
+}
+
+        // 16. Toggle Payment Status
+        function togglePaymentStatus(key) {
+            const currentStatus = paymentStatus[key].status;
+            const newStatus = currentStatus === 'pending' ? 'clear' : 'pending';
+            paymentStatus[key].status = newStatus;
+            paymentStatus[key].lastUpdated = new Date().getTime();
+            updatePaymentUI();
+        }
+
+        // 17. Create Tile in Stock - NEW FUNCTION
+async function createTileInStock(item) {
+
+    const sizeName = item.sizeName?.trim();
+
+    if (!sizeName) {
+        console.error("Invalid size while creating tile.");
+        return;
+    }
+
+    // Find correct sizeId
+    const snapshot = await database
+        .ref("shops/" + shopID + "/credentials")
+        .once("value");
+
+    let sizeId = null;
+
+    snapshot.forEach(child => {
+        if (child.val().name === sizeName) {
+            sizeId = child.key;
+        }
+    });
+
+    if (!sizeId) {
+        console.error("Size not found in credentials.");
+        return;
+    }
+
+    // Now push correctly inside sizeId
+return database.ref(
+    "shops/" + shopID + "/credentials/" + sizeId + "/tiles"
+).push({
+    name: item.tileName,
+    boxes: 0,   // ⚠️ IMPORTANT
+    createdFrom: "purchase",
+    createdAt: Date.now()
+});
+}
+
+        // 18. Validate Tiles Before Save - NEW FUNCTION
+async function validateTilesBeforeSave(items) {
+
+    const missingTiles = [];
+
+    for (let item of items) {
+
+        // Validate size
+        if (!item.sizeName || item.sizeName === "undefined" || item.sizeName.trim() === "") {
+            alert("Invalid Size Name. Please select a valid size.");
+            return false;
+        }
+
+        // Validate tile
+        if (!item.tileName || item.tileName === "undefined" || item.tileName.trim() === "") {
+            alert("Invalid Tile Name. Please enter a valid tile name.");
+            return false;
+        }
+
+        // Collect missing tiles instead of alerting immediately
+        if (item.exists === false) {
+            missingTiles.push(item);
+        }
+    }
+
+    // ✅ If no missing tiles → continue normally
+    if (missingTiles.length === 0) {
+        return true;
+    }
+
+    // ✅ Build single confirmation message
+    let message = "The following tiles do not exist in stock:\n\n";
+
+    missingTiles.forEach((item, index) => {
+        message += `${index + 1}. ${item.sizeName} - ${item.tileName}\n`;
+    });
+
+    message += "\nCreate all of them automatically?";
+
+    const confirmCreate = confirm(message);
+
+    if (!confirmCreate) {
+        return false;
+    }
+
+    // ✅ Create all tiles together
+    await Promise.all(
+        missingTiles.map(item => createTileInStock(item))
+    );
+
+    return true;
+}
+
+        // 19. Handle Purchase Submission
+        async function handlePurchase(event) {
+            event.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            const successMessage = document.getElementById('successMessage');
+
+            // Validate all items
+            let hasErrors = false;
+            items.forEach((item, index) => {
+                validateSize(index);
+                validateTile(index);
+                const sizeError = document.getElementById(`sizeError${index}`);
+                const tileError = document.getElementById(`tileError${index}`);
+                
+                if (sizeError && sizeError.classList.contains('show') || 
+                    tileError && tileError.classList.contains('show')) {
+                    hasErrors = true;
+                }
+            });
+
+            if (hasErrors) {
+                alert("Please fill all required fields correctly!");
+                return;
+            }
+
+            // After normal validation, check tiles
+            const validTiles = await validateTilesBeforeSave(items);
+
+            if (!validTiles) {
+                return;
+            }
+
+            // Disable button while processing
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+            // Get form values
+            const date = document.getElementById('date').value;
+            const supplier = document.getElementById('supplier').value.trim().toUpperCase();
+
+            // Check if purchase exists
+if (currentPurchaseId) {
+    // ✅ ONLY UPDATE DATA (NO STOCK CHANGE)
+    updatePurchase(currentPurchaseId, date, supplier);
+} else {
+    // ✅ ONLY NEW PURCHASE WILL UPDATE STOCK
+    createNewPurchase(date, supplier);
+}
+        }
+
+        // 20. Create New Purchase
+        function createNewPurchase(date, supplier) {
+            const database = firebase.database();
+
+            const newPurchase = {
+                date: date,
+                supplier: supplier,
+                items: items,
+                paymentStatus: paymentStatus,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            };
+
+            database.ref('shops/' + shopID + '/purchases').push(newPurchase)
+                .then((purchaseRef) => {
+                    const purchaseId = purchaseRef.key;
+                    updateStockFromPurchase(purchaseId);
+                    showSuccess();
+                })
+                .catch((error) => {
+                    alert("Error creating purchase: " + error.message);
+                    resetButton();
+                });
+        }
+
+        // 21. Update Existing Purchase
+        function updatePurchase(purchaseId, date, supplier) {
+            const database = firebase.database();
+
+            database.ref('shops/' + shopID + '/purchases/' + purchaseId).update({
+                date: date,
+                supplier: supplier,
+                items: items,
+                paymentStatus: paymentStatus,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            })
+.then(() => {
+    // ✅ IMPORTANT: Do NOT update stock again while editing
+    showSuccess();
+})
+            .catch((error) => {
+                alert("Error updating purchase: " + error.message);
+                resetButton();
+            });
+        }
+
+        // 22. Update Stock from Purchase - FIXED (Prevents undefined containers)
+        function updateStockFromPurchase(purchaseId) {
+            const database = firebase.database();
+
+            // Process each item
+            items.forEach(item => {
+                // FIX 1: Check for invalid size/tileName to prevent undefined containers
+                const size = item.sizeName ? item.sizeName.trim() : "";
+                const tileName = item.tileName ? item.tileName.trim() : "";
+                const boxes = item.boxes || 0;
+
+                if (!size || size === "undefined" || size === "") {
+                    console.error("Invalid size. Stock not created.");
+                    return;
+                }
+
+                if (!tileName || tileName === "undefined" || tileName === "") {
+                    console.error("Invalid tile name.");
+                    return;
+                }
+
+                // Check if size exists
+                database.ref('shops/' + shopID + '/credentials').once('value', (snapshot) => {
+                    let sizeId = null;
+                    let sizeData = null;
+
+                    if (snapshot.exists()) {
+                        snapshot.forEach((childSnapshot) => {
+                            const data = childSnapshot.val();
+                            if (data.name === size) {
+                                sizeId = childSnapshot.key;
+                                sizeData = data;
+                            }
+                        });
+                    }
+
+                    if (sizeId) {
+                        // Size exists, add/update tiles
+                        updateTilesInSize(sizeId, size, tileName, boxes);
+                    } else {
+                        // Size doesn't exist - show error
+                        alert(`Size "${size}" not found in stock. Please add it first.`);
+                        resetButton();
+                    }
+                });
+            });
+        }
+
+        // 23. Update Tiles in Existing Size - FIXED (No duplicate confirmation)
+        function updateTilesInSize(sizeId, size, tileName, boxes) {
+            const database = firebase.database();
+
+            // Check if tile exists
+            database.ref('shops/' + shopID + '/credentials/' + sizeId + '/tiles').once('value', (snapshot) => {
+                let tileId = null;
+                
+                if (snapshot.exists()) {
+                    snapshot.forEach((childSnapshot) => {
+                        const tile = childSnapshot.val();
+                        if (tile.name === tileName) {
+                            tileId = childSnapshot.key;
+                        }
+                    });
+                }
+
+                if (tileId) {
+                    // FIX 3: Tile exists - just update boxes (no duplicate, no confirmation)
+                    database.ref('shops/' + shopID + '/credentials/' + sizeId + '/tiles/' + tileId).update({
+                        boxes: firebase.database.ServerValue.increment(boxes),
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    });
+                } else {
+                    // Tile doesn't exist - this should not happen if validateTilesBeforeSave worked
+                    // But if it does, we create it silently (no confirmation to avoid double alerts)
+                    const newTile = {
+                        name: tileName,
+                        boxes: boxes,
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    };
+
+                    database.ref('shops/' + shopID + '/credentials/' + sizeId + '/tiles').push(newTile)
+                        .then(() => {
+                            // Tile created successfully
+                        })
+                        .catch((error) => {
+                            console.error("Error creating tile: " + error.message);
+                        });
+                }
+            });
+        }
+
+        // 24. Load Purchase List
+        function loadPurchaseList() {
+            const listContainer = document.getElementById('purchaseListContainer');
+            
+            database.ref('shops/' + shopID + '/purchases').on('value', (snapshot) => {
+                listContainer.innerHTML = '';
+
+                if (!snapshot.exists()) {
+                    listContainer.innerHTML = '<div class="loading">No purchases found.</div>';
+                    return;
+                }
+
+                let purchases = [];
+                snapshot.forEach((childSnapshot) => {
+                    const data = childSnapshot.val();
+                    purchases.push({
+                        id: childSnapshot.key,
+                        ...data
+                    });
+                });
+
+                // Sort by date (newest first)
+                purchases.sort((a, b) => b.timestamp - a.timestamp);
+
+                // Display purchases
+                purchases.forEach((purchase, index) => {
+                    const purchaseNumber = purchases.length - index;
+                    const purchaseDiv = document.createElement('div');
+                    purchaseDiv.className = 'purchase-item';
+                    purchaseDiv.onclick = () => loadPurchaseData(purchase.id);
+
+                    const totalBoxes = purchase.items.reduce((sum, item) => sum + (item.boxes || 0), 0);
+
+                    purchaseDiv.innerHTML = `
+                        <div class="purchase-header">
+                            <span class="purchase-number">Purchase #${purchaseNumber}</span>
+                            <span class="purchase-date">${new Date(purchase.date).toLocaleDateString()}</span>
+                        </div>
+                        <div class="purchase-details">
+                            <div class="purchase-detail-item">
+                                <div class="purchase-detail-label">Size</div>
+                                <div class="purchase-detail-value">${purchase.items[0]?.sizeName || '-'}</div>
+                            </div>
+                        
+                            <div class="purchase-detail-item">
+                                <div class="purchase-detail-label">Items</div>
+                                <div class="purchase-detail-value">${purchase.items.length}</div>
+                            </div>
+                        
+                            <div class="purchase-detail-item">
+                                <div class="purchase-detail-label">Total Boxes</div>
+                                <div class="purchase-detail-value">${totalBoxes}</div>
+                            </div>
+                        
+                            <div class="purchase-detail-item">
+                                <div class="purchase-detail-label">Supplier</div>
+                                <div class="purchase-detail-value">${purchase.supplier || '-'}</div>
+                            </div>
+                        
+                            <!-- ✅ PAYMENT DETAILS -->
+                            <div class="purchase-detail-item">
+                                <div class="purchase-detail-label">RTGS Company</div>
+                                <div class="purchase-detail-value">
+                                    ₹${purchase.paymentStatus?.rtgsCompany?.amount || 0} 
+                                <span class="${purchase.paymentStatus?.rtgsCompany?.status === 'clear' ? 'status-clear' : 'status-pending'}">
+                                    (${purchase.paymentStatus?.rtgsCompany?.status || 'pending'})
+                                </span>
+                                </div>
+                            </div>
+                        
+                            <div class="purchase-detail-item">
+                                <div class="purchase-detail-label">Cash Company</div>
+                                <div class="purchase-detail-value">
+                                    ₹${purchase.paymentStatus?.cashCompany?.amount || 0} 
+                                    <span class="${purchase.paymentStatus?.cashCompany?.status === 'clear' ? 'status-clear' : 'status-pending'}">
+                                        (${purchase.paymentStatus?.cashCompany?.status || 'pending'})
+                                    </span>
+                                </div>
+                            </div>
+                        
+                            <div class="purchase-detail-item">
+                                <div class="purchase-detail-label">RTGS Transport</div>
+                                <div class="purchase-detail-value">
+                                    ₹${purchase.paymentStatus?.rtgsTransport?.amount || 0} 
+                                    <span class="${purchase.paymentStatus?.rtgsTransport?.status === 'clear' ? 'status-clear' : 'status-pending'}">
+                                        (${purchase.paymentStatus?.rtgsTransport?.status || 'pending'})
+                                    </span>
+                                </div>
+                            </div>
+                        
+                            <div class="purchase-detail-item">
+                                <div class="purchase-detail-label">Cash Transport</div>
+                                <div class="purchase-detail-value">
+                                    ₹${purchase.paymentStatus?.cashTransport?.amount || 0} 
+                                    (<span class="${purchase.paymentStatus?.cashTransport?.status === 'clear' ? 'status-clear' : 'status-pending'}">
+                                        ${purchase.paymentStatus?.cashTransport?.status || 'pending'}
+                                    </span>)
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    listContainer.appendChild(purchaseDiv);
+                });
+            });
+        }
+function loadPurchaseData(purchaseId) {
+    const database = firebase.database();
+
+    database.ref('shops/' + shopID + '/purchases/' + purchaseId).once('value', (snapshot) => {
+        if (!snapshot.exists()) {
+            alert("Purchase not found!");
+            return;
+        }
+
+        const data = snapshot.val();
+        currentPurchaseId = purchaseId;
+        isEditingExistingPurchase = true; // Lock items
+        
+        document.getElementById('formTitle').textContent = 'Edit Purchase #' + (data.purchaseNumber || 'Unknown');
+        document.getElementById('purchaseForm').classList.add('active');
+
+        // Fill form fields
+        document.getElementById('date').value = data.date || '';
+        document.getElementById('supplier').value = data.supplier || '';
+
+        // Fill items
+        items = data.items || [];
+        initializeItemsTable();
+
+        // Fill payment status
+        if (data.paymentStatus) {
+            paymentStatus = data.paymentStatus;
+        } else {
+            paymentStatus = {
+                rtgsCompany: { status: 'pending', lastUpdated: null, amount: 0 },
+                cashCompany: { status: 'pending', lastUpdated: null, amount: 0 },
+                rtgsTransport: { status: 'pending', lastUpdated: null, amount: 0 },
+                cashTransport: { status: 'pending', lastUpdated: null, amount: 0 }
+            };
+        }
+
+        updatePaymentUI();
+        // ✅ Fill amount inputs
+Object.keys(paymentStatus).forEach(key => {
+    const amountInput = document.getElementById(key + 'Amount');
+    if (amountInput) {
+        amountInput.value = paymentStatus[key].amount || 0;
+    }
+});
+
+        // 🔒 Lock Save Button
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-lock"></i> Locked';
+
+        // ✅ ADD THIS LINE (VERY IMPORTANT)
+        const updateBtn = document.getElementById('updatePaymentBtn');
+if (updateBtn) {
+    updateBtn.style.display = 'block';
+}
+    });
+}
+// 26. Show Success Message
+        function showSuccess() {
+            const successMessage = document.getElementById('successMessage');
+            const submitBtn = document.getElementById('submitBtn');
+
+            successMessage.classList.add('show');
+            
+            // REMOVED resetButton() from here so the button stays locked down!
+
+            // Reset form and safely re-enable button ONLY after 2 seconds are over
+            setTimeout(() => {
+                document.getElementById('purchaseForm').classList.remove('active');
+                document.getElementById('form').reset();
+                document.getElementById('date').valueAsDate = new Date();
+                document.getElementById('updatePaymentBtn').style.display = 'none';
+                items = [];
+                initializeItemsTable();
+                successMessage.classList.remove('show');
+                currentPurchaseId = null;
+                isEditingExistingPurchase = false; // Reset to false
+                
+                // ✅ Now that the form is completely closed and cleaned up, reset the button for the next entry
+                resetButton(); 
+            }, 2000);
+        }
+
+        // 27. Reset Button
+        function resetButton() {
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-save"></i> Save Purchase';
+            }
+        }
+
+        // 28. Initialize Page
+        function initializePage() {
+            // Add first item row
+            addItem();
+            
+            // Load all sizes and tiles
+            loadAllSizesAndTiles();
+            
+            // Load purchase list
+            loadPurchaseList();
+        }
+
+        // Initialize when page loads
+        window.addEventListener('DOMContentLoaded', initializePage);
+
+    </script>
+</body>
+</html>

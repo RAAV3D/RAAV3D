@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bathroom Tile Uploader & Preview Generator</title>
+  
+  <!-- CDNs for PDF Generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  
+  <style>
+      .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(138, 43, 226, 0.1);
+            border: 2px solid #8a2be2;
+            color: #8a2be2;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .back-button:hover {
+            background: #8a2be2;
+            color: white;
+            transform: translateX(-5px);
+        }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(to bottom, #f0f8ff, #e6e6fa);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 { color: #6a0dad; text-align: center; }
+    
+    /* Upload Containers */
+    .upload-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin: 20px 0;
+      max-width: 800px;
+    }
+    .tile-section {
+      background: white;
+      border: 2px dashed #ddd;
+      border-radius: 10px;
+      padding: 15px;
+      text-align: center;
+      width: 180px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: border-color 0.3s, box-shadow 0.3s;
+      position: relative;
+      cursor: pointer;
+    }
+    .tile-section:hover {
+      border-color: #8a2be2;
+      box-shadow: 0 4px 12px rgba(138,43,226,0.2);
+    }
+    .tile-section.has-image {
+      border-color: #4caf50;
+      box-shadow: 0 4px 12px rgba(76,175,80,0.3);
+    }
+    .tile-section h3 { 
+      margin: 0 0 10px; 
+      color: #6a0dad; 
+      font-size: 1.1rem; 
+    }
+    .tile-section input[type="file"] {
+      margin: 10px 0;
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      width: 100%;
+    }
+    .preview {
+      width: 150px; 
+      height: 100px; 
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      margin: 10px auto;
+      object-fit: cover; 
+      display: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .preview-container {
+      margin: 10px 0;
+      min-height: 100px; 
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .clear-btn {
+      background: #ff5722;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 5px 10px;
+      cursor: pointer;
+      margin-top: 5px;
+      display: none;
+      font-size: 0.8rem;
+    }
+    .clear-btn:hover { background: #d32f2f; }
+    .error { 
+      color: red; 
+      font-size: 0.9rem; 
+      display: none; 
+      margin-top: 5px;
+    }
+    .drag-text {
+      font-size: 0.9rem;
+      color: #888;
+      margin: 10px 0;
+      display: block;
+    }
+    
+    /* Action Buttons Box */
+    .button-group {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      align-items: center;
+      margin: 20px;
+    }
+
+    /* Generate Button */
+    #generateBtn {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #8a2be2, #9370db);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(138,43,226,0.3);
+      transition: transform 0.2s, background 0.3s;
+    }
+    #generateBtn:hover { transform: translateY(-2px); }
+    #generateBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    /* Error Display */
+    #error { color: red; text-align: center; display: none; margin: 10px; }
+    
+    /* Preview Container Styles */
+    #previewContainer {
+      display: none;
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      overflow-x: auto; 
+      position: relative; 
+    }
+    #previewContainer h2 {
+      text-align: center;
+      color: #6a0dad;
+      margin-bottom: 20px;
+    }
+    .design-section {
+      margin-bottom: 40px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+      background: #f9f9f9;
+      page-break-inside: avoid; 
+    }
+    .design-section h3 {
+      text-align: center;
+      color: #6a0dad;
+      margin-bottom: 15px;
+      font-size: 1.2rem;
+    }
+    .design-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0 auto;
+      perspective: 1000px; 
+      transform-style: preserve-3d; 
+    }
+    .design-table th,
+    .design-table td {
+      border: 1px solid #ddd;
+      padding: 0;
+      width: 25%; 
+      aspect-ratio: 1.5 / 1; 
+      height: auto; 
+      min-height: 80px; 
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      position: relative;
+      vertical-align: top;
+    }
+    .design-table td::before {
+      content: '';
+      display: block;
+      padding-bottom: 66.67%; 
+      float: left;
+    }
+    .design-table td > div {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    .design-table th {
+      aspect-ratio: 1 / 1; 
+      background-color: #f0f8ff;
+      font-weight: bold;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 0.9rem;
+      color: #6a0dad;
+      height: 40px; 
+    }
+    .cell-label {
+      position: absolute;
+      bottom: 5px;
+      left: 5px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: bold;
+      display: none; 
+      z-index: 1;
+    }
+    .design-table td:hover .cell-label {
+      display: block; 
+    }
+
+    /* Style for 8th row (F tile flooring at 30 degrees towards viewer) */
+    .design-table tr:nth-child(8) {
+      transform: perspective(1000px) rotateX(30deg); 
+      transform-origin: bottom center; 
+      transform-style: preserve-3d; 
+      position: relative;
+      z-index: 1;
+      margin-top: -40px; 
+    }
+    .design-table tr:nth-child(8) td {
+      aspect-ratio: 1.5 / 1; 
+      min-height: 100px; 
+      background-size: cover !important;
+      transform-style: preserve-3d; 
+      border-top: none; 
+    }
+    .design-table tr:nth-child(7) td {
+      border-bottom: 2px solid #ddd; 
+    }
+    .design-table tr:nth-child(8) .cell-label {
+      transform: rotateX(-30deg); 
+      bottom: 10px;
+      background: rgba(0,0,0,0.8); 
+    }
+    
+    /* Download Button */
+    #downloadBtn {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #4caf50, #45a049);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      display: none;
+      font-size: 1.1rem;
+      box-shadow: 0 4px 10px rgba(76,175,80,0.3);
+      transition: transform 0.2s;
+    }
+    #downloadBtn:hover { transform: translateY(-2px); background: linear-gradient(135deg, #45a049, #3d8b40); }
+    #downloadBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    @media (max-width: 600px) {
+      .upload-container { flex-direction: column; align-items: center; }
+      .tile-section { width: 90%; }
+      .preview { 
+        width: 120px; 
+        height: 80px; 
+      }
+      .preview-container { min-height: 80px; }
+      .design-table td { 
+        min-height: 60px; 
+      }
+      .design-section { margin-bottom: 20px; padding: 10px; }
+      #previewContainer { padding: 10px; }
+      .design-table tr:nth-child(8) { 
+        transform: perspective(800px) rotateX(20deg); 
+        margin-top: -30px; 
+      }
+      .design-table tr:nth-child(8) td { 
+        min-height: 75px; 
+      }
+    }
+  </style>
+</head>
+<body>
+   <button class="back-button" onclick="history.back()">Back</button>
+
+  <h1>Bathroom Tile [18x12]</h1>
+  
+  <div class="upload-container">
+    <!-- L Tile -->
+    <div class="tile-section" data-category="L">
+      <h3>L Tile</h3>
+      <input type="file" id="fileL" accept="image/*">
+      <div class="preview-container">
+        <img id="previewL" class="preview" alt="L Preview">
+        <span class="drag-text">Drag image here or click input</span>
+      </div>
+      <button class="clear-btn" id="clearL">Clear</button>
+      <p class="error" id="errorL">Please upload an image.</p>
+    </div>
+    
+    <!-- HL Tile -->
+    <div class="tile-section" data-category="HL">
+      <h3>HL Tile</h3>
+      <input type="file" id="fileHL" accept="image/*">
+      <div class="preview-container">
+        <img id="previewHL" class="preview" alt="HL Preview">
+        <span class="drag-text">Drag image here or click input</span>
+      </div>
+      <button class="clear-btn" id="clearHL">Clear</button>
+      <p class="error" id="errorHL">Please upload an image.</p>
+    </div>
+    
+    <!-- D Tile -->
+    <div class="tile-section" data-category="D">
+      <h3>D Tile</h3>
+      <input type="file" id="fileD" accept="image/*">
+      <div class="preview-container">
+        <img id="previewD" class="preview" alt="D Preview">
+        <span class="drag-text">Drag image here or click input</span>
+      </div>
+      <button class="clear-btn" id="clearD">Clear</button>
+      <p class="error" id="errorD">Please upload an image.</p>
+    </div>
+    
+    <!-- F Tile -->
+    <div class="tile-section" data-category="F">
+      <h3>F Tile</h3>
+      <input type="file" id="fileF" accept="image/*">
+      <div class="preview-container">
+        <img id="previewF" class="preview" alt="F Preview">
+        <span class="drag-text">Drag image here or click input</span>
+      </div>
+      <button class="clear-btn" id="clearF">Clear</button>
+      <p class="error" id="errorF">Please upload an image.</p>
+    </div>
+  </div>
+  
+  <div class="button-group">
+    <button id="generateBtn">GENERATE PREVIEW</button>
+    <button id="downloadBtn">Download PDF</button>
+  </div>
+  
+  <div id="error"></div>
+  
+  <!-- Preview Container -->
+  <div id="previewContainer">
+    <h2>Your Designs</h2>
+    
+    <!-- Dynamic designs 1-12 container references -->
+    <div class="design-section">
+      <h3>Design-1</h3>
+      <table class="design-table"><tbody id="design1Body"></tbody></table>
+    </div>
+    <div class="design-section">
+      <h3>Design-2</h3>
+      <table class="design-table"><tbody id="design2Body"></tbody></table>
+    </div>
+    <div class="design-section">
+      <h3>Design-3</h3>
+      <table class="design-table"><tbody id="design3Body"></tbody></table>
+    </div>
+    <div class="design-section">
+      <h3>Design-4</h3>
+      <table class="design-table"><tbody id="design4Body"></tbody></table>
+    </div>
+    <div class="design-section">
+      <h3>Design-5</h3>
+      <table class="design-table"><tbody id="design5Body"></tbody></table>
+    </div>
+    <div class="design-section">
+      <h3>Design-6</h3>
+      <table class="design-table"><tbody id="design6Body"></tbody></table>
+    </div>
+    <div class="design-section">
+      <h3>Design-7</h3>
+      <table class="design-table"><tbody id="design7Body"></tbody></table>
+    </div>
+    <div class="design-section">
+      <h3>Design-8</h3>
+      <table class="design-table"><tbody id="design8Body"></tbody></table>
+    </div>
+    <div class="design-section">
+      <h3>Design-9</h3>
+      <table class="design-table"><tbody id="design9Body"></tbody></table>
+    </div>
+    <div class="design-section">
+      <h3>Design-10</h3>
+      <table class="design-table"><tbody id="design10Body"></tbody></table>
+    </div>
+    <div class="design-section">
+      <h3>Design-11</h3>
+      <table class="design-table"><tbody id="design11Body"></tbody></table>
+    </div>
+    <div class="design-section">
+      <h3>Design-12</h3>
+      <table class="design-table"><tbody id="design12Body"></tbody></table>
+    </div>
+  </div>
+
+  <script>
+    const fileL = document.getElementById('fileL');
+    const previewL = document.getElementById('previewL');
+    const errorL = document.getElementById('errorL');
+    const clearL = document.getElementById('clearL');
+    const fileHL = document.getElementById('fileHL');
+    const previewHL = document.getElementById('previewHL');
+    const errorHL = document.getElementById('errorHL');
+    const clearHL = document.getElementById('clearHL');
+    const fileD = document.getElementById('fileD');
+    const previewD = document.getElementById('previewD');
+    const errorD = document.getElementById('errorD');
+    const clearD = document.getElementById('clearD');
+    const fileF = document.getElementById('fileF');
+    const previewF = document.getElementById('previewF');
+    const errorF = document.getElementById('errorF');
+    const clearF = document.getElementById('clearF');
+    const generateBtn = document.getElementById('generateBtn');
+    const errorDiv = document.getElementById('error');
+    const previewContainer = document.getElementById('previewContainer');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    const designBodies = [
+      document.getElementById('design1Body'), document.getElementById('design2Body'),
+      document.getElementById('design3Body'), document.getElementById('design4Body'),
+      document.getElementById('design5Body'), document.getElementById('design6Body'),
+      document.getElementById('design7Body'), document.getElementById('design8Body'),
+      document.getElementById('design9Body'), document.getElementById('design10Body'),
+      document.getElementById('design11Body'), document.getElementById('design12Body')
+    ];
+
+    let uploadedImages = {};
+
+    function handleFileUpload(input, preview, error, clearBtn, container, dragText) {
+      input.addEventListener('change', (e) => {
+        processFile(e.target.files[0], preview, error, clearBtn, container, dragText);
+      });
+      container.addEventListener('dragover', (e) => { e.preventDefault(); container.style.borderColor = '#8a2be2'; });
+      container.addEventListener('dragleave', (e) => { e.preventDefault(); if (!container.classList.contains('has-image')) container.style.borderColor = '#ddd'; });
+      container.addEventListener('drop', (e) => {
+        e.preventDefault();
+        container.style.borderColor = '#ddd';
+        const file = e.dataTransfer.files[0];
+        if (file) { input.files = e.dataTransfer.files; processFile(file, preview, error, clearBtn, container, dragText); }
+      });
+      clearBtn.addEventListener('click', () => {
+        input.value = ''; preview.src = ''; preview.style.display = 'none'; dragText.style.display = 'block';
+        error.style.display = 'none'; container.classList.remove('has-image'); clearBtn.style.display = 'none';
+        delete uploadedImages[container.dataset.category];
+      });
+    }
+
+    function processFile(file, preview, error, clearBtn, container, dragText) {
+      if (file) {
+        if (file.type.startsWith('image/') && file.size <= 5 * 1024 * 1024) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            preview.src = e.target.result; preview.style.display = 'block'; dragText.style.display = 'none';
+            error.style.display = 'none'; container.classList.add('has-image'); clearBtn.style.display = 'inline-block';
+            uploadedImages[container.dataset.category] = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        } else {
+          error.textContent = 'Invalid image (must be JPG/PNG, <=5MB).'; error.style.display = 'block';
+          preview.style.display = 'none'; dragText.style.display = 'block'; container.classList.remove('has-image'); clearBtn.style.display = 'none';
+        }
+      }
+    }
+
+    const sections = [
+      { input: fileL, preview: previewL, error: errorL, clear: clearL, container: document.querySelector('[data-category="L"]'), dragText: document.querySelector('[data-category="L"] .drag-text') },
+      { input: fileHL, preview: previewHL, error: errorHL, clear: clearHL, container: document.querySelector('[data-category="HL"]'), dragText: document.querySelector('[data-category="HL"] .drag-text') },
+      { input: fileD, preview: previewD, error: errorD, clear: clearD, container: document.querySelector('[data-category="D"]'), dragText: document.querySelector('[data-category="D"] .drag-text') },
+      { input: fileF, preview: previewF, error: errorF, clear: clearF, container: document.querySelector('[data-category="F"]'), dragText: document.querySelector('[data-category="F"] .drag-text') }
+    ];
+
+    sections.forEach(({ input, preview, error, clear, container, dragText }) => {
+      handleFileUpload(input, preview, error, clear, container, dragText);
+    });
+
+    const savedImages = localStorage.getItem('uploadedImages');
+    if (savedImages) {
+      try {
+        uploadedImages = JSON.parse(savedImages);
+        Object.keys(uploadedImages).forEach(category => {
+          const preview = document.getElementById(`preview${category}`);
+          const container = document.querySelector(`[data-category="${category}"]`);
+          const dragText = container.querySelector('.drag-text');
+          const clear = document.getElementById(`clear${category}`);
+          if (preview && uploadedImages[category]) {
+            preview.src = uploadedImages[category]; preview.style.display = 'block'; dragText.style.display = 'none';
+            container.classList.add('has-image'); clear.style.display = 'inline-block';
+          }
+        });
+      } catch (e) { console.warn(e); }
+    }
+
+    generateBtn.addEventListener('click', () => {
+      let valid = true;
+      ['L', 'HL', 'D', 'F'].forEach(category => {
+        if (!uploadedImages[category]) {
+          document.getElementById(`error${category}`).style.display = 'block'; valid = false;
+        }
+      });
+      if (!valid) { errorDiv.textContent = 'Please upload all images.'; errorDiv.style.display = 'block'; return; }
+      errorDiv.style.display = 'none'; downloadBtn.style.display = 'block'; previewContainer.style.display = 'block';
+      populateAllDesigns();
+      localStorage.setItem('uploadedImages', JSON.stringify(uploadedImages));
+    });
+
+    const designConfigs = [
+      { L: [[1,1],[1,2],[1,3],[1,4],[2,1],[2,2],[2,3],[2,4],[3,1],[3,2],[3,3],[3,4]], HL: [[4,1],[4,2],[4,3],[4,4]], D: [[5,1],[5,2],[5,3],[5,4],[6,1],[6,2],[6,3],[6,4],[7,1],[7,2],[7,3],[7,4]] },
+      { L: [[1,1],[1,2],[1,3],[1,4],[2,1],[3,1],[4,1],[3,4],[4,4],[2,4],[5,1],[5,2],[5,3],[5,4]], HL: [[3,1],[3,2],[3,3],[2,2],[4,1],[4,2],[4,3],[2,3]], D: [[6,1],[6,2],[6,3],[6,4],[7,1],[7,2],[7,3],[7,4]] },
+      { L: [[2,1],[2,2],[2,3],[2,4],[4,1],[4,2],[4,3],[4,4]], HL: [[3,1],[3,2],[3,3],[3,4]], D: [[1,1],[1,2],[1,3],[1,4],[2,1],[3,1],[4,1],[5,1],[5,2],[5,3],[5,4],[6,1],[6,2],[6,3],[6,4],[7,1],[7,2],[7,3],[7,4]] },
+      { L: [], HL: [[2,2],[2,3],[3,2],[3,3],[4,2],[4,3]], D: [[1,1],[1,2],[1,3],[1,4],[2,1],[3,1],[4,1],[5,1],[5,2],[5,3],[5,4],[6,1],[6,2],[6,3],[6,4],[7,1],[7,2],[7,3],[7,4],[2,4],[3,4],[4,4]] },
+      { L: [[1,1],[1,2],[1,3],[1,4],[2,1],[3,1],[4,1],[5,1],[5,2],[5,3],[5,4],[6,1],[6,2],[6,3],[6,4],[7,1],[7,2],[7,3],[7,4],[2,4],[3,4],[4,4]], HL: [[2,2],[2,3],[3,2],[3,3],[4,2],[4,3]], D: [] },
+      { L: [[2,2],[2,3],[3,2],[3,3],[4,2],[4,3]], HL: [], D: [[1,1],[1,2],[1,3],[1,4],[2,1],[3,1],[4,1],[5,1],[5,2],[5,3],[5,4],[6,1],[6,2],[6,3],[6,4],[7,1],[7,2],[7,3],[7,4],[2,4],[3,4],[4,4]] },
+      { L: [[1,1],[1,2],[1,3],[1,4],[2,1],[3,1],[4,1],[5,1],[5,2],[5,3],[5,4],[6,1],[6,2],[6,3],[6,4],[7,1],[7,2],[7,3],[7,4],[2,4],[3,4],[4,4]], HL: [], D: [[2,2],[2,3],[3,2],[3,3],[4,2],[4,3]] },
+      { L: [[4,1],[1,1],[1,2],[1,3],[1,4],[2,1],[3,1],[5,2],[5,3],[5,1],[2,4],[3,4],[4,4],[5,4]], HL: [[2,2],[2,3],[3,2],[3,3],[4,2],[4,3]], D: [[5,1],[5,2],[5,3],[5,4],[6,1],[6,2],[6,3],[6,4],[7,1],[7,2],[7,3],[7,4]] },
+      { L: [[6,1],[6,2],[6,3],[6,4],[7,1],[7,2],[7,3],[7,4]], HL: [[2,2],[2,3],[3,2],[3,3],[4,2],[4,3]], D: [[4,1],[1,1],[1,2],[5,1],[1,3],[5,2],[5,3],[5,4],[1,4],[2,1],[2,4],[3,1],[3,4],[4,4],[5,4]] },
+      { L: [[6,1],[6,2],[6,3],[6,4],[4,1],[4,2],[4,3],[4,4],[2,1],[2,2],[2,3],[2,4]], HL: [], D: [[1,1],[1,2],[1,3],[1,4],[2,1],[3,1],[4,1],[3,2],[3,3],[3,4],[5,1],[5,2],[5,3],[5,4],[7,1],[7,2],[7,3],[7,4]] },
+      { L: [[1,1],[1,2],[1,3],[1,4],[2,1],[3,1],[4,1],[2,2],[2,3],[2,4],[3,2],[3,3],[3,4],[4,2],[4,3],[4,4]], HL: [], D: [[5,1],[5,2],[5,3],[5,4],[6,1],[6,2],[6,3],[6,4],[7,1],[7,2],[7,3],[7,4]] },
+      { L: [[2,1],[1,4],[1,2],[2,3],[3,2],[3,4],[4,1],[4,3],[5,2],[5,4],[6,1],[6,3],[7,2],[7,4]], HL: [], D: [[1,1],[3,1],[2,2],[2,4],[1,3],[3,3],[4,2],[4,4],[5,1],[5,3],[6,2],[6,4],[7,1],[7,3]] }
+    ];
+
+    function populateAllDesigns() {
+      designBodies.forEach((body, designIndex) => {
+        body.innerHTML = ''; const config = designConfigs[designIndex];
+        const lPositions = new Set(config.L.map(pos => `${pos[0]},${pos[1]}`));
+        const hlPositions = new Set(config.HL.map(pos => `${pos[0]},${pos[1]}`));
+        const dPositions = new Set(config.D.map(pos => `${pos[0]},${pos[1]}`));
+
+        for (let row = 1; row <= 8; row++) {
+          const tr = document.createElement('tr');
+          for (let col = 1; col <= 4; col++) {
+            const td = document.createElement('td'); const posKey = `${row},${col}`;
+            let imageSrc = ''; let labelText = `Design-${designIndex + 1} (${row},${col})`;
+
+            if (row === 8) { imageSrc = uploadedImages.F; labelText += ' F Tile'; }
+            else if (lPositions.has(posKey)) { imageSrc = uploadedImages.L; labelText += ' L Tile'; }
+            else if (hlPositions.has(posKey)) { imageSrc = uploadedImages.HL; labelText += ' HL Tile'; }
+            else if (dPositions.has(posKey)) { imageSrc = uploadedImages.D; labelText += ' D Tile'; }
+            else { td.style.backgroundColor = '#f0f0f0'; labelText += ' Default'; }
+
+            td.id = `design${designIndex + 1}-cell-r${row}c${col}`;
+            td.style.backgroundImage = imageSrc ? `url(${imageSrc})` : 'none';
+            td.innerHTML = `<div class="cell-label">${labelText}</div>`;
+            tr.appendChild(td);
+          }
+          body.appendChild(tr);
+        }
+      });
+    }
+
+    // UPDATED: PDF Exporter with dynamic File Naming Pop-up 
+    downloadBtn.addEventListener('click', async () => {
+      // 1. Pop-up prompt to ask for custom design name or layout identifier
+      let userFileName = prompt("Please enter the Design Name or Design Number for this file setup:", "");
+      
+      // If user completely cancels the modal action, stop generation process safely
+      if (userFileName === null) {
+        console.log('PDF generation aborted by user.');
+        return;
+      }
+
+      // Trim whitespace away
+      userFileName = userFileName.trim();
+
+      // Fallback fallback handler if field left empty
+      if (userFileName === "") {
+        const timestamp = new Date().toISOString().slice(0, 10);
+        userFileName = `Premium_Tile_Designs_Catalog_${timestamp}`;
+      }
+
+      downloadBtn.disabled = true;
+      downloadBtn.textContent = 'Generating High-Quality PDF...';
+      
+      try {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('l', 'mm', 'a4'); 
+        const pageWidth = pdf.internal.pageSize.width;
+        const pageHeight = pdf.internal.pageSize.height;
+
+        const designSections = document.querySelectorAll('.design-section');
+        
+        for (let i = 0; i < designSections.length; i++) {
+          if (i > 0) pdf.addPage(); 
+
+          pdf.setFont('Arial', 'bold');
+          pdf.setFontSize(16);
+          pdf.setTextColor(106, 13, 173); 
+          pdf.text(`BATHROOM TILE DESIGN OPTIONS - SELECTION ${i + 1}`, pageWidth / 2, 15, { align: 'center' });
+          
+          const section = designSections[i];
+          const canvas = await html2canvas(section, {
+            scale: 2.5, 
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: '#ffffff',
+            logging: false
+          });
+
+          const imgData = canvas.toDataURL('image/jpeg', 0.95);
+          
+          const margin = 12;
+          const targetWidth = pageWidth - (margin * 2);
+          const targetHeight = (canvas.height * targetWidth) / canvas.width;
+          
+          let finalHeight = targetHeight;
+          let finalWidth = targetWidth;
+          let yOffset = 22; 
+
+          if ((yOffset + finalHeight) > (pageHeight - margin)) {
+            finalHeight = pageHeight - yOffset - margin;
+            finalWidth = (canvas.width * finalHeight) / canvas.height;
+          }
+
+          const xOffset = (pageWidth - finalWidth) / 2; 
+
+          pdf.addImage(imgData, 'JPEG', xOffset, yOffset, finalWidth, finalHeight, undefined, 'FAST');
+          
+          pdf.setFont('Arial', 'normal');
+          pdf.setFontSize(9);
+          pdf.setTextColor(136, 136, 136);
+          pdf.text(`Page ${i + 1} of ${designSections.length}`, pageWidth - margin, pageHeight - 6, { align: 'right' });
+        }
+
+        // Save PDF using user-defined custom text input
+        pdf.save(`${userFileName}.pdf`);
+        console.log(`PDF catalog successfully downloaded as: ${userFileName}.pdf`);
+      } catch (error) {
+        console.error('Error generating PDF:', error);
+        errorDiv.textContent = 'Error compiling custom PDF document. Please try again.';
+        errorDiv.style.display = 'block';
+      } finally {
+        downloadBtn.disabled = false;
+        downloadBtn.textContent = 'Download PDF';
+      }
+    });
+
+    console.log('Bathroom Tile Engine loaded completely.');
+  </script>
+</body>
+</html>

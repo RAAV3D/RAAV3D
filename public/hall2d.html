@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coming Soon | RAAV</title>
+  
+  <!-- Premium Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* Reset & Core Canvas */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #0b0813;
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Ambient Luxury Purple Glow Backdrops */
+    body::before, body::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(140px);
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.35;
+    }
+
+    body::before {
+      width: 350px;
+      height: 350px;
+      background: radial-gradient(circle, #8a2be2 0%, transparent 75%);
+      top: -5%;
+      left: -5%;
+    }
+
+    body::after {
+      width: 450px;
+      height: 450px;
+      background: radial-gradient(circle, #6a0dad 0%, transparent 75%);
+      bottom: -10%;
+      right: -5%;
+    }
+
+    /* Top-Left Back Button ("Badmint") */
+    .back-btn {
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #bfa6ff;
+      padding: 10px 22px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      z-index: 10;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .back-btn:hover {
+      background: rgba(138, 43, 226, 0.15);
+      border-color: rgba(138, 43, 226, 0.5);
+      color: #ffffff;
+      transform: translateX(-4px);
+    }
+
+    /* Pure Typography Focus */
+    .coming-soon-text {
+      font-size: 4rem;
+      font-weight: 300;
+      letter-spacing: 12px;
+      text-transform: uppercase;
+      text-align: center;
+      z-index: 10;
+      padding: 0 20px;
+      background: linear-gradient(135deg, #ffffff 30%, #a39cb5 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: tracking-in 1.2s cubic-bezier(0.215, 0.610, 0.355, 1.000) both;
+    }
+
+    /* Premium Text-Entrance Animation */
+    @keyframes tracking-in {
+      0% {
+        letter-spacing: -0.5em;
+        opacity: 0;
+      }
+      40% {
+        opacity: 0.6;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .coming-soon-text {
+        font-size: 2.2rem;
+        letter-spacing: 6px;
+      }
+      .back-btn {
+        top: 20px;
+        left: 20px;
+        padding: 8px 16px;
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Left Navigation Action -->
+  <a class="back-btn" onclick="history.back()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    Back
+  </a>
+
+  <!-- Sole Centerpiece -->
+  <div class="coming-soon-text">Coming Soon</div>
+
+</body>
+</html>

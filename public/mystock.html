@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>My Stock</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+<style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --success-color: #27ae60;
+            --bg-color: #f0f2f5;
+            --white: #ffffff;
+            --shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header h1 { margin: 0; font-size: 1.5rem; }
+
+        /* Container */
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 15px;
+            flex: 1;
+        }
+
+        /* Add Size Button */
+        .add-size-btn-container {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .add-size-btn {
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+            margin: 0 auto;
+        }
+
+        .add-size-btn:hover { background-color: #219150; }
+
+        /* Search Section */
+        .search-section {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+        }
+
+        .search-section h3 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .search-input-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            text-transform: uppercase;
+        }
+
+        .search-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+
+        .search-btn:hover { background-color: #2980b9; }
+
+        .clear-btn {
+            background-color: #95a5a6;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+
+        .clear-btn:hover { background-color: #7f8c8d; }
+
+        /* Size Cards Grid - Accordion Style */
+        .size-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .size-card {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            border-top: 4px solid var(--accent-color);
+            transition: all 0.3s ease;
+        }
+
+        /* Size Header with Dropdown Arrow */
+        .size-header {
+            padding: 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            transition: background 0.2s;
+        }
+
+        .size-header:hover {
+            background: #e9ecef;
+        }
+
+        .size-header.active {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .size-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 5px; 
+        }
+
+        .size-header.active .size-title {
+            color: white;
+        }
+
+        .dropdown-arrow {
+            transition: transform 0.3s ease;
+            color: #7f8c8d;
+        }
+
+        .size-header.active .dropdown-arrow {
+            color: white;
+            transform: rotate(180deg);
+        }
+
+        .size-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            padding: 0 15px;
+        }
+
+        .size-body.expanded {
+            max-height: none;   
+            overflow: visible;  
+            padding: 15px;
+        }
+
+        .tile-row {
+            display: grid;
+            grid-template-columns: auto 1fr auto auto;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .tile-row:last-child {
+            border-bottom: none;
+        }
+
+        /* Style for the serial number */
+        .tile-sn {
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: #7f8c8d;
+            min-width: 24px;
+        }
+
+        .tile-name {
+            flex: 1;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #333;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .tile-info {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .tile-boxes {
+            background: #e8f5e9;
+            color: #27ae60;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        /* Combined Total Box Pill formatting with icon only */
+        .total-boxes-pill {
+            background: #e1f5fe;
+            color: #0288d1;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .size-header.active .total-boxes-pill {
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+        }
+
+        .tile-sqft {
+            background: #fff3cd;
+            color: #856404;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .add-tile-btn {
+            width: 100%;
+            padding: 10px;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            margin-top: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .add-tile-btn:hover { background: #2980b9; }
+
+        /* Load More Button */
+        .load-more-container {
+            text-align: center;
+            margin-top: 30px;
+            margin-bottom: 20px;
+        }
+
+        .load-more-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 auto;
+            transition: background 0.2s;
+        }
+
+        .load-more-btn:hover { background-color: #2980b9; }
+
+        .load-more-btn:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            text-transform: uppercase;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-confirm { background: var(--success-color); color: white; }
+        .btn-cancel { background: #95a5a6; color: white; }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-style: italic;
+        }
+
+        /* Professional Green Add Button for the Header */
+        .btn-add-header {
+            background-color: #2980b9; 
+            color: white !important;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            text-transform: none; 
+        }
+
+        .btn-add-header:hover {
+            background-color: #219150;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transform: translateY(-1px);
+        }
+
+        .btn-add-header i {
+            font-size: 0.9rem;
+        }
+
+        /* Container to align button and arrow */
+        .header-actions {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* When the card is active, the arrow next to the name rotates */
+        .size-card.active .dropdown-arrow {
+            transform: rotate(180deg);
+            color: white; 
+        }
+
+        /* MOBILE ZOOM FIX */
+        html, body {
+            touch-action: manipulation;
+            -webkit-text-size-adjust: 100%;
+            overflow-x: hidden;
+        }
+
+        /* Prevent input zoom (important for mobile) */
+        input, select, textarea {
+            font-size: 16px;
+        }
+
+        /* Better mobile spacing */
+        .container {
+            padding: 0 10px;
+        }
+
+        /* Make search section responsive */
+        .search-input-container {
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 100%;
+        }
+
+        .search-btn, .clear-btn {
+            flex: 1;
+            justify-content: center;
+        }
+
+        /* Better header scaling */
+        header h1 {
+            font-size: 1.3rem;
+        }
+
+        /* Modal mobile fix */
+        .modal-content {
+            width: 95%;
+        }
+
+        /* Buttons better tap area */
+        button {
+            min-height: 44px;
+        }
+
+        /* Prevent double tap zoom */
+        * {
+            touch-action: manipulation;
+        }
+
+        /* UPDATED RESPONSIVE SECTION FOR FULL TILE NAMES */
+        @media (max-width: 600px) {
+            .tile-row {
+                grid-template-columns: auto 1fr;
+                row-gap: 6px;
+                padding: 12px 0;
+            }
+
+            .tile-name {
+                white-space: normal;
+                overflow: visible;
+                text-overflow: clip;
+                font-size: 0.95rem;
+                padding-right: 5px;
+            }
+
+            .tile-info {
+                grid-column: 1 / -1;
+                display: flex;
+                justify-content: flex-start;
+                gap: 10px;
+                margin-top: 2px;
+                margin-left: 24px;
+                width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1><i class="fas fa-boxes"></i> My Stock Management</h1>
+    </header>
+
+    <div class="container">
+        
+        <div class="add-size-btn-container">
+            <button class="add-size-btn" onclick="openSizeModal()">
+                <i class="fas fa-plus"></i> Add Size
+            </button>
+        </div>
+
+        <div class="search-section">
+            <h3><i class="fas fa-search"></i> Search by Tile Name</h3>
+            <div class="search-input-container">
+                <input type="text" id="searchInput" class="search-input" placeholder="Enter tile name..." oninput="searchTiles()">
+                <button class="search-btn" onclick="searchTiles()">
+                    <i class="fas fa-search"></i> Search
+                </button>
+                <button class="clear-btn" onclick="clearSearch()">
+                    <i class="fas fa-times"></i> Clear
+                </button>
+            </div>
+        </div>
+
+        <div id="sizeList" class="size-grid">
+            <div class="loading">Loading stock data...</div>
+        </div>
+
+        <div class="load-more-container">
+            <button id="loadMoreBtn" class="load-more-btn" onclick="loadMoreSizes()">
+                <i class="fas fa-arrow-down"></i> Load More
+            </button>
+        </div>
+
+    </div>
+
+    <div id="sizeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Add New Size</div>
+            <input type="text" id="sizeNameInput" class="modal-input" placeholder="Size Name (e.g., 2x4)" oninput="this.value = this.value.toUpperCase()">
+            <input type="number" id="sizeSqftInput" class="modal-input" placeholder="Square Feet per Box">
+            <div class="modal-buttons">
+                <button class="modal-btn btn-cancel" onclick="closeSizeModal()">Cancel</button>
+                <button class="modal-btn btn-confirm" onclick="addSize()">Add Size</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="tileModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Add Tile to <span id="modalSizeName"></span></div>
+            <input type="text" id="tileNameInput" class="modal-input" placeholder="Tile Name (e.g., CERAMIC WHITE)" oninput="this.value = this.value.toUpperCase()">
+            <input type="number" id="tileBoxesInput" class="modal-input" placeholder="Number of Boxes">
+            <div class="modal-buttons">
+                <button class="modal-btn btn-cancel" onclick="closeModal()">Cancel</button>
+                <button class="modal-btn btn-confirm" onclick="addTile()">Add Tile</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDLwU2O2MQA3SWSlbw9Wa75_KByQ0EkZI8",
+            authDomain: "raav3d-50f8c.firebaseapp.com",
+            databaseURL: "https://raav3d-50f8c-default-rtdb.firebaseio.com",
+            projectId: "raav3d-50f8c",
+            storageBucket: "raav3d-50f8c.firebasestorage.app",
+            messagingSenderId: "528524618407",
+            appId: "1:528524618407:web:acb2c4fca0dcadd7934982"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Get Shop ID
+        const urlParams = new URLSearchParams(window.location.search);
+        const shopID = urlParams.get('shopId') || "";
+
+        if (!shopID) {
+            alert("Error: Shop ID is missing! Please navigate from the dashboard.");
+            window.location.href = "myshop.html";
+        }
+
+        function formatTimestamp(ts) {
+            if (!ts) return "";
+            const date = new Date(ts);
+            return date.toLocaleDateString('en-GB', { 
+                day: '2-digit', 
+                month: 'short', 
+                year: 'numeric' 
+            });
+        }
+
+        let currentSizeId = null;
+        let allSizesData = [];
+        let displayedSizes = [];
+        let itemsPerPage = 10;
+        let currentPage = 1;
+        let isLoading = false;
+        let isSearching = false;
+
+        // Optimized Toggle size dropdown: Loads tiles ONLY when expanded
+        function toggleSize(card) {
+            const sizeId = card.dataset.sizeId;
+            const body = card.querySelector('.size-body');
+            const targetSize = allSizesData.find(s => s.id === sizeId);
+
+            card.classList.toggle('active');
+            body.classList.toggle('expanded');
+
+            // Only fetch tile data if the card is expanded and tiles haven't been fetched yet
+            if (body.classList.contains('expanded') && targetSize && !targetSize.loaded) {
+                body.innerHTML = '<div style="text-align:center; padding:10px; color:#888;"><i class="fas fa-spinner fa-spin"></i> Loading tiles...</div>';
+                
+                database.ref('shops/' + shopID + '/credentials/' + sizeId + '/tiles').once('value', (snapshot) => {
+                    targetSize.tiles = snapshot.val() || {};
+                    targetSize.loaded = true;
+                    
+                    // Re-render only the interior rows of this specific size card
+                    renderTileRows(card, targetSize);
+                });
+            }
+        }
+
+        function renderTileRows(card, sizeData) {
+            const body = card.querySelector('.size-body');
+            const totalPill = card.querySelector('.total-boxes-pill');
+            let tilesHtml = "";
+            let totalBoxesForSize = 0;
+
+            if (sizeData.tiles && Object.keys(sizeData.tiles).length > 0) {
+                const tilesArray = Object.keys(sizeData.tiles).map(tileId => ({
+                    id: tileId,
+                    ...sizeData.tiles[tileId]
+                })).sort((a, b) => a.name.localeCompare(b.name));
+
+                tilesArray.forEach((tile, index) => {
+                    const tileBoxesCount = parseInt(tile.boxes) || 0;
+                    totalBoxesForSize += tileBoxesCount;
+                    
+                    const totalSqft = tileBoxesCount * (sizeData.sqftPerBox || 0);
+                    tilesHtml += `
+                        <div class="tile-row">
+                            <div class="tile-sn">${index + 1}.</div>
+                            <div class="tile-name">${tile.name}</div>
+                            <div class="tile-info">
+                                <span class="tile-boxes">Boxes: ${tileBoxesCount}</span>
+                                <span class="tile-sqft">Sq.Ft: ${totalSqft.toFixed(2)}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                tilesHtml = "<p style='color:#999; font-size:0.9rem; text-align:center; padding: 10px;'>No tiles added yet.</p>";
+            }
+
+            body.innerHTML = tilesHtml;
+            totalPill.innerHTML = `<i class="fas fa-cubes"></i> ${totalBoxesForSize}`;
+        }
+
+        // Add Size
+        function addSize() {
+            const sizeName = document.getElementById('sizeNameInput').value.trim().toUpperCase();
+            const sizeSqft = document.getElementById('sizeSqftInput').value;
+
+            if (sizeName === "" || sizeSqft === "" || sizeSqft <= 0) {
+                alert("Please enter valid Size Name and Square Feet!");
+                return;
+            }
+
+            const sizeExists = allSizesData.some(size => size.name === sizeName);
+            if (sizeExists) {
+                alert("Error: This size name already exists!");
+                return;
+            }
+
+            const safeSizeName = sizeName.replace(/[.#$\-\[\]\/]/g, "_");
+
+            database.ref('shops/' + shopID + '/credentials/' + safeSizeName).set({
+                name: sizeName,
+                sqftPerBox: parseFloat(sizeSqft),
+                tiles: {},
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                closeSizeModal();
+                document.getElementById('sizeNameInput').value = "";
+                document.getElementById('sizeSqftInput').value = "";
+                alert("Size Added Successfully!");
+            }).catch((error) => {
+                alert("Error adding size: " + error.message);
+            });
+        }
+
+        // Optimized Load: Listens only to structural context/changes, not the tile blobs
+        function loadSizes() {
+            const listContainer = document.getElementById('sizeList');
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            
+            listContainer.innerHTML = '<div class="loading">Loading stock data...</div>';
+
+            // Active listener handles realtime size structures seamlessly with very small updates
+            database.ref('shops/' + shopID + '/credentials').on('value', (snapshot) => {
+                if (isSearching) return; // Keep search UI clean
+
+                allSizesData = [];
+                displayedSizes = [];
+                currentPage = 1;
+                listContainer.innerHTML = "";
+
+                if (!snapshot.exists()) {
+                    listContainer.innerHTML = "<div class='no-results'>No sizes added yet. Add your first size!</div>";
+                    loadMoreBtn.style.display = "none";
+                    return;
+                }
+
+snapshot.forEach((childSnapshot) => {
+    const sizeData = childSnapshot.val();
+    const sizeId = childSnapshot.key;
+    
+    // We hold existing loaded items if they exist to keep state snappy
+    allSizesData.push({
+        id: sizeId,
+        name: sizeData.name,
+        sqftPerBox: sizeData.sqftPerBox || 0,
+        totalBoxes: sizeData.totalBoxes || 0, // <--- ADD THIS LINE
+        tiles: sizeData.tiles || {},
+        loaded: !!sizeData.tiles 
+    });
+});
+
+                loadMoreSizes();
+                loadMoreBtn.style.display = "block";
+            });
+        }
+
+        // Load More Sizes
+        function loadMoreSizes() {
+            const listContainer = document.getElementById('sizeList');
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+
+            if (isLoading) return;
+            isLoading = true;
+
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const itemsToLoad = allSizesData.slice(start, end);
+
+            displayedSizes = displayedSizes.concat(itemsToLoad);
+
+itemsToLoad.forEach(sizeData => {
+    const card = document.createElement('div');
+    card.className = 'size-card';
+    card.dataset.sizeId = sizeData.id;
+
+    let tilesHtml = `<div style="text-align:center; padding:10px; color:#888;">Click to expand and view stock</div>`;
+    
+    // CHANGE: Use the pre-calculated 'sizeData.totalBoxes' directly
+    // This value is loaded instantly with the size list, so no '?' is needed.
+    const displayTotal = sizeData.totalBoxes || 0;
+
+    card.innerHTML = `
+        <div class="size-header" onclick="if(!event.target.closest('button')) toggleSize(this.parentElement)">
+            <div class="size-title">
+                <i class="fas fa-layer-group"></i> 
+                <span>${sizeData.name}</span>
+                <i class="fas fa-chevron-down dropdown-arrow" style="font-size: 0.8rem; margin-left: 8px;"></i>
+            </div>
+            
+            <div class="header-actions">
+                <span class="total-boxes-pill">
+                    <i class="fas fa-cubes"></i> ${displayTotal}
+                </span>
+                <button class="btn-add-header" onclick="openTileModal('${sizeData.id}', '${sizeData.name}')">
+                    <i class="fas fa-plus"></i> Add Tile
+                </button>
+            </div>
+        </div>
+        <div class="size-body">
+            ${tilesHtml}
+        </div>
+    `;
+
+    listContainer.appendChild(card);
+    
+    if(sizeData.loaded) {
+        renderTileRows(card, sizeData);
+    }
+});
+
+            currentPage++;
+            if (displayedSizes.length >= allSizesData.length) {
+                loadMoreBtn.style.display = "none";
+            }
+            isLoading = false;
+        }
+
+        // Add Tile
+function addTile() {
+    let tileName = document.getElementById('tileNameInput').value.trim().toUpperCase();
+    const tileBoxesInput = document.getElementById('tileBoxesInput').value;
+    const tileBoxes = parseInt(tileBoxesInput) || 0;
+
+    if (tileName === "" || tileBoxesInput === "" || tileBoxes <= 0) {
+        alert("Please enter a valid Tile Name and Number of Boxes!");
+        return;
+    }
+
+    const safeTileName = tileName.replace(/[.#$\-\[\]\/]/g, "_");
+    const sizeRef = database.ref('shops/' + shopID + '/credentials/' + currentSizeId);
+    const tileRef = sizeRef.child('tiles/' + safeTileName);
+
+    // 1. Check if the tile already exists
+    tileRef.once("value").then(snapshot => {
+        if (snapshot.exists()) {
+            alert("Error: This tile name already exists in this size!");
+            return;
+        }
+
+        // 2. Set the new tile data
+        tileRef.set({
+            name: tileName,
+            boxes: tileBoxes,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        }).then(() => {
+            // 3. Atomically update the 'totalBoxes' counter for this specific size
+            // This ensures your UI can read 'totalBoxes' without loading all tiles
+            return sizeRef.child('totalBoxes').transaction((currentTotal) => {
+                return (currentTotal || 0) + tileBoxes;
+            });
+        }).then(() => {
+            closeModal();
+            alert("Tile Added Successfully!");
+        }).catch((error) => {
+            alert("Error adding tile: " + error.message);
+        });
+    });
+}
+
+        // On-Demand optimized Search: Only runs a query search if something is entered
+        function searchTiles() {
+            const searchInput = document.getElementById('searchInput').value.trim().toUpperCase();
+            const listContainer = document.getElementById('sizeList');
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+
+            if (searchInput === "") {
+                clearSearch();
+                return;
+            }
+
+            isSearching = true;
+            listContainer.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Searching items...</div>';
+
+            // We query the dynamic nodes safely
+            database.ref('shops/' + shopID + '/credentials').once('value', (snapshot) => {
+                listContainer.innerHTML = "";
+                let foundAny = false;
+
+                snapshot.forEach((childSize) => {
+                    const sizeData = childSize.val();
+                    const sizeId = childSize.key;
+                    let matchingTiles = [];
+                    let totalBoxesForSearchSize = 0;
+
+                    if (sizeData.tiles) {
+                        Object.keys(sizeData.tiles).forEach(tileId => {
+                            const tile = sizeData.tiles[tileId];
+                            if (tile.name.toUpperCase().includes(searchInput)) {
+                                const tileBoxesCount = parseInt(tile.boxes) || 0;
+                                totalBoxesForSearchSize += tileBoxesCount;
+
+                                const totalSqft = tileBoxesCount * (sizeData.sqftPerBox || 0);
+                                matchingTiles.push({
+                                    id: tileId,
+                                    name: tile.name,
+                                    boxes: tileBoxesCount,
+                                    totalSqft: totalSqft
+                                });
+                            }
+                        });
+                    }
+
+                    if (matchingTiles.length > 0) {
+                        foundAny = true;
+                        const card = document.createElement('div');
+                        card.className = 'size-card active';
+                        card.dataset.sizeId = sizeId;
+
+                        let tilesHtml = "";
+                        matchingTiles.sort((a, b) => a.name.localeCompare(b.name)).forEach((tile, index) => {
+                            tilesHtml += `
+                                <div class="tile-row">
+                                    <div class="tile-sn">${index + 1}.</div>
+                                    <div class="tile-name">${tile.name}</div>
+                                    <div class="tile-info">
+                                        <span class="tile-boxes">Boxes: ${tile.boxes}</span>
+                                        <span class="tile-sqft">Sq.Ft: ${tile.totalSqft.toFixed(2)}</span>
+                                    </div>
+                                </div>
+                            `;
+                        });
+
+                        card.innerHTML = `
+                            <div class="size-header" onclick="if(!event.target.closest('button')) toggleSize(this.parentElement)">
+                                <div class="size-title">
+                                    <i class="fas fa-layer-group"></i> ${sizeData.name} (${matchingTiles.length})
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 15px;">
+                                    <span class="total-boxes-pill">
+                                        <i class="fas fa-cubes"></i> ${totalBoxesForSearchSize}
+                                    </span>
+                                    <button class="btn-add-header" onclick="openTileModal('${sizeId}', '${sizeData.name}')">
+                                        <i class="fas fa-plus-circle"></i> Add Tile
+                                    </button>
+                                    <i class="fas fa-chevron-down dropdown-arrow"></i>
+                                </div>
+                            </div>
+                            <div class="size-body expanded">
+                                ${tilesHtml}
+                            </div>
+                        `;
+                        listContainer.appendChild(card);
+                    }
+                });
+
+                if (!foundAny) {
+                    listContainer.innerHTML = "<div class='no-results'>No tiles found.</div>";
+                }
+                loadMoreBtn.style.display = "none";
+            });
+        }
+
+        // Clear Search
+        function clearSearch() {
+            isSearching = false;
+            document.getElementById('searchInput').value = "";
+            loadSizes();
+        }
+
+        // Modal Functions
+        function openSizeModal() {
+            document.getElementById('sizeModal').style.display = 'flex';
+            document.getElementById('sizeNameInput').focus();
+        }
+
+        function closeSizeModal() {
+            document.getElementById('sizeModal').style.display = 'none';
+        }
+
+        function openTileModal(sizeId, sizeName) {
+            currentSizeId = sizeId;
+            document.getElementById('modalSizeName').textContent = sizeName;
+            document.getElementById('tileNameInput').value = "";
+            document.getElementById('tileBoxesInput').value = "";
+            document.getElementById('tileModal').style.display = 'flex';
+            document.getElementById('tileNameInput').focus();
+        }
+
+        function closeModal() {
+            document.getElementById('tileModal').style.display = 'none';
+            currentSizeId = null;
+        }
+
+        // Shifts focus to the next input or submits
+        document.getElementById('sizeNameInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') { 
+                e.preventDefault(); 
+                document.getElementById('sizeSqftInput').focus(); 
+            }
+        });
+        document.getElementById('sizeSqftInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') { 
+                e.preventDefault(); 
+                addSize(); 
+            }
+        });
+        
+        document.getElementById('tileNameInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') { 
+                e.preventDefault(); 
+                document.getElementById('tileBoxesInput').focus(); 
+            }
+        });
+        document.getElementById('tileBoxesInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') { 
+                e.preventDefault(); 
+                addTile(); 
+            }
+        });
+
+        document.getElementById('searchInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') { e.preventDefault(); searchTiles(); }
+        });
+
+        // Close modals on outside click
+        window.onclick = function(event) {
+            const sizeModal = document.getElementById('sizeModal');
+            const tileModal = document.getElementById('tileModal');
+            
+            if (event.target == sizeModal) closeSizeModal();
+            if (event.target == tileModal) closeModal();
+        }
+
+        // Initial load
+        loadSizes();
+    </script>
+</body>
+</html>

@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mera-Tile</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="icon" type="image/png" href="/weblogo.png">
+<link rel="shortcut icon" href="/weblogo.png">
+<link rel="apple-touch-icon" href="/weblogo.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Mera-Tile",
+  "url": "https://meratile.in",
+  "logo": "https://meratile.in/weblogo.png"
+}
+</script>
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+body {
+    background-color: #f0f3f6;
+    color: #333333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    line-height: 1.6;
+}
+
+/* Dark Slate Header Strip */
+.app-header {
+    width: 100%;
+    background-color: #243b53;
+    padding: 15px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+.brand-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #ffffff;
+}
+
+.brand-logo-img {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #ffffff;
+}
+
+.brand-title-text {
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.top-nav {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+.nav-btn {
+    padding: 8px 20px;
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 4px;
+    background: transparent;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+.nav-btn.primary {
+    background-color: #ffffff;
+    color: #243b53;
+    border: 1px solid #ffffff;
+}
+.nav-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+.nav-btn.primary:hover {
+    background-color: #f0f3f6;
+    color: #1b2d40;
+}
+
+.user-avatar {
+    width: 38px;
+    height: 38px;
+    background: #e2e8f0;
+    color: #243b53;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1rem;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 2px solid rgba(255,255,255,0.2);
+    transition: transform 0.2s ease;
+}
+.user-avatar:hover {
+    transform: scale(1.05);
+}
+
+.main-wrapper {
+    width: 100%;
+    max-width: 1200px;
+    text-align: center;
+    margin: auto 0;
+    padding: 60px 20px;
+}
+
+.shop-meta-row {
+    margin-bottom: 40px;
+}
+.shop-display-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #ffffff;
+    padding: 8px 20px;
+    border-radius: 30px;
+    border: 1px solid #d9e2ec;
+    font-size: 0.9rem;
+    color: #627d98;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+.shop-display-box span {
+    font-weight: 700;
+    color: #102a43;
+    letter-spacing: 1px;
+}
+.view-shop-id-btn {
+    background: none;
+    border: none;
+    color: #486581;
+    cursor: pointer;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
+}
+.view-shop-id-btn:hover { color: #102a43; }
+
+.portal-grid {
+    display: flex;
+    flex-direction: row;
+    gap: 25px;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    transition: opacity 0.4s ease;
+}
+
+.hidden-portal {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+}
+
+.portal-loader {
+    margin: 40px auto;
+    font-size: 1.1rem;
+    color: #486581;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.portal-action-panel {
+    background: #ffffff;
+    border: 1px solid #e4e7eb;
+    border-radius: 16px;
+    padding: 35px 25px;
+    width: 280px;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    overflow: hidden;
+}
+
+.portal-action-panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 5px;
+}
+.portal-action-panel.v-3d::before { background-color: #9c27b0; }
+.portal-action-panel.v-2d::before { background-color: #e91e63; }
+.portal-action-panel.v-inventory::before { background-color: #2196f3; }
+.portal-action-panel.v-quotation::before { background-color: #009688; }
+/* New Subscription Panel Styles */
+.portal-action-panel.v-subscription::before { background-color: #ff9800; }
+
+.portal-action-panel:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+}
+
+.panel-icon-container {
+    font-size: 2.2rem;
+    margin-bottom: 15px;
+    transition: transform 0.2s ease;
+}
+.portal-action-panel.v-3d .panel-icon-container { color: #9c27b0; }
+.portal-action-panel.v-2d .panel-icon-container { color: #e91e63; }
+.portal-action-panel.v-inventory .panel-icon-container { color: #2196f3; }
+.portal-action-panel.v-quotation .panel-icon-container { color: #009688; }
+/* New Subscription Panel Icon Styles */
+.portal-action-panel.v-subscription .panel-icon-container { color: #ff9800; }
+
+.portal-action-panel:hover .panel-icon-container {
+    transform: scale(1.08);
+}
+
+.panel-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #102a43;
+    margin-bottom: 5px;
+}
+.panel-subtitle {
+    font-size: 0.85rem;
+    color: #829ab1;
+    font-weight: 400;
+}
+
+.footer { text-align: center; padding: 25px 20px; width: 100%; background: #ffffff; border-top: 1px solid #e4e7eb; }
+.footer-links { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; }
+.footer-link { color: #627d98; text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+.footer-link:hover { color: #243b53; }
+
+@media (max-width: 992px) {
+    .portal-grid { flex-wrap: wrap; }
+}
+@media (max-width: 768px) {
+    .app-header { padding: 15px 20px; }
+    .brand-title-text { font-size: 1.2rem; }
+    .main-wrapper { padding: 40px 15px; }
+    .portal-grid { flex-direction: column; width: 100%; gap: 20px; }
+    .portal-action-panel { width: 100%; max-width: 340px; min-height: 160px; padding: 25px 20px; }
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+    <div class="brand-section">
+        <img src="/images/weblogo.png" alt="Mera-Tile Logo" class="brand-logo-img">
+        <div class="brand-title-text">Mera-Tile</div>
+    </div>
+    <div class="top-nav" id="topNavActions"></div>
+</header>
+
+<div class="main-wrapper">
+    <div class="shop-meta-row">
+        <div class="shop-display-box" id="shopIdDisplayContainer" style="display: none;">
+            <i class="fas fa-building"></i> Active Shop ID: 
+            <span id="maskedShopId">******</span>
+            <button class="view-shop-id-btn" id="toggleShopIdBtn" onclick="toggleShopIdVisibility()">
+                <i class="fas fa-eye" id="shopIdEyeIcon"></i>
+            </button>
+        </div>
+    </div>
+
+    <div id="portalLoadingState" class="portal-loader">
+        <i class="fas fa-circle-notch fa-spin"></i> Loading secure dashboard...
+    </div>
+
+    <div class="portal-grid hidden-portal" id="actionPortalGrid">
+        <div class="portal-action-panel v-3d" onclick="handle3DVisualizerClick()">
+            <div class="panel-icon-container"><i class="fas fa-cubes"></i></div>
+            <div class="panel-title">3D View</div>
+            <div class="panel-subtitle">3D Visualizer</div>
+        </div>
+
+        <div class="portal-action-panel v-2d" onclick="handle2DVisualizerClick()">
+            <div class="panel-icon-container"><i class="fas fa-layer-group"></i></div>
+            <div class="panel-title">2D View</div>
+            <div class="panel-subtitle">2D Visualizer</div>
+        </div>
+
+        <div class="portal-action-panel v-inventory" id="inventoryPanel" onclick="handleLiveInventoryClick()">
+            <div class="panel-icon-container"><i class="fas fa-boxes-stacked"></i></div>
+            <div class="panel-title">My Stock</div>
+            <div class="panel-subtitle">View Inventory</div>
+        </div>
+
+        <div class="portal-action-panel v-quotation" id="quotationPanel" onclick="handleQuotationClick()">
+            <div class="panel-icon-container"><i class="fas fa-file-invoice-dollar"></i></div>
+            <div class="panel-title">Quotation</div>
+            <div class="panel-subtitle">Manage Quotes</div>
+        </div>
+
+        <div class="portal-action-panel v-subscription" id="subscriptionPanel" onclick="handleSubscriptionClick()">
+            <div class="panel-icon-container">
+                <i class="fas fa-crown"></i>
+            </div>
+            <div class="panel-title">Subscription</div>
+            <div class="panel-subtitle">Manage Plan</div>
+        </div>
+    </div>
+</div>
+
+<div class="footer">
+    <div class="footer-links">
+        <a href="about.html" class="footer-link">About</a>
+        <a href="privacy.html" class="footer-link">Privacy</a>
+        <a href="terms.html" class="footer-link">Terms</a>
+        <a href="help.html" class="footer-link">Help</a>
+    </div>
+</div>
+
+<script>
+let globalRealShopId = "";
+let isShopIdVisible = false;
+let isUserLoggedIn = false;
+
+function goToLogin(){location.href="login.html?redirect=index.html"}
+function goToRegister(){location.href="register.html"}
+
+function handle3DVisualizerClick() {
+    if (isUserLoggedIn && globalRealShopId) {
+        location.href = "3D_view.html?shopId=" + globalRealShopId;
+    } else {
+        location.href = "3D_view.html";
+    }
+}
+
+function handle2DVisualizerClick() {
+    if (isUserLoggedIn && globalRealShopId) {
+        location.href = "2D_view.html?shopId=" + globalRealShopId;
+    } else {
+        location.href = "2D_view.html";
+    }
+}
+
+function handleLiveInventoryClick() {
+    if (isUserLoggedIn && globalRealShopId) {
+        location.href = "myshop.html?shopId=" + globalRealShopId;
+    } else {
+        location.href = "login.html?redirect=index.html";
+    }
+}
+
+function handleQuotationClick() {
+    if (isUserLoggedIn && globalRealShopId) {
+        location.href = "quotation.html?shopId=" + globalRealShopId;
+    } else {
+        location.href = "login.html?redirect=index.html";
+    }
+}
+
+// Subscription button function
+function handleSubscriptionClick() {
+    if (isUserLoggedIn && globalRealShopId) {
+        location.href = "subscription.html?shopId=" + globalRealShopId;
+    } else {
+        location.href = "login.html?redirect=index.html";
+    }
+}
+
+function toggleShopIdVisibility() {
+    const textEl = document.getElementById('maskedShopId');
+    const iconEl = document.getElementById('shopIdEyeIcon');
+    if(!globalRealShopId) return;
+    
+    if(isShopIdVisible) {
+        textEl.textContent = "******";
+        iconEl.className = "fas fa-eye";
+        isShopIdVisible = false;
+    } else {
+        textEl.textContent = globalRealShopId;
+        iconEl.className = "fas fa-eye-slash";
+        isShopIdVisible = true;
+    }
+}
+</script>
+
+<script type="module">
+// ... Firebase logic remains the same
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDLwU2O2MQA3SWSlbw9Wa75_KByQ0EkZI8",
+  authDomain: "raav3d-50f8c.firebaseapp.com",
+  databaseURL: "https://raav3d-50f8c-default-rtdb.firebaseio.com",
+  projectId: "raav3d-50f8c",
+  storageBucket: "raav3d-50f8c.firebasestorage.app",
+  messagingSenderId: "528524618407",
+  appId: "1:528524618407:web:acb2c4fca0dcadd7934982"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
+
+onAuthStateChanged(auth, async (user) => {
+    const topNav = document.getElementById('topNavActions');
+    const shopContainer = document.getElementById('shopIdDisplayContainer');
+    const loadingState = document.getElementById('portalLoadingState');
+    const actionGrid = document.getElementById('actionPortalGrid');
+    
+    if (user) {
+        isUserLoggedIn = true;
+        const initialLetter = user.email ? user.email.charAt(0).toUpperCase() : '?';
+        topNav.innerHTML = `<div class="user-avatar" id="logOutBtn" title="Logout: ${user.email}">${initialLetter}</div>`;
+        
+        document.getElementById('logOutBtn').addEventListener('click', () => {
+            if(confirm("Do you want to sign out?")) {
+                signOut(auth).then(() => { localStorage.clear(); location.reload(); });
+            }
+        });
+
+        const cachedShopId = localStorage.getItem('shopId');
+        if (cachedShopId) {
+            globalRealShopId = cachedShopId;
+            shopContainer.style.display = "inline-flex";
+            document.getElementById('maskedShopId').textContent = "******";
+            
+            loadingState.style.display = "none";
+            actionGrid.classList.remove('hidden-portal');
+        }
+
+        try {
+            const usersRef = ref(db, 'users');
+            const snapshot = await get(usersRef);
+            if(snapshot.exists()){
+                let foundShopId = "";
+                snapshot.forEach(child => {
+                    const data = child.val();
+                    if(data.uid === user.uid) {
+                        foundShopId = data.shopId;
+                    }
+                });
+                
+                if (foundShopId) {
+                    globalRealShopId = foundShopId;
+                    localStorage.setItem('shopId', globalRealShopId);
+                    
+                    shopContainer.style.display = "inline-flex";
+                    if (!isShopIdVisible) {
+                        document.getElementById('maskedShopId').textContent = "******";
+                    } else {
+                        document.getElementById('maskedShopId').textContent = globalRealShopId;
+                    }
+                }
+            }
+        } catch(e) { console.error(e); } finally {
+            loadingState.style.display = "none";
+            actionGrid.classList.remove('hidden-portal');
+        }
+    } else {
+        isUserLoggedIn = false;
+        topNav.innerHTML = `
+            <button class="nav-btn" onclick="goToLogin()">Sign In</button>
+            <button class="nav-btn primary" onclick="goToRegister()">Sign Up</button>
+        `;
+        shopContainer.style.display = "none";
+        globalRealShopId = "";
+        localStorage.clear();
+        loadingState.style.display = "none";
+        actionGrid.classList.remove('hidden-portal');
+    }
+});
+</script>
+</body>
+</html>

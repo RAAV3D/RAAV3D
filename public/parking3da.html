@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Parking 3d Viewer</title>
+
+  <!-- three.js and extras -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+  <style>
+    .back-button {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(138, 43, 226, 0.1);
+      border: 2px solid #8a2be2;
+      color: #8a2be2;
+      padding: 10px 20px;
+      border-radius: 25px;
+      text-decoration: none;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      z-index: 100;
+    }
+        
+    .back-button:hover {
+      background: #8a2be2;
+      color: white;
+      transform: translateX(-5px);
+    }
+
+    /* Go to Top button */
+    #goToTopBtn {
+      display: none;
+      position: fixed;
+      bottom: 85px;
+      right: 25px;
+      z-index: 998;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 55px;
+      height: 55px;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.5);
+      transition: all 0.3s ease;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #goToTopBtn:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.7);
+    }
+
+    #goToTopBtn.show {
+      display: flex;
+    }
+
+    #rotationSpeed {
+      border: 1px solid #aaa;
+      border-radius: 6px;
+      padding: 3px 5px;
+      font-weight: bold;
+    }
+
+    :root { --accent: #8a2be2; --muted: #ddd; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(to bottom, #f0f8ff, #e6e6fa);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    h1 {
+      color: #6a0dad;
+      text-align: center;
+      margin-top: 60px;
+    }
+
+    .upload-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin: 20px 0;
+      max-width: 800px;
+    }
+
+    .tile-section {
+      background: white;
+      border: 2px dashed #ddd;
+      border-radius: 10px;
+      padding: 15px;
+      text-align: center;
+      width: 200px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: border-color 0.3s, box-shadow 0.3s;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .tile-section:hover {
+      border-color: #8a2be2;
+      box-shadow: 0 4px 12px rgba(138, 43, 226, 0.2);
+    }
+
+    .tile-section.has-image {
+      border-color: #4caf50;
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    }
+
+    .tile-section h3 {
+      margin: 0 0 10px;
+      color: #6a0dad;
+      font-size: 1.1rem;
+    }
+
+    .tile-section input[type="file"] {
+      margin: 10px 0;
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      width: 100%;
+    }
+    .preview { width: 160px; height: 110px; object-fit: cover; margin: 10px auto; border-radius: 8px; display:none; border:1px solid #ccc; }
+    .drag-text { color:#888; font-size:0.9rem; margin-top:6px; }
+
+    .btn-row { display:flex; gap:8px; justify-content:center; margin-top:8px; flex-wrap:wrap; }
+    .btn { padding:8px 10px; border-radius:6px; border:none; cursor:pointer; font-size:0.85rem; font-weight: 600; transition: all 0.25s ease; }
+    .btn:hover { transform: translateY(-2px); }
+    .clear-btn { background:#ff5722; color:white; display:none; }
+
+    #generateBtn, #fullscreenBtn, #downloadBtn {
+      padding: 12px 18px;
+      border-radius: 24px;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+      margin: 12px;
+      transition: all 0.3s ease;
+    }
+    #generateBtn { background: linear-gradient(135deg, #8a2be2, #9370db); }
+    #generateBtn:hover { box-shadow: 0 6px 20px rgba(138, 43, 226, 0.5); transform: translateY(-2px); }
+    #fullscreenBtn { background: linear-gradient(135deg,#ff9800,#ff5722); }
+    #fullscreenBtn:hover { box-shadow: 0 6px 20px rgba(255, 152, 0, 0.5); transform: translateY(-2px); }
+    #downloadBtn { background: linear-gradient(135deg,#4caf50,#45a049); }
+    #downloadBtn:hover { box-shadow: 0 6px 20px rgba(76, 175, 80, 0.5); transform: translateY(-2px); }
+
+    canvas { display:none;
+      width:100vw;
+      height:100vh;
+      margin-top:12px;
+      border-radius:6px;
+      box-shadow:0 8px 30px rgba(119, 40, 40, 0.2); }
+
+    /* Footer with design boxes - Transparent background */
+    footer#designFooter {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: none;
+      justify-content: flex-start;
+      padding: 12px 60px 12px 60px;
+      gap: 10px;
+      background: transparent;
+      box-shadow: none;
+      z-index: 999;
+      overflow-x: auto;
+      overflow-y: hidden;
+      white-space: nowrap;
+      max-width: 100vw;
+      scrollbar-width: thin;
+      scrollbar-color: #888 transparent;
+      -webkit-overflow-scrolling: touch;
+    }
+    footer#designFooter::-webkit-scrollbar { height: 6px; }
+    footer#designFooter::-webkit-scrollbar-track { background: transparent; }
+    footer#designFooter::-webkit-scrollbar-thumb { background: #888; border-radius: 3px; }
+
+    footer#designFooter .design-box {
+      min-width: 70px;
+      height: 70px;
+      background: transparent;
+      border: 2px solid #ddd;
+      border-radius: 12px;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      padding: 4px;
+      flex-shrink: 0;
+    }
+    footer#designFooter .design-box:hover {
+      border-color: #8a2be2;
+      box-shadow: 0 4px 12px rgba(138, 43, 226, 0.3);
+      transform: translateY(-3px);
+    }
+    footer#designFooter .design-box.active {
+      border-color: #6c63ff;
+      background: transparent;
+      box-shadow: 0 0 15px rgba(108, 99, 255, 0.4);
+    }
+    footer#designFooter .design-box img {
+      width: 40px;
+      height: 30px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-bottom: 3px;
+    }
+    footer#designFooter .design-box span {
+      font-size: 0.65rem;
+      color: #333;
+      font-weight: 600;
+      background: transparent;
+    }
+
+    .controls-row { display:flex; gap:10px; align-items:center; justify-content:center; margin-bottom:8px; flex-wrap:wrap; }
+
+    .mode-selector {
+      margin: 20px 0;
+      text-align: center;
+    }
+    .mode-selector select {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .error { color: #f44336; font-size: 0.85rem; display: none; margin-top: 8px; font-weight: 500; }
+
+    @media (max-width: 720px) {
+      .upload-container { gap: 12px; }
+      .tile-section { width: 90%; }
+      canvas { height: 70vh; }
+      footer#designFooter { padding: 10px 15px 10px 15px; gap: 8px; }
+      footer#designFooter .design-box { min-width: 60px; height: 60px; }
+      h1 { font-size: 1.8rem; }
+      #generateBtn, #fullscreenBtn, #downloadBtn { padding: 12px 24px; font-size: 0.95rem; }
+      #goToTopBtn { width: 45px; height: 45px; bottom: 80px; right: 15px; }
+    }
+  </style>
+</head>
+<body>
+  <button class="back-button" onclick="history.back()">Back</button>
+
+  <h1>Parking 3d Viewer</h1>
+
+  <!-- Mode Selector Dropdown -->
+  <div class="mode-selector">
+    <label for="modeSelect">Select Mode:</label>
+    <select id="modeSelect">
+      <option value="lbrd">L and D</option>
+      <option value="bookmatch">Book match</option>
+    </select>
+  </div>
+
+  <div class="upload-container">
+    <!-- L -->
+    <div class="tile-section" data-category="L" id="sectionL">
+      <h3>L Tile</h3>
+      <input id="fileInputL" type="file" accept="image/*" />
+      <div class="preview-container"><img id="previewL" class="preview" /></div>
+      <div class="drag-text">Drag & drop or choose image (JPG/PNG, ≤5MB)</div>
+      <div class="btn-row">
+        <button class="btn clear-btn" id="clearL">Clear</button>
+      </div>
+      <div id="errorL" class="error"></div>
+    </div>
+
+    <!-- D -->
+    <div class="tile-section" data-category="D" id="sectionD">
+      <h3>D Tile</h3>
+      <input id="fileInputD" type="file" accept="image/*" />
+      <div class="preview-container"><img id="previewD" class="preview" /></div>
+      <div class="drag-text">Drag & drop or choose image (JPG/PNG, ≤5MB)</div>
+      <div class="btn-row">
+        <button class="btn clear-btn" id="clearD">Clear</button>
+      </div>
+      <div id="errorD" class="error"></div>
+    </div>
+  </div>
+
+  <div style="text-align:center;">
+    <button id="generateBtn">Generate Model</button>
+    <button id="fullscreenBtn">Full Screen</button>
+    <button id="downloadBtn">Download Video</button>
+  </div>
+
+  <!-- rotation toggle & speed -->
+  <div class="controls-row">
+    <label><input type="checkbox" id="autoRotateToggle" checked /> Auto-rotate</label>
+    <label>
+      Rotation speed:
+      <input type="number" id="rotationSpeed" min="0" max="2" step="0.05" value="0.3" style="width:60px;text-align:center;" />
+    </label>
+  </div>
+
+  <!-- Go to Top Button -->
+  <button id="goToTopBtn" title="Go to Top">↑</button>
+
+  <!-- Canvas will be appended by JS -->
+
+  <footer id="designFooter" aria-hidden="true"></footer>
+
+  <!-- Dynamically load JS based on mode -->
+  <script>
+    // Get URL parameter for mode
+    const urlParams = new URLSearchParams(window.location.search);
+    const mode = urlParams.get('mode') || 'lbrd'; // Default to lbrd
+
+    // Set the select value
+    document.getElementById('modeSelect').value = mode;
+
+    // Hide D section if mode is bookmatch
+    if (mode === 'bookmatch') {
+      document.getElementById('sectionD').style.display = 'none';
+    }
+
+    // Load the appropriate JS file
+    const script = document.createElement('script');
+    if (mode === 'bookmatch') {
+      script.src = 'parking3dabm.js';
+    } else {
+      script.src = 'parking3da.js';
+    }
+    document.head.appendChild(script);
+
+    // Handle mode change
+    document.getElementById('modeSelect').addEventListener('change', function() {
+      const selectedMode = this.value;
+      window.location.href = window.location.pathname + '?mode=' + selectedMode;
+    });
+  </script>
+</body>
+</html>

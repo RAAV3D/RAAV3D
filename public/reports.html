@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Reports - Stock Management</title>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for Graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- html2pdf for PDF Download -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --bg-color: #f0f2f5;
+            --white: #ffffff;
+            --shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header h1 { 
+            margin: 0; 
+            font-size: 1.5rem; 
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 15px;
+            flex: 1;
+        }
+
+        /* Report Controls */
+        .report-controls {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .report-controls h2 {
+            margin: 0;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .control-group select,
+        .control-group input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .control-group select:focus,
+        .control-group input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #219150;
+        }
+
+        .btn-download {
+            background: var(--danger-color);
+            color: white;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 15px 25px;
+            border-radius: 50px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+
+        .btn-download:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        /* Summary Cards */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .summary-card {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .summary-card h3 {
+            margin: 0 0 10px 0;
+            color: var(--primary-color);
+            font-size: 1rem;
+        }
+
+        .summary-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .summary-card .value.success {
+            color: var(--success-color);
+        }
+
+        .summary-card .value.warning {
+            color: var(--warning-color);
+        }
+
+        /* Charts Section */
+        .charts-section {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+        }
+
+        .charts-section h2 {
+            margin-top: 0;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 30px;
+        }
+
+        /* Report Table */
+        .report-table-section {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+        }
+
+        .report-table-section h2 {
+            margin-top: 0;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .report-table th {
+            background: var(--primary-color);
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .report-table td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .report-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .report-table tr:hover {
+            background-color: #e9ecef;
+        }
+
+        /* Bill Type Colors */
+        .bill-row.sale {
+            background-color: #d4edda !important;
+            color: #155724;
+        }
+
+        .bill-row.return {
+            background-color: #f8d7da !important;
+            color: #721c24;
+        }
+
+        .bill-row.exchange {
+            background-color: #fff3cd !important;
+            color: #856404;
+        }
+
+        /* Box Details Section */
+        .box-details-section {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+        }
+
+        .box-details-section h2 {
+            margin-top: 0;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .size-group {
+            margin-bottom: 30px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .size-group-header {
+            background: var(--accent-color);
+            color: white;
+            padding: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .size-group-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .size-group-table th {
+            background: var(--primary-color);
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .size-group-table td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .size-group-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        /* Box Item Colors */
+        .box-item.sale {
+            background-color: #d4edda !important;
+            color: #155724;
+        }
+
+        .box-item.return {
+            background-color: #f8d7da !important;
+            color: #721c24;
+        }
+
+        .box-item.exchange {
+            background-color: #fff3cd !important;
+            color: #856404;
+        }
+
+        /* Bill Type Colors - NEW */
+        .bill-type.sale {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .bill-type.return {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .bill-type.exchange {
+            color: #f39c12;
+            font-weight: bold;
+        }
+
+        .size-group-total {
+            background: var(--success-color);
+            color: white;
+            padding: 15px;
+            text-align: right;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+        }
+
+        .loading i {
+            font-size: 3rem;
+            color: var(--accent-color);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* No Results */
+        .no-results {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+        }
+
+        /* Hidden Shop ID */
+        #shopId {
+            display: none;
+        }
+
+        /* Print/PDF Styles */
+        @media print {
+            .btn-download,
+            .report-controls {
+                display: none;
+            }
+        }
+        @media print {
+
+header{
+position: static !important;
+}
+
+.btn-download{
+display:none !important;
+}
+
+body{
+background:white;
+}
+
+.container{
+margin:0;
+padding:0;
+}
+
+}
+.report-table,
+.size-group-table{
+page-break-inside:auto;
+}
+
+.report-table tr,
+.size-group-table tr{
+page-break-inside:avoid;
+page-break-after:auto;
+}
+
+.size-group{
+page-break-inside:avoid;
+break-inside:avoid;
+}
+
+.report-table-section{
+page-break-after:always;
+}
+
+.report-table{
+table-layout:fixed;
+word-wrap:break-word;
+font-size:12px;
+}
+
+.report-table th,
+.report-table td{
+white-space:nowrap;
+}
+/* ✅ Table scroll fix */
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* Target your dynamically generated table */
+#billTableContainer table {
+    min-width: 900px; /* forces scroll instead of breaking */
+    border-collapse: collapse;
+}
+
+/* Fix text collision */
+#billTableContainer th,
+#billTableContainer td {
+    white-space: nowrap;
+    padding: 8px;
+    font-size: 12px;
+}
+
+/* 📱 Mobile optimization */
+@media (max-width: 768px) {
+
+    #billTableContainer th,
+    #billTableContainer td {
+        font-size: 11px;
+        padding: 6px;
+    }
+
+}
+@media print {
+
+    /* Prevent empty pages */
+    .report-table-section,
+    .chart-container,
+    .size-group {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    /* Remove forced breaks */
+    * {
+        page-break-before: auto !important;
+        page-break-after: auto !important;
+    }
+
+    /* Allow table rows to break properly */
+    table {
+        page-break-inside: auto;
+    }
+
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+
+}
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1><i class="fas fa-chart-line"></i> Sales Reports</h1>
+    </header>
+
+    <div class="container" id="reportContent">
+        
+        <!-- Report Controls -->
+        <div class="report-controls">
+            <h2><i class="fas fa-filter"></i> Report Filters</h2>
+            <div class="control-group">
+                <label for="reportMonth">Month:</label>
+                <select id="reportMonth">
+                    <option value="all">All Months</option>
+                    <option value="0">January</option>
+                    <option value="1">February</option>
+                    <option value="2">March</option>
+                    <option value="3">April</option>
+                    <option value="4">May</option>
+                    <option value="5">June</option>
+                    <option value="6">July</option>
+                    <option value="7">August</option>
+                    <option value="8">September</option>
+                    <option value="9">October</option>
+                    <option value="10">November</option>
+                    <option value="11">December</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="reportYear">Year:</label>
+                <select id="reportYear">
+                    <option value="2026">2026</option>
+                    <option value="2027">2027</option>
+                    <option value="2028">2028</option>
+                    <option value="2029">2029</option>
+                    <option value="2030">2030</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" onclick="generateReport()">
+                <i class="fas fa-sync"></i> Generate Report
+            </button>
+        </div>
+
+        <!-- Summary Cards - ONLY Total Bills -->
+        <div class="summary-cards">
+            <div class="summary-card">
+                <h3>Total Bills</h3>
+                <div class="value" id="totalBills">0</div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+<div class="charts-section" style="background: var(--white); padding: 25px; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 25px;">
+            <h2 style="margin-top: 0; color: var(--primary-color); margin-bottom: 20px;">
+                <i class="fas fa-boxes-stacked"></i> Box Movement Analytics Summary
+            </h2>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 25px;">
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid var(--success-color); text-align: center;">
+                    <div style="font-size: 0.85rem; color: #666; font-weight: bold; text-transform: uppercase;">Total Boxes Out (Sales)</div>
+                    <div id="statTotalSales" style="font-size: 1.8rem; font-weight: bold; color: var(--success-color); margin-top: 5px;">0</div>
+                </div>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid var(--danger-color); text-align: center;">
+                    <div style="font-size: 0.85rem; color: #666; font-weight: bold; text-transform: uppercase;">Total Boxes In (Returns)</div>
+                    <div id="statTotalReturns" style="font-size: 1.8rem; font-weight: bold; color: var(--danger-color); margin-top: 5px;">0</div>
+                </div>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid var(--accent-color); text-align: center;">
+                    <div style="font-size: 0.85rem; color: #666; font-weight: bold; text-transform: uppercase;">Net Movement (Clearance)</div>
+                    <div id="statNetMovement" style="font-size: 1.8rem; font-weight: bold; color: var(--accent-color); margin-top: 5px;">0</div>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 0; font-size: 1.1rem; color: var(--primary-color); margin-bottom: 15px;">
+                <i class="fas fa-list-ol"></i> Size Activity & Volume Leaderboard
+            </h3>
+            <div class="table-container" style="margin-bottom: 30px;">
+                <table class="report-table" style="min-width: 100%;">
+                    <thead>
+                        <tr style="background-color: var(--primary-color); color: white;">
+                            <th style="padding: 10px;">Size</th>
+                            <th style="padding: 10px; text-align: center;">Boxes Sold</th>
+                            <th style="padding: 10px; text-align: center;">Boxes Returned</th>
+                            <th style="padding: 10px; text-align: center;">Net Movement Count</th>
+                            <th style="padding: 10px; text-align: right;">Net Business Value</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sizeLeaderboardBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 style="margin-top: 20px; font-size: 1.1rem; color: var(--primary-color); margin-bottom: 15px;">
+                <i class="fas fa-chart-line"></i> Daily Revenue Trend (Net Business Value)
+            </h3>
+            <div style="position: relative; height: 300px; width: 100%; background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                <canvas id="revenueTrendChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Bill Details Section -->
+<div class="report-table-section">
+    <h2><i class="fas fa-table"></i> Bill Details</h2>
+
+    <div class="table-container">  <!-- ✅ ADD THIS -->
+        <div id="billTableContainer">
+            <div class="loading">
+                <i class="fas fa-spinner"></i>
+                <p>Loading bill data...</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+        <!-- Box Details Section -->
+        <div class="box-details-section">
+            <h2><i class="fas fa-boxes"></i> Box Details by Size</h2>
+            <div id="boxDetailsContainer">
+                <div class="loading">
+                    <i class="fas fa-spinner"></i>
+                    <p>Loading box details...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Download PDF Button -->
+    <button class="btn btn-download" onclick="downloadPDF()">
+        <i class="fas fa-file-pdf"></i> Download PDF Report
+    </button>
+
+    <!-- Hidden Shop ID -->
+    <div id="shopId"></div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+<script>
+    // 1. Firebase Configuration (UNCHANGED)
+    const firebaseConfig = {
+        apiKey: "AIzaSyDLwU2O2MQA3SWSlbw9Wa75_KByQ0EkZI8",
+        authDomain: "raav3d-50f8c.firebaseapp.com",
+        databaseURL: "https://raav3d-50f8c-default-rtdb.firebaseio.com",
+        projectId: "raav3d-50f8c",
+        storageBucket: "raav3d-50f8c.firebasestorage.app",
+        messagingSenderId: "528524618407",
+        appId: "1:528524618407:web:acb2c4fca0dcadd7934982"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // 2. Get Shop ID (UNCHANGED)
+    const urlParams = new URLSearchParams(window.location.search);
+    const shopID = urlParams.get('shopId') || "";
+    document.getElementById('shopId').textContent = shopID;
+
+    if (!shopID) {
+        alert("Error: Shop ID is missing! Please navigate from the dashboard.");
+        window.location.href = "myshop.html";
+    }
+
+    // 3. Global Variables
+    let salesChart = null;
+    let allBills = [];
+    let allStockSizes = []; // 🔥 NEW: Store all stock sizes
+
+    // 4. Generate Report (UPDATED)
+    function generateReport() {
+        const selectedMonth = document.getElementById('reportMonth').value;
+        const selectedYear = document.getElementById('reportYear').value;
+        loadCompleteData(selectedMonth, selectedYear);
+    }
+
+    // 🔥 5. NEW: Load COMPLETE Data (Stock + Bills)
+    function loadCompleteData(selectedMonth, selectedYear) {
+        const billTableContainer = document.getElementById('billTableContainer');
+        const boxDetailsContainer = document.getElementById('boxDetailsContainer');
+        
+        billTableContainer.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i><p>Loading bill data...</p></div>';
+        boxDetailsContainer.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i><p>Loading stock + sales data...</p></div>';
+
+        // Load STOCK first
+        database.ref('shops/' + shopID + '/stock').once('value', (stockSnapshot) => {
+            allStockSizes = []; // Reset
+            
+            if (stockSnapshot.exists()) {
+                stockSnapshot.forEach((sizeSnapshot) => {
+                    const sizeData = sizeSnapshot.val();
+                    allStockSizes.push({
+                        sizeName: sizeSnapshot.key,
+                        stockQty: Number(sizeData.stockQty || 0)
+                    });
+                });
+            }
+
+            // Then load BILLS
+            database.ref('shops/' + shopID + '/billings').once('value', (billSnapshot) => {
+                allBills = [];
+                
+                if (billSnapshot.exists()) {
+                    billSnapshot.forEach((childSnapshot) => {
+                        const data = childSnapshot.val();
+                        const billDate = new Date(data.billingDate);
+                        const billMonth = billDate.getMonth();
+                        const billYear = billDate.getFullYear();
+                        
+                            if (selectedMonth === 'all' || (billYear == parseInt(selectedYear))) {
+                            allBills.push({
+                                id: childSnapshot.key,
+                                ...data,
+                                billDate: billDate
+                            });
+                        }
+                    });
+                }
+
+                displayReport(allBills);
+            });
+        });
+    }
+
+    // 6. Display Report (UPDATED - ONLY Total Bills)
+function displayReport(allYearBills) {
+    const selectedMonth = document.getElementById('reportMonth').value;
+
+    // Filter bills for the Table and Summary Cards only
+    const filteredBills = allYearBills.filter(bill => {
+        return selectedMonth === 'all' || bill.billDate.getMonth() == parseInt(selectedMonth);
+    });
+
+    if (filteredBills.length === 0 && selectedMonth !== 'all') {
+        document.getElementById('billTableContainer').innerHTML = '<div class="no-results">No bills found for this month.</div>';
+    }
+
+    // Chart gets the FULL year (allYearBills)
+    // Table/Summary gets ONLY the filtered month (filteredBills)
+    updateSummary(filteredBills.length);
+    updateChart(allYearBills); 
+    displayBillTable(filteredBills);
+    displayBoxDetails(filteredBills);
+}
+
+    // 🔥 7. UPDATED: Display Box Details - NET AMOUNT (Sale Amount - Return Amount)
+    function displayBoxDetails(bills) {
+        const boxDetailsContainer = document.getElementById('boxDetailsContainer');
+        
+        const sizeGroups = {};
+        
+        // 🔥 STEP 1: Initialize ALL stock sizes with ZERO values
+        allStockSizes.forEach(stockItem => {
+            const sizeName = stockItem.sizeName;
+            sizeGroups[sizeName] = {
+                size: sizeName,
+                stockQty: stockItem.stockQty,
+                items: [],
+                totalBoxes: 0,
+                saleAmount: 0,      // 🔥 NEW: Track sale amount separately
+                returnAmount: 0,    // 🔥 NEW: Track return amount separately
+                saleBoxes: 0,
+                returnBoxes: 0
+            };
+        });
+
+        // 🔥 STEP 2: Add sales data to the sizes
+        bills.forEach(bill => {
+            if (bill.items) {
+                let billDate = bill.billingDate ? new Date(bill.billingDate) : new Date(bill.billDate || Date.now());
+                const formattedDate = billDate.toLocaleDateString('en-IN');
+                
+                const amount = bill.totalAmount || 0;
+                const billType = bill.billType || (amount > 0 ? 'sale' : 'return');
+                const billTypeDisplay = billType.toUpperCase();
+
+                Object.values(bill.items).forEach(item => {
+                    const sizeName = item.sizeName || 'Unknown';
+                    let boxes = Number(item.boxes || 0);
+
+                    // Ensure this size exists in our groups
+                    if (!sizeGroups[sizeName]) {
+                        sizeGroups[sizeName] = {
+                            size: sizeName,
+                            stockQty: 0,
+                            items: [],
+                            totalBoxes: 0,
+                            saleAmount: 0,
+                            returnAmount: 0,
+                            saleBoxes: 0,
+                            returnBoxes: 0
+                        };
+                    }
+
+                    if (billTypeDisplay === "SALE") {
+                        boxes = -Math.abs(boxes);
+                    }
+                    else if (billTypeDisplay === "RETURN") {
+                        boxes = Math.abs(boxes);
+                    }
+// Inside bill.items loop
+else if (billTypeDisplay === "EXCHANGE") {
+    // If boxes are positive, it means customer took them (Stock Out)
+    // We force it to negative so it shows with a minus symbol
+    if (boxes > 0) {
+        boxes = -Math.abs(boxes); 
+    } else {
+        // If it was already negative in the DB, it's a return
+        boxes = Math.abs(boxes);
+    }
+}
+
+                    const itemTotal = Number(item.total || 0);
+                    const absBoxes = Math.abs(boxes);
+
+                    // 🔥 NEW: Track sale/return amounts separately
+                    if (billTypeDisplay === "SALE") {
+                        sizeGroups[sizeName].saleAmount += Math.abs(itemTotal);
+                        sizeGroups[sizeName].saleBoxes += absBoxes;
+                    } else if (billTypeDisplay === "RETURN") {
+                        sizeGroups[sizeName].returnAmount += Math.abs(itemTotal);
+                        sizeGroups[sizeName].returnBoxes += absBoxes;
+                    }
+
+                    sizeGroups[sizeName].items.push({
+                        tileName: item.tileName || 'Unknown',
+                        boxes: boxes,
+                        rate: Number(item.rate || 0),
+                        total: itemTotal,
+                        date: formattedDate,
+                        billType: billTypeDisplay
+                    });
+
+                    sizeGroups[sizeName].totalBoxes += boxes;
+                });
+            }
+// 🔥 UPDATED: HANDLE EXCHANGE ITEMS (BLUE BOX FIX)
+if (bill.exchangeItems) {
+    let billDate = bill.billingDate ? new Date(bill.billingDate) : new Date(bill.billDate || Date.now());
+    const formattedDate = billDate.toLocaleDateString('en-IN');
+
+    Object.values(bill.exchangeItems).forEach(item => {
+        const sizeName = item.sizeName || 'Unknown';
+        let boxes = Number(item.boxes || 0);
+
+        // Ensure taking material (Exchange-Out) is negative to show the "-" symbol
+        // If the value is positive in the input, make it negative
+        if (boxes > 0) {
+            boxes = -Math.abs(boxes);
+        } else {
+            // Material coming back into the shop is positive
+            boxes = Math.abs(boxes);
+        }
+
+        const itemTotal = Number(item.total || 0);
+        const absBoxes = Math.abs(boxes);
+
+        // Logic for Header Totals
+        let billTypeDisplay;
+        if (boxes < 0) {
+            // Outgoing material -> SALE column
+            sizeGroups[sizeName].saleBoxes += absBoxes;
+            sizeGroups[sizeName].saleAmount += Math.abs(itemTotal);
+            billTypeDisplay = "SALE";
+        } else {
+            // Incoming material -> RETURN column
+            sizeGroups[sizeName].returnBoxes += absBoxes;
+            sizeGroups[sizeName].returnAmount += Math.abs(itemTotal);
+            billTypeDisplay = "RETURN";
+        }
+
+        sizeGroups[sizeName].items.push({
+            id: bill.id,
+            tileName: item.tileName || 'Unknown',
+            boxes: boxes, // This will now correctly display with the "-" symbol
+            rate: Number(item.rate || 0),
+            total: itemTotal,
+            date: formattedDate,
+            billType: billTypeDisplay
+        });
+
+        sizeGroups[sizeName].totalBoxes += boxes;
+    });
+}
+        });
+
+        const sortedSizes = Object.keys(sizeGroups).sort();
+
+        if (sortedSizes.length === 0) {
+            boxDetailsContainer.innerHTML = '<div class="no-results">No box sizes available.</div>';
+            return;
+        }
+
+        let boxDetailsHtml = '';
+        
+        sortedSizes.forEach(sizeName => {
+            const sizeData = sizeGroups[sizeName];
+            
+            // 🔥 NEW: Calculate NET AMOUNT (Sale Amount - Return Amount)
+            const netAmount = sizeData.saleAmount - sizeData.returnAmount;
+            const netBoxes = sizeData.saleBoxes - sizeData.returnBoxes;
+            const netAmountColor = netAmount >= 0 ? '#4ecdc4' : '#ff6b6b';
+            const netAmountSign = netAmount >= 0 ? '+' : '-';
+            const netBoxesColor = netBoxes >= 0 ? '#ffffff' : '#ff6b6b';
+            const netBoxesSign = netBoxes >= 0 ? '+' : '-';
+            
+            boxDetailsHtml += `
+                <div class="size-group">
+                    <div class="size-group-header" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);">
+                        <div style="font-size: 1.3rem; font-weight: bold; color: white;">
+                            <i class="fas fa-box" style="margin-right: 10px;"></i>${sizeName}
+                            ${sizeData.stockQty > 0 ? `<span style="font-size: 0.9rem; opacity: 0.9;">(Stock: ${sizeData.stockQty})</span>` : ''}
+                        </div>
+                        <div style="
+                            display:grid;
+                            grid-template-columns: repeat(4, 1fr);
+                            gap:20px;
+                            text-align:center;
+                            font-weight:bold;
+                            color:white;
+                        ">
+                            <div>
+                                <div style="font-size:0.8rem; opacity:0.8;">SALE</div>
+                                <div style="font-size:1.2rem; color:#4ecdc4;">
+                                    ${sizeData.saleBoxes}
+                                </div>
+                            </div>
+                            <div>
+                                <div style="font-size:0.8rem; opacity:0.8;">RETURN</div>
+                                <div style="font-size:1.2rem; color:#ff6b6b;">
+                                    ${sizeData.returnBoxes}
+                                </div>
+                            </div>
+                            <div>
+                                <div style="font-size:0.8rem; opacity:0.8;">NET BOX</div>
+                                <div style="font-size:1.3rem; color:${netBoxesColor};">
+                                    ${netBoxesSign}${Math.abs(netBoxes)}
+                                </div>
+                            </div>
+                            <div>
+                                <div style="font-size:0.8rem; opacity:0.8;">NET AMT</div>
+                                <div style="font-size:1.3rem; color:${netAmountColor}; font-weight: bold;">
+                                    ${netAmountSign}₹${Math.abs(netAmount).toLocaleString('en-IN', {maximumFractionDigits: 2})}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    ${sizeData.items.length > 0 ? `
+                    <table class="size-group-table">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th>Tile Name</th>
+                                <th>Type</th>
+                                <th>Date</th>
+                                <th>Boxes</th>
+                                <th>Rate</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                    ` : '<div style="padding: 20px; text-align: center; color: #666; font-style: italic;">No sales activity</div>'}
+                    
+                    ${sizeData.items.map((item, index) => `
+                        <tr class="box-item ${item.billType.toLowerCase()}">
+                            <td>${index + 1}</td>
+                            <td>${item.tileName}</td>
+                            <td class="bill-type ${item.billType.toLowerCase()}">${item.billType}</td>
+                            <td>${item.date}</td>
+                            <td>${item.boxes}</td>
+                            <td>₹${item.rate.toFixed(2)}</td>
+                            <td>₹${Math.abs(item.total).toLocaleString('en-IN', {maximumFractionDigits: 2})}</td>
+                        </tr>
+                    `).join('')}
+                    
+                    ${sizeData.items.length > 0 ? `</tbody></table>` : ''}
+                </div>
+            `;
+        });
+
+        boxDetailsContainer.innerHTML = boxDetailsHtml;
+    }
+
+    // UPDATED: Summary - ONLY Total Bills
+    function updateSummary(totalBills) {
+        document.getElementById('totalBills').textContent = totalBills;
+    }
+
+// Global variable handle to manage the trend line instance state
+let revenueTrendChartInstance = null;
+
+function updateChart(bills) {
+    const leaderboardBody = document.getElementById('sizeLeaderboardBody');
+    const sizeDataTracker = {};
+
+    let overallTotalSales = 0;
+    let overallTotalReturns = 0;
+
+    // 1. Fetch user selected month and year filter parameters dynamically
+    const filterMonth = parseInt(document.getElementById('reportMonth').value);
+    const filterYear = parseInt(document.getElementById('reportYear').value);
+
+    // 📊 NEW: Initialize a tracker for all 12 months of the selected year
+    const monthlyRevenueTracker = {
+        0: 0,  // Jan
+        1: 0,  // Feb
+        2: 0,  // Mar
+        3: 0,  // Apr
+        4: 0,  // May
+        5: 0,  // Jun
+        6: 0,  // Jul
+        7: 0,  // Aug
+        8: 0,  // Sep
+        9: 0,  // Oct
+        10: 0, // Nov
+        11: 0  // Dec
+    };
+
+    // 2. Initialize tracker variables with current profile stock variants
+    allStockSizes.forEach(stockItem => {
+        sizeDataTracker[stockItem.sizeName] = {
+            size: stockItem.sizeName,
+            sales: 0,
+            returns: 0,
+            netAmt: 0
+        };
+    });
+
+    // 3. Loop through all bills
+    bills.forEach(bill => {
+        const billDate = new Date(bill.billingDate);
+        const billMonth = billDate.getMonth(); // 0 to 11
+        const billYear = billDate.getFullYear();
+
+        // 🛑 YEAR FILTER RULE: For the graph, we only process data belonging to the selected year
+        if (billYear !== filterYear) {
+            return; 
+        }
+
+        let billType = bill.billType || (Number(bill.totalAmount || 0) > 0 ? 'sale' : 'return');
+        billType = billType.toLowerCase();
+
+        // Calculate this individual bill's combined items net value contribution
+        let billNetValueAccumulator = 0;
+
+        if (bill.items) {
+            Object.values(bill.items).forEach(item => {
+                const sizeName = item.sizeName || 'Unknown';
+                const boxes = Math.abs(Number(item.boxes || 0));
+                const totalVal = Number(item.total || 0);
+
+                // --- TABLE ONLY CONDITIONAL: Only update Leaderboard Table if it matches the selected Month ---
+                if (billMonth === filterMonth) {
+                    if (!sizeDataTracker[sizeName]) {
+                        sizeDataTracker[sizeName] = { size: sizeName, sales: 0, returns: 0, netAmt: 0 };
+                    }
+
+                    if (billType === 'sale') {
+                        sizeDataTracker[sizeName].sales += boxes;
+                        sizeDataTracker[sizeName].netAmt += totalVal;
+                        overallTotalSales += boxes;
+                    } else if (billType === 'return') {
+                        sizeDataTracker[sizeName].returns += boxes;
+                        sizeDataTracker[sizeName].netAmt -= totalVal;
+                        overallTotalReturns += boxes;
+                    } else if (billType === 'exchange') {
+                        if (Number(item.boxes || 0) > 0) {
+                            sizeDataTracker[sizeName].sales += boxes;
+                            sizeDataTracker[sizeName].netAmt += totalVal;
+                            overallTotalSales += boxes;
+                        } else {
+                            sizeDataTracker[sizeName].returns += boxes;
+                            sizeDataTracker[sizeName].netAmt -= totalVal;
+                            overallTotalReturns += boxes;
+                        }
+                    }
+                }
+                // -----------------------------------------------------------------------------------------
+
+                // Always accumulate into the bill total for Yearly Graph calculations
+                if (billType === 'sale') {
+                    billNetValueAccumulator += totalVal;
+                } else if (billType === 'return') {
+                    billNetValueAccumulator -= totalVal;
+                } else if (billType === 'exchange') {
+                    if (Number(item.boxes || 0) > 0) {
+                        billNetValueAccumulator += totalVal;
+                    } else {
+                        billNetValueAccumulator -= totalVal;
+                    }
+                }
+            });
+        }
+
+        if (bill.exchangeItems) {
+            Object.values(bill.exchangeItems).forEach(item => {
+                const sizeName = item.sizeName || 'Unknown';
+                const boxes = Math.abs(Number(item.boxes || 0));
+                const totalVal = Number(item.total || 0);
+
+                // --- TABLE ONLY CONDITIONAL: Only update Leaderboard Table if it matches the selected Month ---
+                if (billMonth === filterMonth) {
+                    if (!sizeDataTracker[sizeName]) {
+                        sizeDataTracker[sizeName] = { size: sizeName, sales: 0, returns: 0, netAmt: 0 };
+                    }
+
+                    if (Number(item.boxes || 0) > 0) {
+                        sizeDataTracker[sizeName].sales += boxes;
+                        sizeDataTracker[sizeName].netAmt += totalVal;
+                        overallTotalSales += boxes;
+                    } else {
+                        sizeDataTracker[sizeName].returns += boxes;
+                        sizeDataTracker[sizeName].netAmt -= totalVal;
+                        overallTotalReturns += boxes;
+                    }
+                }
+                // -----------------------------------------------------------------------------------------
+
+                // Always accumulate into the bill total for Yearly Graph calculations
+                if (Number(item.boxes || 0) > 0) {
+                    billNetValueAccumulator += totalVal;
+                } else {
+                    billNetValueAccumulator -= totalVal;
+                }
+            });
+        }
+
+        // 📊 Add or subtract this entire bill's net value to its respective month array slot
+        if (monthlyRevenueTracker[billMonth] !== undefined) {
+            monthlyRevenueTracker[billMonth] += billNetValueAccumulator;
+        }
+    });
+
+    // 4. Update top summary statistics dashboard widgets (Filtered by Month)
+    document.getElementById('statTotalSales').textContent = overallTotalSales + " Boxes";
+    document.getElementById('statTotalReturns').textContent = overallTotalReturns + " Boxes";
+    
+    const overallNet = overallTotalSales - overallTotalReturns;
+    document.getElementById('statNetMovement').textContent = (overallNet >= 0 ? '+' : '') + overallNet + " Boxes";
+
+    // 5. Sort data dynamically so the most active sizes appear first
+    const sortedLeaderboard = Object.values(sizeDataTracker).sort((a, b) => {
+        return (b.sales + b.returns) - (a.sales + a.returns);
+    });
+
+    // 6. Generate and inject clean display rows for the Table Leaderboard
+    let htmlRows = '';
+    let validRowsCount = 0;
+
+    sortedLeaderboard.forEach(row => {
+        if (row.sales > 0 || row.returns > 0) {
+            validRowsCount++;
+            const netBoxes = row.sales - row.returns;
+            const netAmtColor = row.netAmt >= 0 ? 'var(--success-color)' : 'var(--danger-color)';
+            const netBoxesColor = netBoxes >= 0 ? 'inherit' : 'var(--danger-color)';
+
+            htmlRows += `
+                <tr>
+                    <td style="padding:12px;"><strong><i class="far fa-square" style="margin-right:8px; color:var(--accent-color);"></i>${row.size}</strong></td>
+                    <td style="padding:12px; text-align:center; color:var(--success-color); font-weight:bold;">${row.sales}</td>
+                    <td style="padding:12px; text-align:center; color:var(--danger-color); font-weight:bold;">${row.returns}</td>
+                    <td style="padding:12px; text-align:center; font-weight:bold; color:${netBoxesColor};">
+                        ${netBoxes >= 0 ? '+' : ''}${netBoxes} Box
+                    </td>
+                    <td style="padding:12px; text-align:right; font-weight:bold; color:${netAmtColor};">
+                        ${row.netAmt >= 0 ? '+' : '-'}₹${Math.abs(row.netAmt).toLocaleString('en-IN', {maximumFractionDigits: 2})}
+                    </td>
+                </tr>
+            `;
+        }
+    });
+
+    if (validRowsCount === 0) {
+        leaderboardBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px; color:#777; font-weight:500;"><i class="fas fa-info-circle" style="margin-right:6px;"></i> No tile size movements recorded for the selected month.</td></tr>`;
+    } else {
+        leaderboardBody.innerHTML = htmlRows;
+    }
+
+    // ==========================================
+    // 7. RENDER MONTHLY TREND LINE CHART (ALL 12 MONTHS)
+    // ==========================================
+    const chartLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const chartDataValues = [];
+    
+    // Extract calculated data values sequentially from Jan to Dec
+    for (let m = 0; m < 12; m++) {
+        chartDataValues.push(monthlyRevenueTracker[m]);
+    }
+
+    const trendCtx = document.getElementById('revenueTrendChart').getContext('2d');
+    
+    // Safely remove structural old charts trace map allocations to avoid context overlay bugs
+    if (revenueTrendChartInstance) {
+        revenueTrendChartInstance.destroy();
+    }
+
+    revenueTrendChartInstance = new Chart(trendCtx, {
+        type: 'line',
+        data: {
+            labels: chartLabels,
+            datasets: [{
+                label: 'Net Monthly Value (₹)',
+                data: chartDataValues,
+                borderColor: 'rgba(52, 152, 219, 1)',
+                backgroundColor: 'rgba(52, 152, 219, 0.08)',
+                borderWidth: 2.5,
+                pointBackgroundColor: 'rgba(44, 62, 80, 1)',
+                pointRadius: 4,
+                tension: 0.25,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const val = context.raw;
+                            return 'Net Value: ' + (val >= 0 ? '₹' : '-₹') + Math.abs(val).toLocaleString('en-IN');
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) { 
+                            if (value < 0) return '-₹' + Math.abs(value).toLocaleString('en-IN');
+                            return '₹' + value.toLocaleString('en-IN'); 
+                        }
+                    },
+                    grid: { color: 'rgba(0, 0, 0, 0.04)' }
+                },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+}
+
+    // UPDATED: Bill Table - Balance shows only for SALE bills
+    function displayBillTable(bills) {
+        const billTableContainer = document.getElementById('billTableContainer');
+        
+        // 🔥 IMPROVED Calculation - Handles ALL scenarios (for footer only)
+        let salesPaid = 0;
+        let returnPaid = 0;
+        
+        bills.forEach(bill => {
+            const paidAmount = Math.abs(Number(bill.amountPaid || 0)); // Always positive
+            const totalAmount = Number(bill.totalAmount || 0);
+            let billType = bill.billType || '';
+            
+            // 🔥 Fix billType detection for edge cases
+            if (!billType) {
+                if (totalAmount > 0) {
+                    billType = 'sale';
+                } else if (totalAmount < 0 || paidAmount > 0) {
+                    billType = 'return';
+                } else {
+                    billType = 'sale'; // default
+                }
+            }
+            
+            if (billType.toLowerCase() === 'sale') {
+                salesPaid += paidAmount;
+            } else if (billType.toLowerCase() === 'return') {
+                returnPaid += paidAmount;
+            }
+            // Exchange bills are ignored for paid calculation
+        });
+        
+        // 🔥 Net Paid Amount
+        const netPaidAmount = salesPaid - returnPaid;
+        const isPositive = netPaidAmount >= 0;
+        const netColor = isPositive ? 'var(--success-color)' : 'var(--danger-color)';
+        
+        console.log('DEBUG:', { salesPaid, returnPaid, netPaidAmount }); // For testing
+        
+        let tableHtml = `
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Bill #</th><th>Type</th><th>Date</th><th>Customer Name</th><th>Mobile</th><th>Place</th><th>Paid</th><th>Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        bills.forEach((bill, index) => {
+let billType = bill.billType || (bill.totalAmount > 0 ? 'sale' : 'return');
+
+let rowClass = 'sale';
+let typeText = 'SALE';
+let balanceDisplay = '';
+
+// 🔥 Detect return + exchange properly
+const hasReturn = Number(bill.returnAmount || 0) > 0;
+
+// 🔥 FIX: Proper exchange detection
+const hasExchange =
+    (bill.exchangeEnabled === true) &&
+    (bill.exchangeItems && Object.keys(bill.exchangeItems).length > 0);
+
+if (billType === 'return') {
+
+    if (hasReturn && hasExchange) {
+        typeText = 'RE + EXC';   // ✅ MAIN CHANGE
+        rowClass = 'return';
+    } 
+    else if (hasReturn) {
+        typeText = 'RETURN';
+        rowClass = 'return';
+    } 
+    else if (hasExchange) {
+        typeText = 'EXCHANGE';
+        rowClass = 'return';
+    } 
+    else {
+        typeText = 'RETURN';
+        rowClass = 'return';
+    }
+
+    balanceDisplay = '<span style="color: #999; font-style: italic;">—</span>';
+}
+else if (billType === 'exchange') {
+    rowClass = 'exchange';
+    typeText = 'EXCHANGE';
+    balanceDisplay = '<span style="color: #999; font-style: italic;">—</span>';
+}
+else {
+    // SALE
+    rowClass = 'sale';
+    typeText = 'SALE';
+    balanceDisplay = `₹${(bill.balanceAmount || 0).toLocaleString('en-IN', {maximumFractionDigits: 2})}`;
+}
+            
+            tableHtml += `
+                <tr class="bill-row ${rowClass}">
+                    <td>${index + 1}</td>
+                    <td><strong>${typeText}</strong></td>
+                    <td>${bill.billDate.toLocaleDateString()}</td>
+                    <td>${bill.customerName || '-'}</td>
+                    <td>${bill.customerMobile || '-'}</td>
+                    <td>${bill.customerPlace || '-'}</td>
+                    <td>₹${(bill.amountPaid || 0).toLocaleString('en-IN', {maximumFractionDigits: 2})}</td>
+                    <td>${balanceDisplay}</td>
+                </tr>
+            `;
+        });
+
+        tableHtml += `
+                </tbody>
+                <tfoot>
+                    <tr style="background: linear-gradient(135deg, var(--primary-color) 0%, #34495e 100%); color: white; font-weight: bold; font-size: 1.1rem;">
+                        <td colspan="5" style="padding: 12px; font-size: 0.95rem; line-height: 1.4;">
+                            <div>Sales Paid: <span style="color: var(--success-color);">₹${salesPaid.toLocaleString('en-IN', {maximumFractionDigits: 2})}</span></div>
+                            <div>Return Paid: <span style="color: var(--danger-color);">₹${returnPaid.toLocaleString('en-IN', {maximumFractionDigits: 2})}</span></div>
+                        </td>
+                        <td style="padding: 12px; text-align: center; font-size: 1rem; color: #4ecdc4; font-weight: bold;">NET PAID:</td>
+                        <td style="padding: 15px; text-align: center; color: ${netColor}; font-size: 1.3rem; font-weight: bold;">
+                            ${netPaidAmount >= 0 ? '+' : '-' }₹${Math.abs(netPaidAmount).toLocaleString('en-IN', {maximumFractionDigits: 2})}
+                        </td>
+                        <td style="padding: 15px;"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        `;
+        
+        billTableContainer.innerHTML = tableHtml;
+    }
+
+// 15. Updated Download PDF function for Android App Compatibility
+function downloadPDF() {
+    const element = document.getElementById('reportContent');
+    const selectedMonth = document.getElementById('reportMonth').value;
+    const selectedYear = document.getElementById('reportYear').value;
+
+    const monthNames = ['January','February','March','April','May','June',
+                        'July','August','September','October','November','December'];
+
+    const monthName = selectedMonth === 'all' 
+        ? 'All Months' 
+        : monthNames[parseInt(selectedMonth)];
+
+    // Dynamic filename based on your filters
+    const fileName = `Sales_Report_${monthName}_${selectedYear}.pdf`;
+
+    // UI Feedback: Show spinner on button
+    const btn = document.querySelector('.btn-download');
+    const originalBtnHtml = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating PDF...';
+    btn.disabled = true;
+
+    const opt = {
+        margin: [5, 5, 5, 5],
+        filename: fileName,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+            scale: 2, 
+            useCORS: true, 
+            scrollY: 0,
+            letterRendering: true
+        },
+        jsPDF: { 
+            unit: 'mm', 
+            format: 'a4', 
+            orientation: 'portrait' 
+        },
+        pagebreak: { mode: ['css', 'legacy'] }
+    };
+
+    // Use .output('datauristring') instead of .save() 
+    // This sends the file data directly to your Android WebView DownloadListener
+    html2pdf().set(opt).from(element).toPdf().output('datauristring').then(function (pdfBase64) {
+        const link = document.createElement('a');
+        link.href = pdfBase64;
+        link.download = fileName;
+        link.click();
+        
+        // Reset button state
+        btn.innerHTML = originalBtnHtml;
+        btn.disabled = false;
+    }).catch(err => {
+        console.error('PDF Error:', err);
+        btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error - Try Again';
+        btn.disabled = false;
+    });
+}
+
+// 14. Initialize Page (Keep this as is)
+function initializePage() {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    document.getElementById('reportMonth').value = currentMonth;
+    document.getElementById('reportYear').value = currentYear;
+
+    loadCompleteData(currentMonth, currentYear);
+}
+
+// Start everything when the window loads
+window.onload = initializePage;
+</script>
+</body>
+</html>
