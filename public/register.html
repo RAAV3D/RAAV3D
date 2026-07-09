@@ -626,16 +626,16 @@ window.addEventListener('load', function() {
       // Step 2: Generate shop ID
       const randomShopId = await generateUniqueShopId();
 
-      // Step 3: Save user in Realtime Database
-      const userData = {
+    // Inside your registration form submit listener
+    const userData = {
         email: email,
         name: name,
         mobileNumber: mobile,
         shopId: randomShopId,
         uid: user.uid,
-        createdAt: new Date().toISOString()
-      };
-      await set(ref(db, "users/" + randomShopId), userData);
+        createdAt: Date.now() // Adds current time in milliseconds
+    };
+    await set(ref(db, "users/" + randomShopId), userData);
 
       // Step 4: Send Welcome Email via EmailJS Template
       const templateParams = {

@@ -331,92 +331,143 @@ body {
         <a href="help.html" class="footer-link">Help</a>
     </div>
 </div>
+<div id="shopIdModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;">
+    <div style="background:white; padding:20px; border-radius:8px; width:300px; text-align:center;">
+        <h3>Enter Shop ID</h3>
+        <input type="text" id="manualShopIdInput" placeholder="Enter Shop ID" 
+               style="width:100%; padding:8px; margin:15px 0; border:1px solid #ccc; border-radius:4px;"
+               onkeypress="if(event.key === 'Enter') verifyManualShopId()">
+        <button id="modalSubmitBtn" onclick="verifyManualShopId()" style="padding:8px 20px; background:#243b53; color:white; border:none; border-radius:4px; cursor:pointer;">Enter</button>
+        <button onclick="document.getElementById('shopIdModal').style.display='none'" style="padding:8px 20px; background:transparent; border:none; cursor:pointer;">Cancel</button>
+    </div>
+</div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyDLwU2O2MQA3SWSlbw9Wa75_KByQ0EkZI8",
+    authDomain: "raav3d-50f8c.firebaseapp.com",
+    databaseURL: "https://raav3d-50f8c-default-rtdb.firebaseio.com",
+    projectId: "raav3d-50f8c",
+    storageBucket: "raav3d-50f8c.firebasestorage.app",
+    messagingSenderId: "528524618407",
+    appId: "1:528524618407:web:acb2c4fca0dcadd7934982"
+};
+
+const db = getDatabase(initializeApp(firebaseConfig));
+const auth = getAuth();
+
 let globalRealShopId = "";
 let isShopIdVisible = false;
 let isUserLoggedIn = false;
+let pendingTargetUrl = "";
 
-function goToLogin(){location.href="login.html?redirect=index.html"}
-function goToRegister(){location.href="register.html"}
+// Expose functions to window
+window.goToLogin = () => location.href = "login.html?redirect=index.html";
+window.goToRegister = () => location.href = "register.html";
+window.toggleShopIdVisibility = toggleShopIdVisibility;
+window.handle3DVisualizerClick = () => handleVisualizerClick("3D_view.html", event.currentTarget);
+window.handle2DVisualizerClick = () => handleVisualizerClick("2D_view.html", event.currentTarget);
+window.handleLiveInventoryClick = () => checkAccess("myshop.html", event.currentTarget);
+window.handleQuotationClick = () => checkAccess("quotation.html", event.currentTarget);
+window.handleSubscriptionClick = handleSubscriptionClick;
+window.verifyManualShopId = verifyManualShopId;
 
-function handle3DVisualizerClick() {
+// New Logic: Check if user is logged in before allowing access
+function handleVisualizerClick(targetUrl, buttonElement) {
     if (isUserLoggedIn && globalRealShopId) {
-        location.href = "3D_view.html?shopId=" + globalRealShopId;
+        checkAccess(targetUrl, buttonElement);
     } else {
-        location.href = "3D_view.html";
+        pendingTargetUrl = targetUrl;
+        document.getElementById('shopIdModal').style.display = 'flex';
     }
 }
 
-function handle2DVisualizerClick() {
-    if (isUserLoggedIn && globalRealShopId) {
-        location.href = "2D_view.html?shopId=" + globalRealShopId;
-    } else {
-        location.href = "2D_view.html";
+// Verify Shop ID without logging in
+async function verifyManualShopId() {
+    const shopIdInput = document.getElementById('manualShopIdInput');
+    const btn = document.getElementById('modalSubmitBtn');
+    const shopId = shopIdInput.value.trim();
+    
+    if (!shopId) return alert("Please enter a Shop ID");
+    
+    // Disable button and show loading state
+    btn.disabled = true;
+    btn.innerText = "Verifying...";
+    btn.style.opacity = "0.6";
+    
+    try {
+        const snap = await get(ref(db, 'users/' + shopId));
+        if (snap.exists() && snap.val().subscriptionStatus === "active") {
+            location.href = pendingTargetUrl + "?shopId=" + shopId;
+        } else {
+            alert("Invalid Shop ID or inactive subscription.");
+            // Reset button so user can try again
+            btn.disabled = false;
+            btn.innerText = "Enter";
+            btn.style.opacity = "1";
+        }
+    } catch(e) { 
+        console.error(e);
+        alert("System error. Please try again.");
+        // Reset button on error
+        btn.disabled = false;
+        btn.innerText = "Enter";
+        btn.style.opacity = "1";
     }
 }
 
-function handleLiveInventoryClick() {
-    if (isUserLoggedIn && globalRealShopId) {
-        location.href = "myshop.html?shopId=" + globalRealShopId;
-    } else {
-        location.href = "login.html?redirect=index.html";
+async function checkAccess(targetUrl, buttonElement) {
+    if (!isUserLoggedIn) { location.href = "login.html?redirect=index.html"; return; }
+    if (!globalRealShopId) { alert("Shop ID is loading."); return; }
+
+    const originalText = buttonElement.innerText;
+    buttonElement.style.opacity = "0.5";
+    buttonElement.innerText = "Verifying...";
+
+    try {
+        const snap = await get(ref(db, 'users/' + globalRealShopId));
+        if (snap.exists()) {
+            const userData = snap.val();
+            const now = Date.now();
+            const trialDuration = 86400000; // 24 hours in milliseconds
+            
+            const isSubscriptionActive = userData.subscriptionStatus === "active";
+            const isWithinTrial = (now - userData.createdAt) < trialDuration;
+
+            if (isSubscriptionActive || isWithinTrial) {
+                location.href = targetUrl + "?shopId=" + globalRealShopId;
+            } else {
+                alert("Subscription inactive or trial period expired.");
+                location.href = "subscription.html";
+            }
+        } else {
+            alert("User data not found.");
+        }
+    } catch (e) { 
+        console.error(e);
+        alert("System error."); 
+    } finally { 
+        buttonElement.style.opacity = "1"; 
+        buttonElement.innerText = originalText; 
     }
 }
 
-function handleQuotationClick() {
-    if (isUserLoggedIn && globalRealShopId) {
-        location.href = "quotation.html?shopId=" + globalRealShopId;
-    } else {
-        location.href = "login.html?redirect=index.html";
-    }
-}
-
-// Subscription button function
 function handleSubscriptionClick() {
-    if (isUserLoggedIn && globalRealShopId) {
-        location.href = "subscription.html?shopId=" + globalRealShopId;
-    } else {
-        location.href = "login.html?redirect=index.html";
-    }
+    location.href = isUserLoggedIn && globalRealShopId ? "subscription.html?shopId=" + globalRealShopId : "login.html?redirect=index.html";
 }
 
 function toggleShopIdVisibility() {
     const textEl = document.getElementById('maskedShopId');
     const iconEl = document.getElementById('shopIdEyeIcon');
     if(!globalRealShopId) return;
-    
-    if(isShopIdVisible) {
-        textEl.textContent = "******";
-        iconEl.className = "fas fa-eye";
-        isShopIdVisible = false;
-    } else {
-        textEl.textContent = globalRealShopId;
-        iconEl.className = "fas fa-eye-slash";
-        isShopIdVisible = true;
-    }
+    isShopIdVisible = !isShopIdVisible;
+    textEl.textContent = isShopIdVisible ? globalRealShopId : "******";
+    iconEl.className = isShopIdVisible ? "fas fa-eye-slash" : "fas fa-eye";
 }
-</script>
-
-<script type="module">
-// ... Firebase logic remains the same
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDLwU2O2MQA3SWSlbw9Wa75_KByQ0EkZI8",
-  authDomain: "raav3d-50f8c.firebaseapp.com",
-  databaseURL: "https://raav3d-50f8c-default-rtdb.firebaseio.com",
-  projectId: "raav3d-50f8c",
-  storageBucket: "raav3d-50f8c.firebasestorage.app",
-  messagingSenderId: "528524618407",
-  appId: "1:528524618407:web:acb2c4fca0dcadd7934982"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const auth = getAuth(app);
 
 onAuthStateChanged(auth, async (user) => {
     const topNav = document.getElementById('topNavActions');
@@ -426,62 +477,34 @@ onAuthStateChanged(auth, async (user) => {
     
     if (user) {
         isUserLoggedIn = true;
-        const initialLetter = user.email ? user.email.charAt(0).toUpperCase() : '?';
-        topNav.innerHTML = `<div class="user-avatar" id="logOutBtn" title="Logout: ${user.email}">${initialLetter}</div>`;
-        
-        document.getElementById('logOutBtn').addEventListener('click', () => {
-            if(confirm("Do you want to sign out?")) {
-                signOut(auth).then(() => { localStorage.clear(); location.reload(); });
-            }
-        });
+        topNav.innerHTML = `<div class="user-avatar" id="logOutBtn">` + (user.email ? user.email.charAt(0).toUpperCase() : '?') + `</div>`;
+        document.getElementById('logOutBtn').onclick = () => { if(confirm("Sign out?")) signOut(auth).then(() => location.reload()); };
 
         const cachedShopId = localStorage.getItem('shopId');
         if (cachedShopId) {
             globalRealShopId = cachedShopId;
             shopContainer.style.display = "inline-flex";
             document.getElementById('maskedShopId').textContent = "******";
-            
-            loadingState.style.display = "none";
-            actionGrid.classList.remove('hidden-portal');
         }
 
         try {
-            const usersRef = ref(db, 'users');
-            const snapshot = await get(usersRef);
-            if(snapshot.exists()){
-                let foundShopId = "";
-                snapshot.forEach(child => {
-                    const data = child.val();
-                    if(data.uid === user.uid) {
-                        foundShopId = data.shopId;
-                    }
-                });
-                
-                if (foundShopId) {
-                    globalRealShopId = foundShopId;
+            const snapshot = await get(ref(db, 'users'));
+            snapshot.forEach(child => {
+                if(child.val().uid === user.uid) {
+                    globalRealShopId = child.val().shopId;
                     localStorage.setItem('shopId', globalRealShopId);
-                    
                     shopContainer.style.display = "inline-flex";
-                    if (!isShopIdVisible) {
-                        document.getElementById('maskedShopId').textContent = "******";
-                    } else {
-                        document.getElementById('maskedShopId').textContent = globalRealShopId;
-                    }
+                    document.getElementById('maskedShopId').textContent = "******";
                 }
-            }
+            });
         } catch(e) { console.error(e); } finally {
             loadingState.style.display = "none";
             actionGrid.classList.remove('hidden-portal');
         }
     } else {
         isUserLoggedIn = false;
-        topNav.innerHTML = `
-            <button class="nav-btn" onclick="goToLogin()">Sign In</button>
-            <button class="nav-btn primary" onclick="goToRegister()">Sign Up</button>
-        `;
+        topNav.innerHTML = `<button class="nav-btn" onclick="goToLogin()">Sign In</button><button class="nav-btn primary" onclick="goToRegister()">Sign Up</button>`;
         shopContainer.style.display = "none";
-        globalRealShopId = "";
-        localStorage.clear();
         loadingState.style.display = "none";
         actionGrid.classList.remove('hidden-portal');
     }
