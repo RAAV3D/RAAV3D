@@ -510,5 +510,27 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 </script>
+<script>
+  // Configuration
+  const API_BASE = "https://raav3d.onrender.com"; 
+
+  // Function to ping the backend
+  function warmUpBackend() {
+    fetch(`${API_BASE}/ping`, { 
+      method: 'GET', 
+      mode: 'no-cors', // Helps avoid CORS issues if just pinging
+      cache: 'no-cache' 
+    })
+    .then(() => console.log("Backend warming up..."))
+    .catch(() => {}); // Fail silently
+  }
+
+  // 1. Initial ping immediately on load
+  window.addEventListener("load", warmUpBackend);
+
+  // 2. Keep it warm every 25 seconds while on the index page
+  // This ensures the backend doesn't sleep while the user is browsing
+  setInterval(warmUpBackend, 25 * 1000);
+</script>
 </body>
 </html>

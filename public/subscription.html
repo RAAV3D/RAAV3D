@@ -285,34 +285,31 @@ async function proceedToPayment() {
   rzp.open();
 }
 
-// 🟢 NEW: 5-MINUTE AUTO-WAKE FUNCTION
-let pingInterval; // Global variable to store the interval ID
+// 🟢 NEW: FREQUENT AUTO-WAKE FUNCTION
+let pingInterval;
 
 function keepBackendAwake() {
+  // Set interval to 25 seconds (less than your 30-second sleep timeout)
   pingInterval = setInterval(() => {
-    fetch(`${API_BASE}/ping`)
+    fetch(`${API_BASE}/ping`, { method: 'GET', cache: 'no-cache' })
       .then(response => {
         if (response.ok) {
           console.log('Backend pinged successfully at', new Date().toLocaleTimeString());
-        } else {
-          console.warn('Backend ping failed:', response.status);
         }
       })
-      .catch(error => {
-        console.error('Error pinging backend:', error);
-      });
-  }, 5 * 60 * 1000); // 5 minutes in milliseconds
+      .catch(error => console.error('Ping failed:', error));
+  }, 25 * 1000); 
 }
 
-// Start the pinging when the page loads (initial ping + interval)
+// Start the pinging when the page loads
 window.addEventListener("load", () => {
-  fetch(`${API_BASE}/ping`).catch(() => {}); // Initial ping
-  keepBackendAwake(); // Start the 5-minute interval
+  fetch(`${API_BASE}/ping`).catch(() => {}); 
+  keepBackendAwake(); 
 });
 
-// Stop pinging when the user leaves the page (optional cleanup)
+// Stop pinging when the user leaves the page
 window.addEventListener("beforeunload", () => {
-  clearInterval(pingInterval); // Stop the interval to avoid unnecessary calls
+  clearInterval(pingInterval);
 });
 </script>
 
