@@ -475,6 +475,15 @@ onAuthStateChanged(auth, async (user) => {
     const loadingState = document.getElementById('portalLoadingState');
     const actionGrid = document.getElementById('actionPortalGrid');
     
+    // --- RESTRICTION LOGIC START ---
+    if (user && user.email === 'trsenterprises148@gmail.com') {
+        alert("Access restricted for this account.");
+        await signOut(auth);
+        location.reload();
+        return;
+    }
+    // --- RESTRICTION LOGIC END ---
+    
     if (user) {
         isUserLoggedIn = true;
         topNav.innerHTML = `<div class="user-avatar" id="logOutBtn">` + (user.email ? user.email.charAt(0).toUpperCase() : '?') + `</div>`;
