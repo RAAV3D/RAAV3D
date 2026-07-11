@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - User Management Portal</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
+        h2 { color: #6a0dad; }
+        table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #8a2be2; color: white; text-transform: uppercase; font-size: 0.85rem; }
+        .active { color: green; font-weight: bold; }
+        .expired { color: #d35400; font-weight: bold; }
+        .need-sub { color: red; font-weight: bold; }
+        button { cursor: pointer; padding: 6px 12px; background: #8a2be2; color: white; border: none; border-radius: 4px; transition: background 0.3s; }
+        button:hover { background: #6a0dad; }
+    </style>
+</head>
+<body>
+
+    <h2>User Management Portal</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>S.No</th>
+                <th>Shop ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Mobile Number</th>
+                <th>Requirement</th>
+                <th>Demo Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="userTableBody">
+            <tr><td colspan="8">Loading data...</td></tr>
+        </tbody>
+    </table>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+        import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDLwU2O2MQA3SWSlbw9Wa75_KByQ0EkZI8",
+            databaseURL: "https://raav3d-50f8c-default-rtdb.firebaseio.com"
+        };
+
+        const db = getDatabase(initializeApp(firebaseConfig));
+        const userTableBody = document.getElementById('userTableBody');
+
+        async function fetchUsers() {
+            try {
+                const snapshot = await get(ref(db, 'users'));
+                if (!snapshot.exists()) {
+                    userTableBody.innerHTML = '<tr><td colspan="8">No users found.</td></tr>';
+                    return;
+                }
+
+                userTableBody.innerHTML = '';
+                let count = 1;
+                const now = Date.now();
+                const trialDuration = 86400000; // 24 hours in ms
+
+                snapshot.forEach((child) => {
+                    const user = child.val();
+                    const shopId = child.key;
+                    
+                    // Logic: Check if demo is expired based on createdAt timestamp
+                    const isExpired = (now - user.createdAt) > trialDuration;
+                    const demoStatus = isExpired ? "Expired" : "Active";
+                    
+                    // Requirement Logic: Check for explicit 'active' subscription status
+                    const isSubActive = (user.subscriptionStatus === 'active');
+                    const requirement = (isExpired && !isSubActive) 
+                                        ? "Need Subscription" 
+                                        : "Subscription Active";
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${count++}</td>
+                        <td>${user.shopId || 'N/A'}</td>
+                        <td>${user.name || 'N/A'}</td>
+                        <td>${user.email || 'N/A'}</td>
+                        <td>${user.mobileNumber || 'N/A'}</td>
+                        <td class="${requirement === 'Need Subscription' ? 'need-sub' : 'active'}">${requirement}</td>
+                        <td class="${isExpired ? 'expired' : 'active'}">${demoStatus}</td>
+                        <td><button onclick="extendDemo('${shopId}')">Grant 1-Day</button></td>
+                    `;
+                    userTableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                userTableBody.innerHTML = '<tr><td colspan="8" style="color:red;">Error loading data.</td></tr>';
+            }
+        }
+
+        // Global function to allow button access
+        window.extendDemo = async (shopId) => {
+            if(confirm("Are you sure you want to reset the demo period to 24 hours for this user?")) {
+                await update(ref(db, 'users/' + shopId), {
+                    createdAt: Date.now()
+                });
+                alert("Demo extended successfully!");
+                location.reload();
+            }
+        };
+
+        fetchUsers();
+    </script>
+</body>
+</html>
