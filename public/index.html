@@ -210,8 +210,6 @@ body {
 .portal-action-panel.v-2d::before { background-color: #e91e63; }
 .portal-action-panel.v-inventory::before { background-color: #2196f3; }
 .portal-action-panel.v-quotation::before { background-color: #009688; }
-/* New Subscription Panel Styles */
-.portal-action-panel.v-subscription::before { background-color: #ff9800; }
 
 .portal-action-panel:hover {
     transform: translateY(-4px);
@@ -227,8 +225,6 @@ body {
 .portal-action-panel.v-2d .panel-icon-container { color: #e91e63; }
 .portal-action-panel.v-inventory .panel-icon-container { color: #2196f3; }
 .portal-action-panel.v-quotation .panel-icon-container { color: #009688; }
-/* New Subscription Panel Icon Styles */
-.portal-action-panel.v-subscription .panel-icon-container { color: #ff9800; }
 
 .portal-action-panel:hover .panel-icon-container {
     transform: scale(1.08);
@@ -312,14 +308,6 @@ body {
             <div class="panel-title">Quotation</div>
             <div class="panel-subtitle">Manage Quotes</div>
         </div>
-
-        <div class="portal-action-panel v-subscription" id="subscriptionPanel" onclick="handleSubscriptionClick()">
-            <div class="panel-icon-container">
-                <i class="fas fa-crown"></i>
-            </div>
-            <div class="panel-title">Subscription</div>
-            <div class="panel-subtitle">Manage Plan</div>
-        </div>
     </div>
 </div>
 
@@ -372,15 +360,6 @@ function handleQuotationClick() {
     }
 }
 
-// Subscription button function
-function handleSubscriptionClick() {
-    if (isUserLoggedIn && globalRealShopId) {
-        location.href = "subscription.html?shopId=" + globalRealShopId;
-    } else {
-        location.href = "login.html?redirect=index.html";
-    }
-}
-
 function toggleShopIdVisibility() {
     const textEl = document.getElementById('maskedShopId');
     const iconEl = document.getElementById('shopIdEyeIcon');
@@ -399,7 +378,6 @@ function toggleShopIdVisibility() {
 </script>
 
 <script type="module">
-// ... Firebase logic remains the same
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
 import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
@@ -423,7 +401,7 @@ onAuthStateChanged(auth, async (user) => {
     const shopContainer = document.getElementById('shopIdDisplayContainer');
     const loadingState = document.getElementById('portalLoadingState');
     const actionGrid = document.getElementById('actionPortalGrid');
-            // --- RESTRICTION LOGIC START ---
+            
     if (user && user.email === 'trsenterprises148@gmail.com') {
         alert("Access restricted for this account.");
         await signOut(auth);
