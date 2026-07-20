@@ -2242,168 +2242,156 @@ return newBoxes;
             });
         }
 
-        // 36. Show Bill Detail Modal
-        function showBillDetail(billId) {
-            const database = firebase.database();
-            
-            database.ref('shops/' + shopID + '/billings/' + billId).once('value', (snapshot) => {
-                if (!snapshot.exists()) {
-                    alert("Bill not found!");
-                    return;
-                }
-
-                const bill = snapshot.val();
-                const billDetailContent = document.getElementById('billDetailContent');
-                
-                // Build items table
-                let itemsHtml = '';
-                if (bill.items && bill.items.length > 0) {
-                    bill.items.forEach((item, index) => {
-                        itemsHtml += `
-                            <tr>
-                                <td>${index + 1}</td>
-                                <td>${item.sizeName || '-'}</td>
-                                <td>${item.tileName || '-'}</td>
-                                <td>${item.boxes || 0}</td>
-                                <td>₹${(item.rate || 0).toFixed(2)}</td>
-                                <td>₹${(item.total || 0).toFixed(2)}</td>
-                            </tr>
-                        `;
-                    });
-                } else {
-                    itemsHtml = '<tr><td colspan="6" style="text-align:center;">No items</td></tr>';
-                }
-                
-                // Build exchange items table (Only for Returns)
-                let exchangeItemsHtml = '';
-                if (bill.exchangeEnabled && bill.exchangeItems && bill.exchangeItems.length > 0) {
-                    bill.exchangeItems.forEach((item, index) => {
-                        exchangeItemsHtml += `
-                            <tr>
-                                <td>${index + 1}</td>
-                                <td>${item.sizeName || '-'}</td>
-                                <td>${item.tileName || '-'}</td>
-                                <td>${item.boxes || 0}</td>
-                                <td>₹${(item.rate || 0).toFixed(2)}</td>
-                                <td>₹${(item.total || 0).toFixed(2)}</td>
-                            </tr>
-                        `;
-                    });
-                } else {
-                    exchangeItemsHtml = '<tr><td colspan="6" style="text-align:center;">No exchange items</td></tr>';
-                }
-
-                const typeLabel = bill.type === 'sales' ? 'Sales' : 'Return';
-                const exchangeLabel = (bill.type === 'return' && bill.exchangeEnabled) ? '(Exchange)' : '';
-
-                billDetailContent.innerHTML = `
-                    <div class="bill-header">
-                        <span class="bill-number">Bill #${billId.substring(0, 8)} (${typeLabel}) ${exchangeLabel}</span>
-                        <span class="bill-date">${new Date(bill.billingDate).toLocaleDateString()}</span>
-                    </div>
-                    
-                    <div class="bill-details" style="margin-bottom: 20px;">
-                        <div class="bill-detail-item">
-                            <div class="bill-detail-label">Customer Name</div>
-                            <div class="bill-detail-value">${bill.customerName || '-'}</div>
-                        </div>
-                        <div class="bill-detail-item">
-                            <div class="bill-detail-label">Mobile Number</div>
-                            <div class="bill-detail-value">${bill.customerMobile || '-'}</div>
-                        </div>
-                        <div class="bill-detail-item">
-                            <div class="bill-detail-label">Place</div>
-                            <div class="bill-detail-value">${bill.customerPlace || '-'}</div>
-                        </div>
-                    </div>
-                    
-                    <h3 style="color: var(--primary-color); margin: 20px 0 10px;">${typeLabel} Items</h3>
-                    <table class="items-detail-table">
-                        <thead>
-                            <tr>
-                                <th>S.No</th>
-                                <th>Size</th>
-                                <th>Tile Name</th>
-                                <th>Boxes</th>
-                                <th>Rate</th>
-                                <th>Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${itemsHtml}
-                        </tbody>
-                    </table>
-                    
-                    ${bill.exchangeEnabled ? `
-                    <h3 style="color: var(--primary-color); margin: 20px 0 10px;">Exchange Items (Customer Taking)</h3>
-                    <table class="items-detail-table">
-                        <thead>
-                            <tr>
-                                <th>S.No</th>
-                                <th>Size</th>
-                                <th>Tile Name</th>
-                                <th>Boxes</th>
-                                <th>Rate</th>
-                                <th>Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${exchangeItemsHtml}
-                        </tbody>
-                    </table>
-                    ` : ''}
-                    
-                    <div class="bill-details" style="margin-top: 20px;">
-                        ${bill.type === 'sales' ? `
-                        <div class="bill-detail-item">
-                            <div class="bill-detail-label">Total Amount</div>
-                            <div class="bill-detail-value">₹${(bill.totalAmount || 0).toFixed(2)}</div>
-                        </div>
-                        <div class="bill-detail-item">
-                            <div class="bill-detail-label">Discount</div>
-                            <div class="bill-detail-value">₹${(bill.discount || 0).toFixed(2)}</div>
-                        </div>
-                        <div class="bill-detail-item">
-                            <div class="bill-detail-label">Total After Discount</div>
-                            <div class="bill-detail-value">₹${(bill.totalAfterDiscount || 0).toFixed(2)}</div>
-                        </div>
-                        ` : `
-                        <div class="bill-detail-item">
-                            <div class="bill-detail-label">Return Amount</div>
-                            <div class="bill-detail-value">₹${(bill.returnAmount || 0).toFixed(2)}</div>
-                        </div>
-                        <div class="bill-detail-item">
-                            <div class="bill-detail-label">Exchange Amount</div>
-                            <div class="bill-detail-value">₹${(bill.exchangeAmount || 0).toFixed(2)}</div>
-                        </div>
-                        `}
-                        <div class="bill-detail-item">
-                            <div class="bill-detail-label">Net Amount</div>
-                            <div class="bill-detail-value" style="color: var(--success-color); font-weight: bold;">₹${bill.amountPaid.toFixed(2)}</div>
-                        </div>
-                    </div>
-                    
-<div class="bill-details" style="margin-top: 20px;">
-    <div class="bill-detail-item">
-        <div class="bill-detail-label">Amount Paid</div>
-        <div class="bill-detail-value" style="color: var(--success-color); font-weight: bold;">₹${bill.amountPaid.toFixed(2)}</div>
-    </div>
-    <div class="bill-detail-item">
-        <div class="bill-detail-label">Balance Amount</div>
-        <div class="bill-detail-value">₹${bill.balanceAmount.toFixed(2)}</div>
-    </div>
-</div>
-                    
-                    <div class="bill-total" style="margin-top: 20px;">
-                        <div class="bill-detail-value">₹${bill.netAmount.toFixed(2)}</div>
-                    </div>
-                `;
-                
-                // Show modal
-                document.getElementById('billDetailModal').classList.add('show');
-            });
+// 36. Show Bill Detail Modal (UPDATED)
+// 36. Show Bill Detail Modal (UPDATED)
+function showBillDetail(billId) {
+    const database = firebase.database();
+    
+    database.ref('shops/' + shopID + '/billings/' + billId).once('value', (snapshot) => {
+        if (!snapshot.exists()) {
+            alert("Bill not found!");
+            return;
         }
 
+        const bill = snapshot.val();
+        const billDetailContent = document.getElementById('billDetailContent');
+        
+        // Build items table
+        let itemsHtml = '';
+        if (bill.items && bill.items.length > 0) {
+            bill.items.forEach((item, index) => {
+                itemsHtml += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${item.sizeName || '-'}</td>
+                        <td>${item.tileName || '-'}</td>
+                        <td>${item.boxes || 0}</td>
+                        <td>₹${(item.rate || 0).toFixed(2)}</td>
+                        <td>₹${(item.total || 0).toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+        } else {
+            itemsHtml = '<tr><td colspan="6" style="text-align:center;">No items</td></tr>';
+        }
+        
+        // Build exchange items table
+        let exchangeItemsHtml = '';
+        if (bill.exchangeEnabled && bill.exchangeItems && bill.exchangeItems.length > 0) {
+            bill.exchangeItems.forEach((item, index) => {
+                exchangeItemsHtml += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${item.sizeName || '-'}</td>
+                        <td>${item.tileName || '-'}</td>
+                        <td>${item.boxes || 0}</td>
+                        <td>₹${(item.rate || 0).toFixed(2)}</td>
+                        <td>₹${(item.total || 0).toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+        } else {
+            exchangeItemsHtml = '<tr><td colspan="6" style="text-align:center;">No exchange items</td></tr>';
+        }
+
+        const typeLabel = bill.type === 'sales' ? 'Sales' : 'Return';
+        const exchangeLabel = (bill.type === 'return' && bill.exchangeEnabled) ? '(Exchange)' : '';
+        const currentBalance = bill.balanceAmount || 0;
+
+        billDetailContent.innerHTML = `
+            <div class="bill-header">
+                <span class="bill-number">Bill #${billId.substring(0, 8)} (${typeLabel}) ${exchangeLabel}</span>
+                <span class="bill-date">${new Date(bill.billingDate).toLocaleDateString()}</span>
+            </div>
+            
+            <div class="bill-details" style="margin-bottom: 20px;">
+                <div class="bill-detail-item">
+                    <div class="bill-detail-label">Customer Name</div>
+                    <div class="bill-detail-value">${bill.customerName || '-'}</div>
+                </div>
+                <div class="bill-detail-item">
+                    <div class="bill-detail-label">Mobile Number</div>
+                    <div class="bill-detail-value">${bill.customerMobile || '-'}</div>
+                </div>
+                <div class="bill-detail-item">
+                    <div class="bill-detail-label">Place</div>
+                    <div class="bill-detail-value">${bill.customerPlace || '-'}</div>
+                </div>
+            </div>
+            
+            <h3 style="color: var(--primary-color); margin: 20px 0 10px;">${typeLabel} Items</h3>
+            <table class="items-detail-table">
+                <thead>
+                    <tr><th>S.No</th><th>Size</th><th>Tile Name</th><th>Boxes</th><th>Rate</th><th>Total</th></tr>
+                </thead>
+                <tbody>${itemsHtml}</tbody>
+            </table>
+            
+            ${bill.exchangeEnabled ? `
+            <h3 style="color: var(--primary-color); margin: 20px 0 10px;">Exchange Items (Customer Taking)</h3>
+            <table class="items-detail-table">
+                <thead>
+                    <tr><th>S.No</th><th>Size</th><th>Tile Name</th><th>Boxes</th><th>Rate</th><th>Total</th></tr>
+                </thead>
+                <tbody>${exchangeItemsHtml}</tbody>
+            </table>` : ''}
+            
+            <div class="bill-details" style="margin-top: 20px;">
+                ${bill.type === 'sales' ? `
+                <div class="bill-detail-item"><div class="bill-detail-label">Total Amount</div><div class="bill-detail-value">₹${(bill.totalAmount || 0).toFixed(2)}</div></div>
+                <div class="bill-detail-item"><div class="bill-detail-label">Discount</div><div class="bill-detail-value">₹${(bill.discount || 0).toFixed(2)}</div></div>
+                <div class="bill-detail-item"><div class="bill-detail-label">Total After Discount</div><div class="bill-detail-value">₹${(bill.totalAfterDiscount || 0).toFixed(2)}</div></div>` 
+                : `
+                <div class="bill-detail-item"><div class="bill-detail-label">Return Amount</div><div class="bill-detail-value">₹${(bill.returnAmount || 0).toFixed(2)}</div></div>
+                <div class="bill-detail-item"><div class="bill-detail-label">Exchange Amount</div><div class="bill-detail-value">₹${(bill.exchangeAmount || 0).toFixed(2)}</div></div>`}
+                
+                <div class="bill-detail-item"><div class="bill-detail-label">Amount Paid</div><div class="bill-detail-value" style="color: var(--success-color); font-weight: bold;">₹${(bill.amountPaid || 0).toFixed(2)}</div></div>
+                <div class="bill-detail-item"><div class="bill-detail-label">Balance Amount</div><div class="bill-detail-value" style="color: var(--danger-color); font-weight: bold;">₹${currentBalance.toFixed(2)}</div></div>
+            </div>
+
+            ${currentBalance > 0 ? `
+            <div class="update-balance-section" style="margin-top: 20px; padding: 15px; border: 1px solid #ddd; background: #f9f9f9;">
+                <label><strong>Receive New Payment:</strong></label>
+                <div style="display: flex; gap: 10px; margin-top: 5px;">
+                    <input type="number" id="newPaymentInput" placeholder="Enter amount" style="padding: 8px; flex-grow: 1;">
+                    <button type="button" class="btn" onclick="updateBillBalance('${billId}', ${currentBalance}, ${bill.amountPaid || 0})">Save Payment</button>
+                </div>
+            </div>` : '<div style="margin-top: 20px; color: var(--success-color); font-weight: bold; text-align: center;">Bill Fully Paid</div>'}
+        `;
+        
+        document.getElementById('billDetailModal').classList.add('show');
+    });
+}
+
+// Helper: Update Balance in Firebase
+function updateBillBalance(billId, oldBalance, oldPaid) {
+    const paymentInput = document.getElementById('newPaymentInput');
+    const payment = parseFloat(paymentInput.value);
+
+    if (isNaN(payment) || payment <= 0) {
+        alert("Please enter a valid amount.");
+        return;
+    }
+
+    if (payment > oldBalance) {
+        alert("Payment cannot exceed the balance amount!");
+        return;
+    }
+
+    const newBalance = oldBalance - payment;
+    const newTotalPaid = oldPaid + payment;
+
+    firebase.database().ref('shops/' + shopID + '/billings/' + billId).update({
+        balanceAmount: newBalance,
+        amountPaid: newTotalPaid
+    }).then(() => {
+        alert("Balance updated successfully!");
+        document.getElementById('billDetailModal').classList.remove('show');
+        if (typeof loadBills === 'function') loadBills();
+    }).catch((error) => {
+        alert("Error: " + error.message);
+    });
+}
         // 37. Close Bill Detail Modal
         function closeBillDetail() {
             document.getElementById('billDetailModal').classList.remove('show');
