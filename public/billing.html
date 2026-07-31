@@ -2,12 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>Return & Sales Billing - Stock Management</title>
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
+        /* Prevent mobile browsers from zooming in on table inputs and form fields */
+@media screen and (max-width: 768px) {
+    input[type="text"],
+    input[type="number"],
+    input[type="tel"],
+    input[type="date"],
+    select {
+        font-size: 16px !important;
+    }
+}
         :root {
             --primary-color: #2c3e50;
             --accent-color: #3498db;
@@ -808,10 +818,6 @@
     </button>
 </div>
 
-<div class="table-responsive">
-    <table class="items-table" id="itemsTable">
-        </table>
-</div>
 
         <!-- Billing Form Section -->
         <div id="billingFormSection" class="billing-form-section">
