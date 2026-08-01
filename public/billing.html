@@ -746,7 +746,6 @@ html, body {
     display: none;
   }
   
-  /* Convert each row into a card */
   .items-table, 
   .items-table tbody, 
   .items-table tr, 
@@ -759,15 +758,24 @@ html, body {
     background: #ffffff;
     border: 1px solid #e0e0e0;
     border-radius: 12px;
-    padding: 12px;
+    padding: 16px 12px 12px 12px;
     margin-bottom: 15px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    
+    /* Position context for the absolute delete button */
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 10px;
+    align-items: flex-end;
   }
   
   .items-table td {
     border: none;
-    padding: 8px 0;
+    padding: 0;
     text-align: left;
+    display: flex;
+    flex-direction: column;
   }
   
   /* Hide serial number */
@@ -775,7 +783,40 @@ html, body {
     display: none;
   }
   
-  /* Add field labels automatically */
+  /* Row 1: Select Size takes full width minus space for the corner button */
+  .items-table td:nth-child(2) {
+    flex: 1 1 100%;
+    padding-right: 35px; /* Prevent text/dropdown from overlapping the absolute delete button */
+  }
+  
+  /* Row 2: Enter Tile Name & Enter Boxes side-by-side */
+  .items-table td:nth-child(3) {
+    flex: 1 1 54%;
+  }
+  
+  .items-table td:nth-child(4) {
+    flex: 1 1 42%;
+  }
+  
+  /* Row 3: Enter Rate & Total Amount side-by-side */
+  .items-table td:nth-child(5) {
+    flex: 1 1 48%;
+  }
+  
+  .items-table td:nth-child(6) {
+    flex: 1 1 48%;
+  }
+  
+  /* Row 4: Absolute Top-Right Delete Button */
+  .items-table td:nth-child(7) {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: auto;
+    flex: none;
+  }
+
+  /* Field Labels */
   .items-table td:nth-child(2)::before {
     content: 'Select Size';
     display: block;
@@ -822,12 +863,7 @@ html, body {
   }
   
   .items-table td:nth-child(7)::before {
-    content: 'Remove Item';
-    display: block;
-    font-size: 12px;
-    font-weight: 700;
-    color: #2c3e50;
-    margin-bottom: 5px;
+    display: none;
   }
   
   /* Inputs full width */
@@ -839,21 +875,21 @@ html, body {
     border-radius: 8px;
   }
   
-  /* Small delete icon button on mobile */
+  /* Delete button styling matching your screenshot */
   .remove-item-btn {
-    width: auto;
-    min-width: 42px;
-    height: 42px;
+    width: 32px;
+    height: 32px;
     padding: 0;
-    font-size: 16px;
-    border-radius: 8px;
+    font-size: 13px;
+    border-radius: 50%;
     background: #ffffff;
     border: 1px solid #e74c3c;
     color: #e74c3c;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    margin-top: 6px;
+    margin: 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   }
   
   .remove-item-btn:hover {

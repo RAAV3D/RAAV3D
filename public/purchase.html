@@ -438,18 +438,19 @@
         background: #ffffff;
         border: 1px solid #e0e0e0;
         border-radius: 12px;
-        padding: 12px;
+        padding: 14px;
         margin-bottom: 15px;
         box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        position: relative;
     }
 
     .items-table td {
         border: none;
-        padding: 8px 0;
+        padding: 6px 0;
         text-align: left;
     }
 
-    /* Labels before each field */
+    /* Labels before each field (excluding the delete action cell) */
     .items-table td:nth-child(1)::before {
         content: 'Select Size';
         display: block;
@@ -477,13 +478,9 @@
         margin-bottom: 5px;
     }
 
+    /* Hide the 4th column's label text since we are floating the button */
     .items-table td:nth-child(4)::before {
-        content: 'Remove Item';
-        display: block;
-        font-size: 12px;
-        font-weight: 700;
-        color: #2c3e50;
-        margin-bottom: 5px;
+        display: none;
     }
 
     /* Full width inputs */
@@ -496,26 +493,34 @@
         box-sizing: border-box;
     }
 
-    /* Small delete icon button */
-    .remove-item-btn {
+    /* Absolute position delete button at the top-right of the card */
+    .items-table td:nth-child(4) {
+        position: absolute;
+        top: 12px;
+        right: 12px;
         width: auto;
-        min-width: 42px;
-        height: 42px;
         padding: 0;
-        font-size: 16px;
+    }
+
+    .remove-item-btn {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        padding: 0;
+        font-size: 14px;
         border-radius: 8px;
-        background: #ffffff;
+        background: #fff5f5;
         border: 1px solid #e74c3c;
         color: #e74c3c;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        margin-top: 6px;
+        margin-top: 0;
     }
 
     .remove-item-btn:hover {
-        background: #fff5f5;
-        color: #c0392b;
+        background: #e74c3c;
+        color: #ffffff;
     }
 
     header h1 {
