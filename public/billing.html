@@ -42,7 +42,10 @@
             flex-direction: column;
             min-height: 100vh;
         }
-
+html, body {
+    width: 100%;
+    overflow-x: hidden;
+}
         header {
             background-color: var(--primary-color);
             color: var(--white);
@@ -59,13 +62,14 @@
             font-size: 1.5rem; 
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 0 15px;
-            flex: 1;
-            width: 100%;
-        }
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 10px;
+    flex: 1;
+    overflow-x: hidden;
+}
 
         /* Button Group */
         .button-group {
@@ -272,26 +276,25 @@
             margin-bottom: 20px;
         }
 
-        .items-table, .exchange-table {
+        .items-table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
         }
 
-        .items-table th, .exchange-table th {
+        .items-table th {
             background: var(--primary-color);
             color: white;
             padding: 12px;
             text-align: left;
         }
 
-        .items-table td, .exchange-table td {
+        .items-table td {
             padding: 12px;
             border-bottom: 1px solid #ddd;
         }
 
-        .items-table input, .items-table select,
-        .exchange-table input, .exchange-table select {
+        .items-table input, .items-table select {
             width: 100%;
             padding: 8px;
             border: 1px solid #ddd;
@@ -299,24 +302,25 @@
             text-transform: uppercase;
         }
 
-        .items-table input:focus, .items-table select:focus,
-        .exchange-table input:focus, .exchange-table select:focus {
+        .items-table input:focus, .items-table select:focus {
             outline: none;
             border-color: var(--accent-color);
         }
 
         /* Remove Number Input Arrows */
         .items-table input[type="number"]::-webkit-inner-spin-button,
-        .items-table input[type="number"]::-webkit-outer-spin-button,
-        .exchange-table input[type="number"]::-webkit-inner-spin-button,
-        .exchange-table input[type="number"]::-webkit-outer-spin-button {
+        .items-table input[type="number"]::-webkit-outer-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
 
-        .items-table input[type="number"],
-        .exchange-table input[type="number"] {
+        .items-table input[type="number"] {
             appearance: textfield;
+        }
+
+        .items-table input.error {
+            border-color: var(--danger-color);
+            background-color: #fff5f5;
         }
 
         .error-message {
@@ -509,20 +513,20 @@
             margin-bottom: 15px;
         }
 
-        .search-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 15px;
-        }
+.search-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 columns on desktop/tablet */
+    gap: 15px;
+    margin-bottom: 15px;
+}
 
-        .search-grid input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 1rem;
-        }
+.search-grid input {
+    width: 100%;
+    padding: 12px 12px 12px 15px; /* Fixed padding */
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+}
 
         .search-grid input:focus {
             outline: none;
@@ -579,8 +583,25 @@
             transform: translateX(5px);
         }
 
+        .bill-item.active {
+            background: #d4edda;
+            border-left-color: var(--success-color);
+        }
+
+        .bill-item.return {
+            border-left-color: var(--danger-color);
+        }
+
+        .bill-item.return:hover {
+            background: #fde8e8;
+        }
+
         .bill-item.sales {
-            border-left-color: var(--accent-color);
+                        border-left-color: var(--accent-color);
+        }
+
+        .bill-item.sales:hover {
+            background: #e8f4fc;
         }
 
         .bill-header {
@@ -707,109 +728,188 @@
             background-color: #f8f9fa;
         }
 
+        .items-detail-table tr:hover {
+            background-color: #e9ecef;
+        }
+
+        /* No Results */
         .no-results {
             text-align: center;
             padding: 30px;
             color: #666;
         }
 
-        /* MOBILE CARD LAYOUT: Transforms tables into stacked cards for mobile screens with zero horizontal scroll */
-        @media (max-width: 768px) {
-            .customer-grid, .payment-grid, .search-grid, .bill-details {
-                grid-template-columns: 1fr;
-            }
+/* Enhanced Responsive Design */
+@media (max-width: 768px) {
 
-            .items-table, .exchange-table, 
-            .items-table tbody, .exchange-table tbody, 
-            .items-table tr, .exchange-table tr {
-                display: block;
-                width: 100%;
-            }
+    body {
+        font-size: 14px;
+    }
 
-            .items-table thead, .exchange-table thead {
-                display: none;
-            }
+    .container {
+        width: 100%;
+        max-width: 100%;
+        padding: 8px;
+        margin: 0;
+    }
 
-            .items-table tr, .exchange-table tr {
-                background: #ffffff;
-                border: 1px solid #dcdcdc;
-                border-radius: 10px;
-                padding: 15px;
-                margin-bottom: 15px;
-                box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-                position: relative;
-            }
+    .billing-form-section,
+    .customer-section,
+    .items-section,
+    .payment-section,
+    .saved-bills-section,
+    .search-section,
+    .exchange-section,
+    .exchange-toggle-section {
+        width: 100%;
+        max-width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+    }
 
-            .items-table td, .exchange-table td {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 8px 0;
-                border-bottom: 1px solid #f0f0f5;
-                text-align: right;
-                width: 100%;
-            }
+    .customer-grid,
+    .payment-grid,
+    .search-grid,
+    .bill-details {
+        grid-template-columns: 1fr;
+    }
 
-            .items-table td:last-child, .exchange-table td:last-child {
-                border-bottom: none;
-                padding-top: 12px;
-            }
+    .button-group {
+        flex-direction: column;
+        gap: 10px;
+    }
 
-            .items-table td::before, .exchange-table td::before {
-                content: attr(data-label);
-                font-weight: 700;
-                color: var(--primary-color);
-                text-align: left;
-                font-size: 0.9rem;
-                flex-basis: 35%;
-            }
+    .action-btn {
+        width: 100%;
+        padding: 12px;
+        font-size: 0.9rem;
+    }
 
-            .items-table td > select, .items-table td > input,
-            .exchange-table td > select, .exchange-table td > input,
-            .items-table td > div, .exchange-table td > div {
-                flex-basis: 62%;
-                width: auto !important;
-            }
+    .form-group input,
+    .payment-item input,
+    .search-grid input,
+    select {
+        width: 100%;
+        font-size: 16px;
+        padding: 10px;
+    }
 
-            .items-table td:last-child::before, .exchange-table td:last-child::before {
-                content: "Action";
-            }
+    header h1 {
+        font-size: 1.2rem;
+    }
 
-            .items-table td:last-child button, .exchange-table td:last-child button {
-                width: 100%;
-                padding: 10px;
-            }
+    .bill-detail-content {
+        width: 100%;
+        max-width: 100%;
+        padding: 15px;
+        margin: 0;
+    }
 
-            .action-btn {
-                padding: 12px 10px;
-                font-size: 0.9rem;
-            }
+    /* ---------- Mobile Item Card Layout ---------- */
 
-            .button-group {
-                flex-direction: column;
-            }
-        }
+    .items-section,
+    .exchange-section {
+        overflow-x: hidden;
+    }
 
+    /* Hide table header on mobile */
+    .items-table thead {
+        display: none;
+    }
+
+    /* Make table rows behave like cards */
+    .items-table,
+    .items-table tbody,
+    .items-table tr,
+    .items-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .items-table tr {
+        background: #ffffff;
+        border: 1px solid #dcdcdc;
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 12px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    .items-table td {
+        border: none;
+        padding: 6px 0;
+        text-align: left;
+    }
+
+    /* Label before each field */
+    .items-table td::before {
+        content: attr(data-label);
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 4px;
+    }
+
+    /* Inputs full width */
+    .items-table input,
+    .items-table select {
+        width: 100%;
+        min-width: 0;
+        font-size: 14px;
+        padding: 8px;
+        height: auto;
+    }
+
+    /* Remove button full width */
+    .remove-item-btn {
+        width: 100%;
+        padding: 10px;
+        font-size: 14px;
+        margin-top: 8px;
+    }
+
+    /* Add item button full width */
+    .add-item-btn {
+        width: 100%;
+        padding: 10px;
+        font-size: 14px;
+        margin-top: 10px;
+    }
+}
+
+        /* Hidden Shop ID */
         #shopId {
             display: none;
         }
+        /* Enhanced Dropdown Hover */
+#monthFilter:focus, #yearFilter:focus,
+#monthFilter:hover, #yearFilter:hover {
+    border-color: var(--accent-color) !important;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1) !important;
+    transform: translateY(-1px);
+}
 
-        .share-btn {
-            background: #27ae60;
-            color: white;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
+#monthFilter option:hover, #yearFilter option:hover {
+    background-color: var(--accent-color) !important;
+    color: white !important;
+}
+.share-btn{
+    background:#27ae60;
+    color:white;
+    border:none;
+    padding:8px 14px;
+    border-radius:6px;
+    cursor:pointer;
+    font-weight:500;
+    display:flex;
+    align-items:center;
+    gap:6px;
+}
 
-        .share-btn:hover {
-            background: #1e8449;
-        }
+.share-btn:hover{
+    background:#1e8449;
+}
     </style>
 </head>
 <body>
@@ -821,14 +921,15 @@
     <div class="container">
         
         <!-- Button Group -->
-        <div class="button-group">
-            <button type="button" class="action-btn sales" id="addSalesBtn" onclick="toggleBillingForm('sales')">
-                <i class="fas fa-shopping-cart"></i> Sales Bill
-            </button>
-            <button type="button" class="action-btn" id="addReturnBtn" onclick="toggleBillingForm('return')">
-                <i class="fas fa-undo"></i> Return Billing
-            </button>
-        </div>
+<div class="button-group">
+    <button type="button" class="action-btn sales" id="addSalesBtn" onclick="toggleBillingForm('sales')">
+        <i class="fas fa-shopping-cart"></i> Sales Bill
+    </button>
+    <button type="button" class="action-btn" id="addReturnBtn" onclick="toggleBillingForm('return')">
+        <i class="fas fa-undo"></i> Return Billing
+    </button>
+</div>
+
 
         <!-- Billing Form Section -->
         <div id="billingFormSection" class="billing-form-section">
@@ -875,7 +976,7 @@
             <!-- Exchange Items Section (Only for Return with Exchange) -->
             <div id="exchangeSection" class="exchange-section" style="display: none;">
                 <h2><i class="fas fa-exchange-alt"></i> Exchange Items (Customer Taking)</h2>
-                <table class="exchange-table" id="exchangeTable">
+                <table class="items-table" id="exchangeTable">
                     <thead>
                         <tr>
                             <th style="width: 50px;">S.No</th>
@@ -888,7 +989,7 @@
                         </tr>
                     </thead>
                     <tbody id="exchangeTableBody">
-                        <!-- Exchange items added dynamically -->
+                        <!-- Exchange items will be added here -->
                     </tbody>
                 </table>
                 <button type="button" class="add-item-btn" onclick="addExchangeItem()">
@@ -896,36 +997,38 @@
                 </button>
             </div>
 
-            <!-- Sales / Return Items Section -->
-            <div class="items-section">
-                <h2 id="itemsSectionTitle"><i class="fas fa-boxes"></i> Sales Items</h2>
-                <table class="items-table" id="itemsTable">
-                    <thead>
-                        <tr>
-                            <th style="width: 50px;">S.No</th>
-                            <th style="width: 150px;">Size</th>
-                            <th style="width: 180px;">Tile Name</th>
-                            <th style="width: 80px;">Boxes</th>
-                            <th style="width: 100px;">Rate</th>
-                            <th style="width: 100px;">Total</th>
-                            <th style="width: 70px;">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="itemsTableBody">
-                        <!-- Rows dynamically added here -->
-                    </tbody>
-                </table>
-                <button type="button" class="add-item-btn" id="addItemBtn" onclick="addItem()">
-                    <i class="fas fa-plus"></i> Add Item
-                </button>
-            </div>
+<!-- Sales / Return Items Section -->
+<div class="items-section">
+    <h2 id="itemsSectionTitle"><i class="fas fa-boxes"></i> Sales Items</h2>
+        <table class="items-table" id="itemsTable">
+            <thead>
+                <tr>
+                    <th style="width: 50px;">S.No</th>
+                    <th style="width: 150px;">Size</th>
+                    <th style="width: 180px;">Tile Name</th>
+                    <th style="width: 80px;">Boxes</th>
+                    <th style="width: 100px;">Rate</th>
+                    <th style="width: 100px;">Total</th>
+                    <th style="width: 70px;">Action</th>
+                </tr>
+            </thead>
+            <tbody id="itemsTableBody">
+                <!-- Rows dynamically added here -->
+            </tbody>
+        </table>
+    <button type="button" class="add-item-btn" id="addItemBtn" onclick="addItem()">
+        <i class="fas fa-plus"></i> Add Item
+    </button>
+</div>
 
             <!-- Payment Section -->
             <div class="payment-section">
                 <h2><i class="fas fa-money-bill-wave"></i> Payment Details</h2>
                 <div class="payment-grid">
+                    <!-- Sales Specific Fields -->
                     <div class="payment-item" id="discountContainer" style="display: none;">
                         <label>Discount (Total - Integer Only)</label>
+                        <!-- Updated: Removed decimal step, now integer only -->
                         <input type="number" id="discount" placeholder="0" min="0" step="1" oninput="calculateSalesPayment()">
                     </div>
                     
@@ -939,6 +1042,7 @@
                         <input type="number" id="totalAfterDiscount" placeholder="0.00" readonly>
                     </div>
 
+                    <!-- Return Specific Fields -->
                     <div class="payment-item" id="returnAmountContainer" style="display: none;">
                         <label>Return Amount (Customer Returning)</label>
                         <input type="number" id="returnAmount" placeholder="0.00" readonly>
@@ -985,36 +1089,39 @@
             </div>
         </div>
 
-        <!-- Search Section -->
-        <div class="search-section">
-            <h3><i class="fas fa-search"></i> Filter & Search Bills</h3>
-            <div class="search-grid">
-                <div style="grid-column: 1 / -1;">
-                    <label for="dateRangeFilter" style="font-weight: 600; color: var(--primary-color); font-size: 0.9rem; margin-bottom: 5px; display: block;">Date Filter</label>
-                    <select id="dateRangeFilter" onchange="filterBills()" style="
-                        width: 100%; padding: 12px; border: 2px solid #e0e6ed;
-                        border-radius: 8px; font-size: 1rem; font-weight: 600;
-                        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-                    ">
-                        <option value="today">📅 Today</option>
-                        <option value="3days">📆 Last 3 Days</option>
-                        <option value="1week">🗓️ Last 1 Week</option>
-                    </select>
-                </div>
-
-                <input type="text" id="searchName" placeholder="Name">
-                <input type="text" id="searchPlace" placeholder="Place">
-                <input type="tel" id="searchMobile" placeholder="Number" maxlength="10" style="grid-column: 1 / -1;">
-            </div>
-            <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
-                <button type="button" class="search-btn" onclick="searchBills()" style="flex: 1; min-width: 120px;">
-                    <i class="fas fa-search"></i> Search
-                </button>
-                <button type="button" class="clear-search-btn" onclick="clearAllFilters()" style="flex: 1; min-width: 120px;">
-                    <i class="fas fa-times"></i> Clear Filters
-                </button>
-            </div>
+<!-- Search Section -->
+<div class="search-section">
+    <h3><i class="fas fa-search"></i> Filter & Search Bills</h3>
+    <div class="search-grid">
+        <!-- Date Range Filter - Full width on mobile/grid -->
+        <div style="grid-column: 1 / -1;">
+            <label for="dateRangeFilter" style="font-weight: 600; color: var(--primary-color); font-size: 0.9rem; margin-bottom: 5px; display: block;">Date Filter</label>
+            <select id="dateRangeFilter" onchange="filterBills()" style="
+                width: 100%; padding: 12px; border: 2px solid #e0e6ed;
+                border-radius: 8px; font-size: 1rem; font-weight: 600;
+                background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+                transition: all 0.3s ease;
+            ">
+                <option value="today">📅 Today</option>
+                <option value="3days">📆 Last 3 Days</option>
+                <option value="1week">🗓️ Last 1 Week</option>
+            </select>
         </div>
+
+        <!-- Search Fields -->
+        <input type="text" id="searchName" placeholder="Name">
+        <input type="text" id="searchPlace" placeholder="Place">
+        <input type="tel" id="searchMobile" placeholder="Number" maxlength="10" style="grid-column: 1 / -1;">
+    </div>
+    <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+        <button type="button" class="search-btn" onclick="searchBills()" style="flex: 1; min-width: 120px;">
+            <i class="fas fa-search"></i> Search
+        </button>
+        <button type="button" class="clear-search-btn" onclick="clearAllFilters()" style="flex: 1; min-width: 120px;">
+            <i class="fas fa-times"></i> Clear Filters
+        </button>
+    </div>
+</div>
 
         <!-- Saved Bills Section -->
         <div class="saved-bills-section">
@@ -1028,19 +1135,23 @@
     <!-- Bill Detail Modal -->
     <div id="billDetailModal" class="bill-detail-modal">
         <div class="bill-detail-content">
-            <div class="bill-detail-header">
-                <h2 style="margin: 0; color: var(--primary-color);">Bill Details</h2>
-                <div style="display:flex; gap:10px;">
-                    <button type="button" class="share-btn" onclick="shareBillAsImage()">
-                        <i class="fas fa-share-alt"></i> Share
-                    </button>
-                    <button type="button" class="close-modal-btn" onclick="closeBillDetail()">
-                        <i class="fas fa-times"></i> Close
-                    </button>
-                </div>
-            </div>
+<div class="bill-detail-header">
+    <h2 style="margin: 0; color: var(--primary-color);">Bill Details</h2>
+
+    <div style="display:flex; gap:10px;">
+        <!-- NEW SHARE BUTTON -->
+        <button type="button" class="share-btn" onclick="shareBillAsImage()">
+            <i class="fas fa-share-alt"></i> Share
+        </button>
+
+        <!-- EXISTING CLOSE BUTTON -->
+        <button type="button" class="close-modal-btn" onclick="closeBillDetail()">
+            <i class="fas fa-times"></i> Close
+        </button>
+    </div>
+</div>
             <div id="billDetailContent">
-                <!-- Bill details loaded here -->
+                <!-- Bill details will be loaded here -->
             </div>
         </div>
     </div>
@@ -1053,6 +1164,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <script>
+        // 1. Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDLwU2O2MQA3SWSlbw9Wa75_KByQ0EkZI8",
             authDomain: "raav3d-50f8c.firebaseapp.com",
@@ -1063,9 +1175,11 @@
             appId: "1:528524618407:web:acb2c4fca0dcadd7934982"
         };
 
+        // 2. Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
+        // 3. Get Shop ID from URL
         const urlParams = new URLSearchParams(window.location.search);
         const shopID = urlParams.get('shopId') || "";
 
@@ -1074,23 +1188,40 @@
             window.location.href = "myshop.html";
         }
 
+        // Set hidden shop ID
         document.getElementById('shopId').textContent = shopID;
+
+        // 4. Set Billing Date to Today
         document.getElementById('billingDate').valueAsDate = new Date();
 
+        // 5. Items array (Sales Items / Return Items)
         let items = [];
+        
+        // Exchange Items array (Only for Return)
         let exchangeItems = [];
+        
+        // All sizes and tiles data
         let allSizesData = [];
+        
+        // Flag to track if data is loaded
         let isDataLoaded = false;
+        
+        // Track current form type (sales or return)
         let currentFormType = 'sales';
+        
+        // Track if exchange is enabled
         let isExchangeEnabled = false;
 
+        // 6. Load All Sizes and Tiles
         function loadAllSizesAndTiles() {
             database.ref('shops/' + shopID + '/credentials').on('value', (snapshot) => {
                 allSizesData = [];
+                
                 if (snapshot.exists()) {
                     snapshot.forEach((childSnapshot) => {
                         const sizeData = childSnapshot.val();
                         const sizeId = childSnapshot.key;
+                        
                         allSizesData.push({
                             id: sizeId,
                             name: sizeData.name,
@@ -1099,12 +1230,21 @@
                         });
                     });
                 }
+                
+                // Mark data as loaded
                 isDataLoaded = true;
-                if (items.length > 0) initializeItemsTable();
-                if (exchangeItems.length > 0) initializeExchangeTable();
+                
+                // Re-initialize table if data is loaded
+                if (items.length > 0) {
+                    initializeItemsTable();
+                }
+                if (exchangeItems.length > 0) {
+                    initializeExchangeTable();
+                }
             });
         }
 
+        // 7. Initialize Items Table (Sales/Return Items)
         function initializeItemsTable() {
             const tbody = document.getElementById('itemsTableBody');
             tbody.innerHTML = '';
@@ -1118,6 +1258,7 @@
             }
         }
 
+        // 8. Initialize Exchange Table
         function initializeExchangeTable() {
             const tbody = document.getElementById('exchangeTableBody');
             tbody.innerHTML = '';
@@ -1127,170 +1268,209 @@
             calculateExchangeAmount();
         }
 
-        function addRowToTable(item, index) {
-            const tbody = document.getElementById('itemsTableBody');
-            const row = document.createElement('tr');
-            
-            const sizeOptions = allSizesData.map(size => 
-                `<option value="${size.name}" ${size.name === item.sizeName ? 'selected' : ''}>${size.name}</option>`
-            ).join('');
-            
-            const selectedSizeData = allSizesData.find(s => s.name === item.sizeName);
-            const filteredTiles = (selectedSizeData && selectedSizeData.tiles) ? Object.values(selectedSizeData.tiles) : [];
-            
-            row.innerHTML = `
-                <td data-label="S.No">${index + 1}</td>
-                <td data-label="Size">
-                    <div style="width: 100%;">
-                        <select class="item-size" onchange="updateItem(${index}, 'sizeName', this.value); validateSize(${index}); initializeItemsTable(); calculateTotals()">
-                            <option value="">Select Size</option>
-                            ${sizeOptions}
-                        </select>
-                        <div class="error-message" id="sizeError${index}">Size not found</div>
-                    </div>
-                </td>
-                <td data-label="Tile Name">
-                    <div style="width: 100%;">
-                        <input type="text" class="item-tile" value="${item.tileName || ''}" placeholder="Tile Name" oninput="updateItem(${index}, 'tileName', this.value); validateTile(${index}); calculateTotals()" list="tileSuggestions${index}">
-                        <datalist id="tileSuggestions${index}">
-                            ${filteredTiles.map(tile => `<option value="${tile.name}">`).join('')}
-                        </datalist>
-                        <div class="error-message" id="tileError${index}">Tile not found</div>
-                    </div>
-                </td>
-                <td data-label="Boxes">
-                    <input type="number" class="item-boxes" value="${item.boxes !== undefined ? item.boxes : 0}" placeholder="Boxes" min="0" oninput="updateItem(${index}, 'boxes', this.value); calculateTotals()" onfocus="this.select()">
-                </td>
-                <td data-label="Rate">
-                    <input type="number" class="item-rate" value="${item.rate || 0}" placeholder="Rate" min="0" step="0.01" oninput="updateItem(${index}, 'rate', this.value); calculateTotals()" data-original-rate="${item.originalRate || 0}">
-                </td>
-                <td data-label="Total">
-                    <input type="number" class="item-total" value="${item.total || 0}" placeholder="Total" readonly>
-                </td>
-                <td data-label="Action">
-                    <button type="button" class="remove-item-btn" onclick="removeItem(${index})">
-                        <i class="fas fa-trash"></i> <span class="d-inline d-md-none">Delete Item</span>
-                    </button>
-                </td>
-            `;
-            tbody.appendChild(row);
+// 9. Updated Add Row to Table (Filtered by Size)
+function addRowToTable(item, index) {
+    const tbody = document.getElementById('itemsTableBody');
+    const row = document.createElement('tr');
+    
+    // Get size options
+    const sizeOptions = allSizesData.map(size => 
+        `<option value="${size.name}" ${size.name === item.sizeName ? 'selected' : ''}>${size.name}</option>`
+    ).join('');
+    
+    // FIX: Get ONLY tiles belonging to the selected size
+    const selectedSizeData = allSizesData.find(s => s.name === item.sizeName);
+    const filteredTiles = (selectedSizeData && selectedSizeData.tiles) ? Object.values(selectedSizeData.tiles) : [];
+    
+    row.innerHTML = `
+        <td>${index + 1}</td>
+        <td>
+            <select class="item-size" onchange="updateItem(${index}, 'sizeName', this.value); validateSize(${index}); initializeItemsTable(); calculateTotals()">
+                <option value="">Select Size</option>
+                ${sizeOptions}
+            </select>
+            <div class="error-message" id="sizeError${index}">Size not found</div>
+        </td>
+        <td>
+            <input type="text" class="item-tile" value="${item.tileName || ''}" placeholder="Tile Name" oninput="updateItem(${index}, 'tileName', this.value); validateTile(${index}); calculateTotals()" list="tileSuggestions${index}">
+            <datalist id="tileSuggestions${index}">
+                ${filteredTiles
+                    .map(tile => `<option value="${tile.name}">`)
+                    .join('')}
+            </datalist>
+            <div class="error-message" id="tileError${index}">Tile not found</div>
+        </td>
+        <td>
+            <input type="number" class="item-boxes" value="${item.boxes !== undefined ? item.boxes : 0}" placeholder="Boxes" min="0" oninput="updateItem(${index}, 'boxes', this.value); calculateTotals()" onfocus="this.select()">
+        </td>
+        <td>
+            <input type="number" class="item-rate" value="${item.rate || 0}" placeholder="Rate" min="0" step="0.01" oninput="updateItem(${index}, 'rate', this.value); calculateTotals()" data-original-rate="${item.originalRate || 0}">
+        </td>
+        <td>
+            <input type="number" class="item-total" value="${item.total || 0}" placeholder="Total" readonly>
+        </td>
+        <td>
+            <button type="button" class="remove-item-btn" onclick="removeItem(${index})">
+                <i class="fas fa-trash"></i>
+            </button>
+        </td>
+    `;
+    tbody.appendChild(row);
+}
+
+// 10. Updated Add Exchange Row to Table (Filtered by Size)
+function addExchangeRowToTable(item, index) {
+    const tbody = document.getElementById('exchangeTableBody');
+    const row = document.createElement('tr');
+    
+    // Get size options
+    const sizeOptions = allSizesData.map(size => 
+        `<option value="${size.name}" ${size.name === item.sizeName ? 'selected' : ''}>${size.name}</option>`
+    ).join('');
+    
+    // FIX: Get ONLY tiles belonging to the selected size
+    const selectedSizeData = allSizesData.find(s => s.name === item.sizeName);
+    const filteredTiles = (selectedSizeData && selectedSizeData.tiles) ? Object.values(selectedSizeData.tiles) : [];
+    
+    row.innerHTML = `
+        <td>${index + 1}</td>
+        <td>
+            <select class="exchange-size" onchange="updateExchangeItem(${index}, 'sizeName', this.value); validateExchangeSize(${index}); initializeExchangeTable(); calculateExchangeAmount()">
+                <option value="">Select Size</option>
+                ${sizeOptions}
+            </select>
+            <div class="error-message" id="exchangeSizeError${index}">Size not found</div>
+        </td>
+        <td>
+            <input type="text" class="exchange-tile" value="${item.tileName || ''}" placeholder="Tile Name" oninput="updateExchangeItem(${index}, 'tileName', this.value); validateExchangeTile(${index}); calculateExchangeAmount()" list="exchangeTileSuggestions${index}">
+            <datalist id="exchangeTileSuggestions${index}">
+                ${filteredTiles
+                    .map(tile => `<option value="${tile.name}">`)
+                    .join('')}
+            </datalist>
+            <div class="error-message" id="exchangeTileError${index}">Tile not found</div>
+        </td>
+        <td>
+            <input type="number" class="exchange-boxes" value="${item.boxes !== undefined ? item.boxes : 0}" placeholder="Boxes" min="0" oninput="updateExchangeItem(${index}, 'boxes', this.value); calculateExchangeAmount()" onfocus="this.select()">
+        </td>
+        <td>
+            <input type="number" class="exchange-rate" value="${item.rate || 0}" placeholder="Rate" min="0" step="0.01" oninput="updateExchangeItem(${index}, 'rate', this.value); calculateExchangeAmount()" data-original-rate="${item.originalRate || 0}">
+        </td>
+        <td>
+            <input type="number" class="exchange-total" value="${item.total || 0}" placeholder="Total" readonly>
+        </td>
+        <td>
+            <button type="button" class="remove-item-btn" onclick="removeExchangeItem(${index})">
+                <i class="fas fa-trash"></i>
+            </button>
+        </td>
+    `;
+    tbody.appendChild(row);
+}
+
+        // Helper function to get all tiles
+        function getAllTiles() {
+            let allTiles = [];
+            allSizesData.forEach(size => {
+                if (size.tiles) {
+                    Object.values(size.tiles).forEach(tile => {
+                        allTiles.push({
+                            name: tile.name,
+                            sizeName: size.name
+                        });
+                    });
+                }
+            });
+            return allTiles;
         }
 
-        function addExchangeRowToTable(item, index) {
-            const tbody = document.getElementById('exchangeTableBody');
-            const row = document.createElement('tr');
-            
-            const sizeOptions = allSizesData.map(size => 
-                `<option value="${size.name}" ${size.name === item.sizeName ? 'selected' : ''}>${size.name}</option>`
-            ).join('');
-            
-            const selectedSizeData = allSizesData.find(s => s.name === item.sizeName);
-            const filteredTiles = (selectedSizeData && selectedSizeData.tiles) ? Object.values(selectedSizeData.tiles) : [];
-            
-            row.innerHTML = `
-                <td data-label="S.No">${index + 1}</td>
-                <td data-label="Size">
-                    <div style="width: 100%;">
-                        <select class="exchange-size" onchange="updateExchangeItem(${index}, 'sizeName', this.value); validateExchangeSize(${index}); initializeExchangeTable(); calculateExchangeAmount()">
-                            <option value="">Select Size</option>
-                            ${sizeOptions}
-                        </select>
-                        <div class="error-message" id="exchangeSizeError${index}">Size not found</div>
-                    </div>
-                </td>
-                <td data-label="Tile Name">
-                    <div style="width: 100%;">
-                        <input type="text" class="exchange-tile" value="${item.tileName || ''}" placeholder="Tile Name" oninput="updateExchangeItem(${index}, 'tileName', this.value); validateExchangeTile(${index}); calculateExchangeAmount()" list="exchangeTileSuggestions${index}">
-                        <datalist id="exchangeTileSuggestions${index}">
-                            ${filteredTiles.map(tile => `<option value="${tile.name}">`).join('')}
-                        </datalist>
-                        <div class="error-message" id="exchangeTileError${index}">Tile not found</div>
-                    </div>
-                </td>
-                <td data-label="Boxes">
-                    <input type="number" class="exchange-boxes" value="${item.boxes !== undefined ? item.boxes : 0}" placeholder="Boxes" min="0" oninput="updateExchangeItem(${index}, 'boxes', this.value); calculateExchangeAmount()" onfocus="this.select()">
-                </td>
-                <td data-label="Rate">
-                    <input type="number" class="exchange-rate" value="${item.rate || 0}" placeholder="Rate" min="0" step="0.01" oninput="updateExchangeItem(${index}, 'rate', this.value); calculateExchangeAmount()" data-original-rate="${item.originalRate || 0}">
-                </td>
-                <td data-label="Total">
-                    <input type="number" class="exchange-total" value="${item.total || 0}" placeholder="Total" readonly>
-                </td>
-                <td data-label="Action">
-                    <button type="button" class="remove-item-btn" onclick="removeExchangeItem(${index})">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            `;
-            tbody.appendChild(row);
-        }
+// 11. Add Item (Sales/Return)
+function addItem() {
+    items.push({ sizeName: '', tileName: '', boxes: 0, rate: 0, total: 0, originalRate: 0 });
+    addRowToTable(items[items.length - 1], items.length - 1);
+    calculateTotals();
+}
 
-        function addItem() {
-            items.push({ sizeName: '', tileName: '', boxes: 0, rate: 0, total: 0, originalRate: 0 });
-            addRowToTable(items[items.length - 1], items.length - 1);
-            calculateTotals();
-        }
+// 12. Add Exchange Item
+function addExchangeItem() {
+    exchangeItems.push({ sizeName: '', tileName: '', boxes: 0, rate: 0, total: 0, originalRate: 0 });
+    addExchangeRowToTable(exchangeItems[exchangeItems.length - 1], exchangeItems.length - 1);
+    calculateExchangeAmount();
+}
 
-        function addExchangeItem() {
-            exchangeItems.push({ sizeName: '', tileName: '', boxes: 0, rate: 0, total: 0, originalRate: 0 });
-            addExchangeRowToTable(exchangeItems[exchangeItems.length - 1], exchangeItems.length - 1);
-            calculateExchangeAmount();
-        }
-
+        // 13. Remove Item
         function removeItem(index) {
             items.splice(index, 1);
             initializeItemsTable();
         }
 
+        // 14. Remove Exchange Item
         function removeExchangeItem(index) {
             exchangeItems.splice(index, 1);
             initializeExchangeTable();
         }
 
-        function updateItem(index, field, value) {
-            if (field === 'sizeName') {
-                items[index].sizeName = value.toUpperCase();
-                validateSize(index);
-            } else if (field === 'tileName') {
-                items[index].tileName = value.toUpperCase();
-                validateTile(index);
-            } else if (field === 'boxes') {
-                items[index].boxes = parseInt(value) || 0;
-            } else if (field === 'rate') {
-                const rateValue = parseFloat(value) || 0;
-                items[index].originalRate = rateValue;
-                items[index].rate = rateValue;
-                const rateInput = document.querySelectorAll('.item-rate')[index];
-                if (rateInput) rateInput.dataset.originalRate = value;
-            }
-            calculateTotals();
+// 15. Update Item
+function updateItem(index, field, value) {
+    if (field === 'sizeName') {
+        items[index].sizeName = value.toUpperCase();
+        validateSize(index);
+    } else if (field === 'tileName') {
+        items[index].tileName = value.toUpperCase();
+        validateTile(index);
+    } else if (field === 'boxes') {
+        items[index].boxes = parseInt(value) || 0;
+    } else if (field === 'rate') {
+        const rateValue = parseFloat(value) || 0;
+        // Store original rate for discount calculation
+        items[index].originalRate = rateValue;
+        // Update current rate to original rate (in case discount was applied)
+        items[index].rate = rateValue;
+        // Update original rate when user manually changes rate
+        const rateInput = document.querySelectorAll('.item-rate')[index];
+        if (rateInput) {
+            rateInput.dataset.originalRate = value;
         }
+    }
+    calculateTotals();
+}
 
-        function updateExchangeItem(index, field, value) {
-            if (field === 'sizeName') {
-                exchangeItems[index].sizeName = value.toUpperCase();
-                validateExchangeSize(index);
-            } else if (field === 'tileName') {
-                exchangeItems[index].tileName = value.toUpperCase();
-                validateExchangeTile(index);
-            } else if (field === 'boxes') {
-                exchangeItems[index].boxes = parseInt(value) || 0;
-            } else if (field === 'rate') {
-                const rateValue = parseFloat(value) || 0;
-                exchangeItems[index].originalRate = rateValue;
-                exchangeItems[index].rate = rateValue;
-                const rateInput = document.querySelectorAll('.exchange-rate')[index];
-                if (rateInput) rateInput.dataset.originalRate = value;
-            }
-            calculateExchangeAmount();
+// 16. Update Exchange Item
+function updateExchangeItem(index, field, value) {
+    if (field === 'sizeName') {
+        exchangeItems[index].sizeName = value.toUpperCase();
+        validateExchangeSize(index);
+    } else if (field === 'tileName') {
+        exchangeItems[index].tileName = value.toUpperCase();
+        validateExchangeTile(index);
+    } else if (field === 'boxes') {
+        exchangeItems[index].boxes = parseInt(value) || 0;
+    } else if (field === 'rate') {
+        const rateValue = parseFloat(value) || 0;
+        // Store original rate for discount calculation
+        exchangeItems[index].originalRate = rateValue;
+        // Update current rate to original rate
+        exchangeItems[index].rate = rateValue;
+        // Update original rate when user manually changes rate
+        const rateInput = document.querySelectorAll('.exchange-rate')[index];
+        if (rateInput) {
+            rateInput.dataset.originalRate = value;
         }
+    }
+    calculateExchangeAmount();
+}
 
+        // 17. Validate Size
         function validateSize(index) {
             const sizeName = items[index].sizeName;
             const sizeError = document.getElementById(`sizeError${index}`);
-            const sizeInput = document.querySelectorAll('.item-size')[index];
+            const sizeInputs = document.querySelectorAll('.item-size');
+            const sizeInput = sizeInputs[index];
+            
             if (!sizeError || !sizeInput) return;
+            
             const sizeExists = allSizesData.some(s => s.name === sizeName);
+            
             if (sizeName && !sizeExists) {
                 sizeError.classList.add('show');
                 sizeInput.classList.add('error');
@@ -1300,12 +1480,17 @@
             }
         }
 
+        // 18. Validate Exchange Size
         function validateExchangeSize(index) {
             const sizeName = exchangeItems[index].sizeName;
             const sizeError = document.getElementById(`exchangeSizeError${index}`);
-            const sizeInput = document.querySelectorAll('.exchange-size')[index];
+            const sizeInputs = document.querySelectorAll('.exchange-size');
+            const sizeInput = sizeInputs[index];
+            
             if (!sizeError || !sizeInput) return;
+            
             const sizeExists = allSizesData.some(s => s.name === sizeName);
+            
             if (sizeName && !sizeExists) {
                 sizeError.classList.add('show');
                 sizeInput.classList.add('error');
@@ -1315,13 +1500,23 @@
             }
         }
 
+        // 19. Validate Tile
         function validateTile(index) {
             const tileName = items[index].tileName;
             const tileError = document.getElementById(`tileError${index}`);
-            const tileInput = document.querySelectorAll('.item-tile')[index];
+            const tileInputs = document.querySelectorAll('.item-tile');
+            const tileInput = tileInputs[index];
+            
             if (!tileError || !tileInput) return;
-            const selectedSize = allSizesData.find(s => s.name === items[index].sizeName);
-            let tileExists = selectedSize && selectedSize.tiles ? Object.values(selectedSize.tiles).some(t => t.name === tileName) : false;
+            
+            const sizeName = items[index].sizeName;
+            const selectedSize = allSizesData.find(s => s.name === sizeName);
+            
+            let tileExists = false;
+            if (selectedSize && selectedSize.tiles) {
+                tileExists = Object.values(selectedSize.tiles).some(tile => tile.name === tileName);
+            }
+            
             if (tileName && !tileExists) {
                 tileError.classList.add('show');
                 tileInput.classList.add('error');
@@ -1331,13 +1526,23 @@
             }
         }
 
+        // 20. Validate Exchange Tile
         function validateExchangeTile(index) {
             const tileName = exchangeItems[index].tileName;
             const tileError = document.getElementById(`exchangeTileError${index}`);
-            const tileInput = document.querySelectorAll('.exchange-tile')[index];
+            const tileInputs = document.querySelectorAll('.exchange-tile');
+            const tileInput = tileInputs[index];
+            
             if (!tileError || !tileInput) return;
-            const selectedSize = allSizesData.find(s => s.name === exchangeItems[index].sizeName);
-            let tileExists = selectedSize && selectedSize.tiles ? Object.values(selectedSize.tiles).some(t => t.name === tileName) : false;
+            
+            const sizeName = exchangeItems[index].sizeName;
+            const selectedSize = allSizesData.find(s => s.name === sizeName);
+            
+            let tileExists = false;
+            if (selectedSize && selectedSize.tiles) {
+                tileExists = Object.values(selectedSize.tiles).some(tile => tile.name === tileName);
+            }
+            
             if (tileName && !tileExists) {
                 tileError.classList.add('show');
                 tileInput.classList.add('error');
@@ -1347,6 +1552,7 @@
             }
         }
 
+        // 21. Calculate Totals (Sales or Return)
         function calculateTotals() {
             if (currentFormType === 'sales') {
                 calculateSalesPayment();
@@ -1355,229 +1561,357 @@
             }
         }
 
-        function calculateSalesPayment() {
-            let totalBoxes = 0;
-            let totalAmount = 0;
-            
-            items.forEach((item) => {
-                totalBoxes += (item.boxes || 0);
-                totalAmount += ((item.boxes || 0) * (item.originalRate || 0));
-            });
-            
-            const discountInput = document.getElementById('discount');
-            const discount = parseFloat(discountInput.value) || 0;
-            let discountPerBox = totalBoxes > 0 ? discount / totalBoxes : 0;
+// 22. Calculate Sales Payment (Updated with Box-based Discount Distribution - FIXED with smart decimal display)
+function calculateSalesPayment() {
+    let totalBoxes = 0;
+    let totalAmount = 0;
+    
+    // First pass: Calculate total boxes and original total
+    items.forEach((item, index) => {
+        const boxes = item.boxes || 0;
+        const rate = item.originalRate || 0; // Use originalRate for total calculation
+        totalBoxes += boxes;
+        totalAmount += (boxes * rate);
+    });
+    
+    // Get discount amount
+    const discountInput = document.getElementById('discount');
+    const discount = parseFloat(discountInput.value) || 0;
+    
+    // Calculate discount per box
+    let discountPerBox = 0;
+    if (totalBoxes > 0) {
+        discountPerBox = discount / totalBoxes;
+    }
+    
+    // Second pass: Apply discount to rates and calculate new totals
+    items.forEach((item, index) => {
+        const boxes = item.boxes || 0;
+        let originalRate = item.originalRate || 0;
+        
+        // Reduce original rate by discount per box
+        let newRate = originalRate - discountPerBox;
+        if (newRate < 0) newRate = 0; // Prevent negative rate
+        
+        // Update item rate for display AND STORAGE
+        item.rate = newRate;
+        
+        const totalAmount = boxes * newRate;
+        item.total = totalAmount;
+        
+        // **Smart decimal formatting function**
+        function formatNumber(num) {
+            return num % 1 === 0 ? num.toFixed(0) : num.toFixed(2);
+        }
+        
+        // **FIX: Update BOTH total input AND rate input in table**
+        const totalInputs = document.querySelectorAll('.item-total');
+        const rateInputs = document.querySelectorAll('.item-rate');
+        
+        if (totalInputs[index]) {
+            totalInputs[index].value = formatNumber(totalAmount);
+        }
+        if (rateInputs[index]) {
+            rateInputs[index].value = formatNumber(newRate); // **Smart decimal - no .00**
+            rateInputs[index].dataset.originalRate = originalRate.toFixed(2);
+        }
+    });
+    
+    // **Smart decimal formatting for totals too**
+    function formatNumber(num) {
+        return num % 1 === 0 ? num.toFixed(0) : num.toFixed(2);
+    }
+    
+    // Recalculate total based on new rates
+    let finalTotal = 0;
+    items.forEach(item => {
+        finalTotal += item.total;
+    });
+    
+    // Update total amount (Original Total)
+    document.getElementById('totalAmount').value = formatNumber(totalAmount);
+    
+    // Update discount display
+    discountInput.value = discount.toFixed(0); // Keep as integer
+    
+    // Calculate total after discount (Total - Discount)
+    const totalAfterDiscount = totalAmount - discount;
+    document.getElementById('totalAfterDiscount').value = formatNumber(totalAfterDiscount);
+    
+    // Calculate balance
+    calculateBalance();
+}
+
+        // 23. Calculate Return Amount
+        function calculateReturnAmount() {
+            let total = 0;
             
             items.forEach((item, index) => {
                 const boxes = item.boxes || 0;
-                let newRate = (item.originalRate || 0) - discountPerBox;
-                if (newRate < 0) newRate = 0;
-                
-                item.rate = newRate;
-                item.total = boxes * newRate;
-                
-                function formatNumber(num) {
-                    return num % 1 === 0 ? num.toFixed(0) : num.toFixed(2);
-                }
-                
-                const totalInputs = document.querySelectorAll('.item-total');
-                const rateInputs = document.querySelectorAll('.item-rate');
-                
-                if (totalInputs[index]) totalInputs[index].value = formatNumber(item.total);
-                if (rateInputs[index]) {
-                    rateInputs[index].value = formatNumber(newRate);
-                    rateInputs[index].dataset.originalRate = (item.originalRate || 0).toFixed(2);
-                }
-            });
-            
-            function formatNumber(num) {
-                return num % 1 === 0 ? num.toFixed(0) : num.toFixed(2);
-            }
-            
-            let finalTotal = 0;
-            items.forEach(item => finalTotal += item.total);
-            
-            document.getElementById('totalAmount').value = formatNumber(totalAmount);
-            discountInput.value = discount.toFixed(0);
-            document.getElementById('totalAfterDiscount').value = formatNumber(totalAmount - discount);
-            calculateBalance();
-        }
-
-        function calculateReturnAmount() {
-            let total = 0;
-            items.forEach((item, index) => {
-                const totalAmount = (item.boxes || 0) * (item.rate || 0);
+                const rate = item.rate || 0;
+                const totalAmount = boxes * rate;
                 items[index].total = totalAmount;
+                
+                // Update total in table
                 const totalInputs = document.querySelectorAll('.item-total');
-                if (totalInputs[index]) totalInputs[index].value = totalAmount.toFixed(2);
+                if (totalInputs[index]) {
+                    totalInputs[index].value = totalAmount.toFixed(2);
+                }
+                
                 total += totalAmount;
             });
+            
+            // Update return amount in payment section
             document.getElementById('returnAmount').value = total.toFixed(2);
+            
+            // Calculate net amount
             calculateNetAmount();
         }
 
+        // 24. Calculate Exchange Amount
         function calculateExchangeAmount() {
             let total = 0;
+            
             exchangeItems.forEach((item, index) => {
-                const totalAmount = (item.boxes || 0) * (item.rate || 0);
+                const boxes = item.boxes || 0;
+                const rate = item.rate || 0;
+                const totalAmount = boxes * rate;
                 exchangeItems[index].total = totalAmount;
+                
+                // Update total in table
                 const totalInputs = document.querySelectorAll('.exchange-total');
-                if (totalInputs[index]) totalInputs[index].value = totalAmount.toFixed(2);
+                if (totalInputs[index]) {
+                    totalInputs[index].value = totalAmount.toFixed(2);
+                }
+                
                 total += totalAmount;
             });
+            
+            // Update exchange amount in payment section
             document.getElementById('exchangeAmount').value = total.toFixed(2);
+            
+            // Calculate net amount
             calculateNetAmount();
         }
 
+        // 25. Calculate Net Amount (Difference)
         function calculateNetAmount() {
             const returnAmount = parseFloat(document.getElementById('returnAmount').value) || 0;
             const exchangeAmount = parseFloat(document.getElementById('exchangeAmount').value) || 0;
+            
+            // Net amount = Exchange Amount - Return Amount
+            // If positive, customer pays
+            // If negative, shop pays customer
             let netAmount = exchangeAmount - returnAmount;
+            
             document.getElementById('netAmount').value = netAmount.toFixed(2);
+            
+            // Trigger balance calculation
             calculateBalance();
         }
 
-        function calculateBalance() {
-            let netAmount = currentFormType === 'sales' ? 
-                (parseFloat(document.getElementById('totalAfterDiscount').value) || 0) : 
-                (parseFloat(document.getElementById('netAmount').value) || 0);
-            
-            const amountPaid = parseFloat(document.getElementById('amountPaid').value) || 0;
-            let balanceAmount = currentFormType === 'return' && netAmount < 0 ? netAmount + amountPaid : netAmount - amountPaid;
-            document.getElementById('balanceAmount').value = balanceAmount.toFixed(2);
+        // 26. Calculate Balance Amount
+function calculateBalance() {
+    let netAmount = 0;
+    
+    if (currentFormType === 'sales') {
+        netAmount = parseFloat(document.getElementById('totalAfterDiscount').value) || 0;
+    } else {
+        netAmount = parseFloat(document.getElementById('netAmount').value) || 0;
+    }
+    
+    const amountPaid = parseFloat(document.getElementById('amountPaid').value) || 0;
+    
+    let balanceAmount;
+
+    if (currentFormType === 'return') {
+
+        if (netAmount < 0) {
+            // ✅ Pure return (you pay customer)
+            balanceAmount = netAmount + amountPaid;
+        } else {
+            // ✅ Exchange case (customer pays you)
+            balanceAmount = netAmount - amountPaid;
         }
 
+    } else {
+        // Sales
+        balanceAmount = netAmount - amountPaid;
+    }
+
+    document.getElementById('balanceAmount').value = balanceAmount.toFixed(2);
+}
+
+        // 27. Toggle Exchange Section
         function toggleExchangeSection() {
             const toggle = document.getElementById('exchangeToggle');
             const exchangeSection = document.getElementById('exchangeSection');
             isExchangeEnabled = toggle.checked;
+            
             if (isExchangeEnabled) {
                 exchangeSection.style.display = 'block';
             } else {
                 exchangeSection.style.display = 'none';
+                // Clear exchange items when disabled
                 exchangeItems = [];
                 initializeExchangeTable();
             }
         }
 
-        function toggleBillingForm(type) {
-            const billingFormSection = document.getElementById('billingFormSection');
-            const addSalesBtn = document.getElementById('addSalesBtn');
-            const addReturnBtn = document.getElementById('addReturnBtn');
+// 28. Updated Toggle Billing Form
+function toggleBillingForm(type) {
+    const billingFormSection = document.getElementById('billingFormSection');
+    const addSalesBtn = document.getElementById('addSalesBtn');
+    const addReturnBtn = document.getElementById('addReturnBtn');
 
-            if (billingFormSection.classList.contains('active') && currentFormType === type) {
-                billingFormSection.classList.remove('active');
-                addSalesBtn.innerHTML = '<i class="fas fa-shopping-cart"></i> Sales Bill';
-                addReturnBtn.innerHTML = '<i class="fas fa-undo"></i> Return Billing';
-                return;
-            }
+    // IF clicking the SAME button that is already active, close it (Cancel)
+    if (billingFormSection.classList.contains('active') && currentFormType === type) {
+        billingFormSection.classList.remove('active');
+        addSalesBtn.innerHTML = '<i class="fas fa-shopping-cart"></i> Add Sales Bill';
+        addReturnBtn.innerHTML = '<i class="fas fa-undo"></i> Add Return Billing';
+        return;
+    }
 
-            currentFormType = type;
-            document.getElementById('customerName').value = '';
-            document.getElementById('customerPlace').value = '';
-            document.getElementById('customerMobile').value = '';
-            document.getElementById('amountPaid').value = '';
-            document.getElementById('balanceAmount').value = '';
-            document.getElementById('netAmount').value = '';
-            document.getElementById('returnAmount').value = '';
-            document.getElementById('exchangeAmount').value = '';
-            document.getElementById('discount').value = '';
-            document.getElementById('totalAmount').value = '';
-            document.getElementById('totalAfterDiscount').value = '';
-            document.getElementById('billingDate').valueAsDate = new Date();
-            items = [];
-            exchangeItems = [];
-            isExchangeEnabled = false;
-            document.getElementById('exchangeToggle').checked = false;
-            initializeItemsTable();
-            initializeExchangeTable();
+    // Set current type
+    currentFormType = type;
+    const exchangeToggleSection = document.getElementById('exchangeToggleSection');
+    const formTitle = document.getElementById('formTitle');
+    const itemsSectionTitle = document.getElementById('itemsSectionTitle');
+    const addItemBtn = document.getElementById('addItemBtn');
+    
+    // --- START OF YOUR ORIGINAL RESET LOGIC ---
+    document.getElementById('customerName').value = '';
+    document.getElementById('customerPlace').value = '';
+    document.getElementById('customerMobile').value = '';
+    document.getElementById('amountPaid').value = '';
+    document.getElementById('balanceAmount').value = '';
+    document.getElementById('netAmount').value = '';
+    document.getElementById('returnAmount').value = '';
+    document.getElementById('exchangeAmount').value = '';
+    document.getElementById('discount').value = '';
+    document.getElementById('totalAmount').value = '';
+    document.getElementById('totalAfterDiscount').value = '';
+    document.getElementById('billingDate').valueAsDate = new Date();
+    items = [];
+    exchangeItems = [];
+    isExchangeEnabled = false;
+    document.getElementById('exchangeToggle').checked = false;
+    initializeItemsTable();
+    initializeExchangeTable();
+    // --- END OF YOUR ORIGINAL RESET LOGIC ---
 
-            if (type === 'sales') {
-                document.getElementById('discountContainer').style.display = 'block';
-                document.getElementById('totalAmountContainer').style.display = 'block';
-                document.getElementById('totalAfterDiscountContainer').style.display = 'block';
-                document.getElementById('returnAmountContainer').style.display = 'none';
-                document.getElementById('exchangeAmountContainer').style.display = 'none';
-                document.getElementById('formTitle').innerHTML = '<i class="fas fa-edit"></i> Sales Billing Details';
-                document.getElementById('itemsSectionTitle').innerHTML = '<i class="fas fa-boxes"></i> Sales Items';
-                document.getElementById('addItemBtn').innerHTML = '<i class="fas fa-plus"></i> Add Item';
-                document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save"></i> Save Sales Billing';
-                document.getElementById('exchangeToggleSection').style.display = 'none';
-                addSalesBtn.innerHTML = '<i class="fas fa-times"></i> Cancel Sales';
-                addReturnBtn.innerHTML = '<i class="fas fa-undo"></i> Add Return Billing';
-            } else {
-                document.getElementById('discountContainer').style.display = 'none';
-                document.getElementById('totalAmountContainer').style.display = 'none';
-                document.getElementById('totalAfterDiscountContainer').style.display = 'none';
-                document.getElementById('returnAmountContainer').style.display = 'block';
-                document.getElementById('exchangeAmountContainer').style.display = 'block';
-                document.getElementById('formTitle').innerHTML = '<i class="fas fa-edit"></i> Return Billing Details';
-                document.getElementById('itemsSectionTitle').innerHTML = '<i class="fas fa-boxes"></i> Return Items (Customer Returning)';
-                document.getElementById('addItemBtn').innerHTML = '<i class="fas fa-plus"></i> Add Return Item';
-                document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save"></i> Save Return Billing';
-                document.getElementById('exchangeToggleSection').style.display = 'block';
-                addSalesBtn.innerHTML = '<i class="fas fa-shopping-cart"></i> Add Sales Bill';
-                addReturnBtn.innerHTML = '<i class="fas fa-times"></i> Cancel Return';
-            }
-            
-            billingFormSection.classList.add('active');
-            addItem(); 
-            billingFormSection.scrollIntoView({ behavior: 'smooth' });
-        }
+    // UI Updates
+    if (type === 'sales') {
+        document.getElementById('discountContainer').style.display = 'block';
+        document.getElementById('totalAmountContainer').style.display = 'block';
+        document.getElementById('totalAfterDiscountContainer').style.display = 'block';
+        document.getElementById('returnAmountContainer').style.display = 'none';
+        document.getElementById('exchangeAmountContainer').style.display = 'none';
+        
+        formTitle.innerHTML = '<i class="fas fa-edit"></i> Sales Billing Details';
+        itemsSectionTitle.innerHTML = '<i class="fas fa-boxes"></i> Sales Items';
+        addItemBtn.innerHTML = '<i class="fas fa-plus"></i> Add Item';
+        document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save"></i> Save Sales Billing';
+        
+        exchangeToggleSection.style.display = 'none';
+        addSalesBtn.innerHTML = '<i class="fas fa-times"></i> Cancel Sales';
+        addReturnBtn.innerHTML = '<i class="fas fa-undo"></i> Add Return Billing';
+    } else {
+        document.getElementById('discountContainer').style.display = 'none';
+        document.getElementById('totalAmountContainer').style.display = 'none';
+        document.getElementById('totalAfterDiscountContainer').style.display = 'none';
+        document.getElementById('returnAmountContainer').style.display = 'block';
+        document.getElementById('exchangeAmountContainer').style.display = 'block';
+        
+        formTitle.innerHTML = '<i class="fas fa-edit"></i> Return Billing Details';
+        itemsSectionTitle.innerHTML = '<i class="fas fa-boxes"></i> Return Items (Customer Returning)';
+        addItemBtn.innerHTML = '<i class="fas fa-plus"></i> Add Return Item';
+        document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save"></i> Save Return Billing';
+        
+        exchangeToggleSection.style.display = 'block';
+        addSalesBtn.innerHTML = '<i class="fas fa-shopping-cart"></i> Add Sales Bill';
+        addReturnBtn.innerHTML = '<i class="fas fa-times"></i> Cancel Return';
+    }
+    
+    // Ensure form is visible
+    billingFormSection.classList.add('active');
+    
+    // Add one empty row to start with (Uses your existing addItem function)
+    addItem(); 
+    
+    // Smooth scroll for mobile users
+    billingFormSection.scrollIntoView({ behavior: 'smooth' });
+}
 
+        // 29. Show Loading
         function showLoading() {
             document.getElementById('loadingOverlay').classList.add('show');
             document.getElementById('submitBtn').disabled = true;
         }
 
+        // 30. Hide Loading
         function hideLoading() {
             document.getElementById('loadingOverlay').classList.remove('show');
             document.getElementById('submitBtn').disabled = false;
         }
 
+// 31. Save Billing
         function saveBilling() {
+            // IMMEDIATE DISABLE: Prevent double clicks instantly while validation runs
             document.getElementById('submitBtn').disabled = true;
 
+            // Validate customer information
             const customerName = document.getElementById('customerName').value.trim();
             const customerPlace = document.getElementById('customerPlace').value.trim();
             const customerMobile = document.getElementById('customerMobile').value.trim();
             
             if (!customerName || !customerPlace || !customerMobile) {
                 alert("Please fill all customer information fields (Name, Place, Mobile)!");
-                document.getElementById('submitBtn').disabled = false;
+                document.getElementById('submitBtn').disabled = false; // Re-enable if validation fails
                 return;
             }
             
+            // Validate mobile number
             if (customerMobile.length !== 10 || !/^[0-9]+$/.test(customerMobile)) {
                 alert("Please enter a valid 10-digit mobile number!");
-                document.getElementById('submitBtn').disabled = false;
+                document.getElementById('submitBtn').disabled = false; // Re-enable if validation fails
                 return;
             }
             
+            // Validate items based on form type
             let hasErrors = false;
+            
+            // Validate Items
             items.forEach((item, index) => {
                 validateSize(index);
                 validateTile(index);
                 const sizeError = document.getElementById(`sizeError${index}`);
                 const tileError = document.getElementById(`tileError${index}`);
-                if ((sizeError && sizeError.classList.contains('show')) || (tileError && tileError.classList.contains('show'))) {
+                
+                if (sizeError && sizeError.classList.contains('show') || 
+                    tileError && tileError.classList.contains('show')) {
                     hasErrors = true;
                 }
+                
                 if (!item.sizeName || !item.tileName || item.boxes <= 0 || item.rate <= 0) {
                     alert(`Please fill all details for item ${index + 1} (Size, Tile, Boxes, Rate)`);
                     hasErrors = true;
                 }
             });
             
+            // Validate exchange items if exchange is enabled
             if (isExchangeEnabled) {
                 exchangeItems.forEach((item, index) => {
                     validateExchangeSize(index);
                     validateExchangeTile(index);
                     const sizeError = document.getElementById(`exchangeSizeError${index}`);
                     const tileError = document.getElementById(`exchangeTileError${index}`);
-                    if ((sizeError && sizeError.classList.contains('show')) || (tileError && tileError.classList.contains('show'))) {
+                    
+                    if (sizeError && sizeError.classList.contains('show') || 
+                        tileError && tileError.classList.contains('show')) {
                         hasErrors = true;
                     }
+                    
                     if (!item.sizeName || !item.tileName || item.boxes <= 0 || item.rate <= 0) {
                         alert(`Please fill all details for exchange item ${index + 1} (Size, Tile, Boxes, Rate)`);
                         hasErrors = true;
@@ -1587,12 +1921,14 @@
             
             if (hasErrors) {
                 alert("Please fix all errors before saving!");
-                document.getElementById('submitBtn').disabled = false;
+                document.getElementById('submitBtn').disabled = false; // Re-enable if validation fails
                 return;
             }
             
+            // Show loading overlay (keeps button disabled)
             showLoading();
             
+            // Calculate amounts based on form type
             let returnAmount = 0;
             let exchangeAmount = 0;
             let netAmount = 0;
@@ -1613,6 +1949,7 @@
                 netAmount = parseFloat(document.getElementById('netAmount').value) || 0;
             }
             
+            // Save billing - ITEMS ARE INCLUDED HERE
             const billingData = {
                 shopId: shopID,
                 type: currentFormType,
@@ -1634,55 +1971,77 @@
                 timestamp: firebase.database.ServerValue.TIMESTAMP
             };
             
+            // Save billing first
             database.ref('shops/' + shopID + '/billings').push(billingData)
                 .then((billingRef) => {
                     const billingId = billingRef.key;
+                    
+                    // UPDATE: Ensure your stock functions complete before removing loader, 
+                    // or place hideLoading() inside those functions after their database operations finish.
                     if (currentFormType === 'sales') {
                         handleSalesStock(items, billingId);
                     } else {
                         handleReturnStock(items, exchangeItems, billingId);
                     }
+                    
+                    // ALERT & RESET (If you don't redirect to another page, hide loader here)
                     alert("Billing saved successfully!");
                     hideLoading(); 
                 })
                 .catch((error) => {
                     alert("Error saving billing: " + error.message);
-                    hideLoading();
+                    hideLoading(); // Re-enables button if Firebase errors out
                 });
         }
 
+        // 32. Handle Sales Stock (Reduce Stock)
         function handleSalesStock(items, billingId) {
+            const database = firebase.database();
             let completed = 0;
             let errors = [];
             let totalOperations = items.length;
             
             items.forEach(item => {
+                // Find size in stock
                 database.ref('shops/' + shopID + '/credentials').once('value', (snapshot) => {
                     let sizeId = null;
+                    
                     if (snapshot.exists()) {
                         snapshot.forEach((childSnapshot) => {
-                            if (childSnapshot.val().name === item.sizeName) sizeId = childSnapshot.key;
+                            const data = childSnapshot.val();
+                            if (data.name === item.sizeName) {
+                                sizeId = childSnapshot.key;
+                            }
                         });
                     }
                     
                     if (sizeId) {
+                        // Find tile in size
                         database.ref('shops/' + shopID + '/credentials/' + sizeId + '/tiles').once('value', (tileSnapshot) => {
                             let tileId = null;
+                            
                             if (tileSnapshot.exists()) {
                                 tileSnapshot.forEach((tileChildSnapshot) => {
-                                    if (tileChildSnapshot.val().name === item.tileName) tileId = tileChildSnapshot.key;
+                                    const tile = tileChildSnapshot.val();
+                                    if (tile.name === item.tileName) {
+                                        tileId = tileChildSnapshot.key;
+                                    }
                                 });
                             }
                             
                             if (tileId) {
-                                database.ref('shops/' + shopID + '/credentials/' + sizeId + '/tiles/' + tileId + '/boxes').transaction((currentBoxes) => {
+                                // Reduce boxes (for sales)
+                                const currentBoxesRef = database.ref('shops/' + shopID + '/credentials/' + sizeId + '/tiles/' + tileId + '/boxes');
+                                currentBoxesRef.transaction((currentBoxes) => {
                                     if (currentBoxes === undefined) return currentBoxes;
-                                    const newBoxes = currentBoxes - item.boxes;
-                                    if (newBoxes < 0) {
-                                        errors.push(`Stock not available for ${item.tileName} in ${item.sizeName}`);
-                                        return 0;
-                                    }
-                                    return newBoxes;
+const newBoxes = currentBoxes - item.boxes;
+
+if (newBoxes < 0) {
+    errors.push(`Stock not available for ${item.tileName} in ${item.sizeName} (Sold from display)`);
+    return 0; // ✅ STOP at 0 (no negative)
+}
+
+return newBoxes;
                                 });
                             } else {
                                 errors.push(`Tile ${item.tileName} not found in ${item.sizeName}`);
@@ -1691,7 +2050,12 @@
                             completed++;
                             if (completed === totalOperations) {
                                 hideLoading();
-                                showSuccess();
+                                if (errors.length > 0) {
+                                    alert("Sales saved but some stock updates failed:\n" + errors.join('\n'));
+                                    showSuccess();
+                                } else {
+                                    showSuccess();
+                                }
                             }
                         });
                     } else {
@@ -1699,42 +2063,64 @@
                         completed++;
                         if (completed === totalOperations) {
                             hideLoading();
-                            showSuccess();
+                            if (errors.length > 0) {
+                                alert("Sales saved but some stock updates failed:\n" + errors.join('\n'));
+                                showSuccess();
+                            } else {
+                                showSuccess();
+                            }
                         }
                     }
                 });
             });
         }
 
+        // 33. Handle Return Stock (Add Return Items, Remove Exchange Items)
         function handleReturnStock(returnItems, exchangeItems, billingId) {
+            const database = firebase.database();
             let completed = 0;
             let errors = [];
             let totalOperations = returnItems.length + exchangeItems.length;
             
+            // Add return items to stock
             returnItems.forEach(item => {
+                // Find size in stock
                 database.ref('shops/' + shopID + '/credentials').once('value', (snapshot) => {
                     let sizeId = null;
+                    
                     if (snapshot.exists()) {
                         snapshot.forEach((childSnapshot) => {
-                            if (childSnapshot.val().name === item.sizeName) sizeId = childSnapshot.key;
+                            const data = childSnapshot.val();
+                            if (data.name === item.sizeName) {
+                                sizeId = childSnapshot.key;
+                            }
                         });
                     }
                     
                     if (sizeId) {
+                        // Find tile in size
                         database.ref('shops/' + shopID + '/credentials/' + sizeId + '/tiles').once('value', (tileSnapshot) => {
                             let tileId = null;
+                            
                             if (tileSnapshot.exists()) {
                                 tileSnapshot.forEach((tileChildSnapshot) => {
-                                    if (tileChildSnapshot.val().name === item.tileName) tileId = tileChildSnapshot.key;
+                                    const tile = tileChildSnapshot.val();
+                                    if (tile.name === item.tileName) {
+                                        tileId = tileChildSnapshot.key;
+                                    }
                                 });
                             }
                             
                             if (tileId) {
-                                database.ref('shops/' + shopID + '/credentials/' + sizeId + '/tiles/' + tileId + '/boxes').transaction((currentBoxes) => {
+                                // Add boxes (for returns)
+                                const currentBoxesRef = database.ref('shops/' + shopID + '/credentials/' + sizeId + '/tiles/' + tileId + '/boxes');
+                                currentBoxesRef.transaction((currentBoxes) => {
                                     if (currentBoxes === undefined) return currentBoxes;
-                                    return currentBoxes + item.boxes;
+                                    const newBoxes = currentBoxes + item.boxes;
+                                    return newBoxes;
                                 });
                             } else {
+                                // If tile doesn't exist, create it
                                 database.ref('shops/' + shopID + '/credentials/' + sizeId + '/tiles/' + tileId).set({
                                     name: item.tileName,
                                     boxes: item.boxes
@@ -1742,56 +2128,113 @@
                             }
                             
                             completed++;
-                            if (completed === totalOperations) { hideLoading(); showSuccess(); }
+                            if (completed === totalOperations) {
+                                hideLoading();
+                                if (errors.length > 0) {
+                                    alert("Return saved but some stock updates failed:\n" + errors.join('\n'));
+                                    showSuccess();
+                                } else {
+                                    showSuccess();
+                                }
+                            }
                         });
                     } else {
+                        errors.push(`Size ${item.sizeName} not found in stock`);
                         completed++;
-                        if (completed === totalOperations) { hideLoading(); showSuccess(); }
+                        if (completed === totalOperations) {
+                            hideLoading();
+                            if (errors.length > 0) {
+                                alert("Return saved but some stock updates failed:\n" + errors.join('\n'));
+                                showSuccess();
+                            } else {
+                                showSuccess();
+                            }
+                        }
                     }
                 });
             });
             
+            // Remove exchange items from stock
             exchangeItems.forEach(item => {
+                // Find size in stock
                 database.ref('shops/' + shopID + '/credentials').once('value', (snapshot) => {
                     let sizeId = null;
+                    
                     if (snapshot.exists()) {
                         snapshot.forEach((childSnapshot) => {
-                            if (childSnapshot.val().name === item.sizeName) sizeId = childSnapshot.key;
+                            const data = childSnapshot.val();
+                            if (data.name === item.sizeName) {
+                                sizeId = childSnapshot.key;
+                            }
                         });
                     }
                     
                     if (sizeId) {
+                        // Find tile in size
                         database.ref('shops/' + shopID + '/credentials/' + sizeId + '/tiles').once('value', (tileSnapshot) => {
                             let tileId = null;
+                            
                             if (tileSnapshot.exists()) {
                                 tileSnapshot.forEach((tileChildSnapshot) => {
-                                    if (tileChildSnapshot.val().name === item.tileName) tileId = tileChildSnapshot.key;
+                                    const tile = tileChildSnapshot.val();
+                                    if (tile.name === item.tileName) {
+                                        tileId = tileChildSnapshot.key;
+                                    }
                                 });
                             }
                             
                             if (tileId) {
-                                database.ref('shops/' + shopID + '/credentials/' + sizeId + '/tiles/' + tileId + '/boxes').transaction((currentBoxes) => {
+                                // Reduce boxes (for exchange)
+                                const currentBoxesRef = database.ref('shops/' + shopID + '/credentials/' + sizeId + '/tiles/' + tileId + '/boxes');
+                                currentBoxesRef.transaction((currentBoxes) => {
                                     if (currentBoxes === undefined) return currentBoxes;
-                                    const newBoxes = currentBoxes - item.boxes;
-                                    if (newBoxes < 0) return 0;
-                                    return newBoxes;
+const newBoxes = currentBoxes - item.boxes;
+
+if (newBoxes < 0) {
+    errors.push(`Stock not available for ${item.tileName} in ${item.sizeName} (Sold from display)`);
+    return 0; // ✅ STOP at 0 (no negative)
+}
+
+return newBoxes;
                                 });
+                            } else {
+                                errors.push(`Tile ${item.tileName} not found in ${item.sizeName}`);
                             }
                             
                             completed++;
-                            if (completed === totalOperations) { hideLoading(); showSuccess(); }
+                            if (completed === totalOperations) {
+                                hideLoading();
+                                if (errors.length > 0) {
+                                    alert("Return saved but some stock updates failed:\n" + errors.join('\n'));
+                                    showSuccess();
+                                } else {
+                                    showSuccess();
+                                }
+                            }
                         });
                     } else {
+                        errors.push(`Size ${item.sizeName} not found in stock`);
                         completed++;
-                        if (completed === totalOperations) { hideLoading(); showSuccess(); }
+                        if (completed === totalOperations) {
+                            hideLoading();
+                            if (errors.length > 0) {
+                                alert("Return saved but some stock updates failed:\n" + errors.join('\n'));
+                                showSuccess();
+                            } else {
+                                showSuccess();
+                            }
+                        }
                     }
                 });
             });
         }
 
+        // 34. Show Success Message
         function showSuccess() {
             const successMessage = document.getElementById('successMessage');
             successMessage.classList.add('show');
+            
+            // Reset form after 2 seconds
             setTimeout(() => {
                 document.getElementById('customerName').value = '';
                 document.getElementById('customerPlace').value = '';
@@ -1812,271 +2255,697 @@
                 initializeItemsTable();
                 initializeExchangeTable();
                 successMessage.classList.remove('show');
-                loadBills();
+                loadBills(); // Reload bills after saving
             }, 2000);
         }
 
-        let allBillsData = [];
-        let currentDateRange = 'today';
-        let isTextSearchActive = false;
-
-        function getRangeStartDate(range) {
-            const now = new Date();
-            const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            if (range === '3days') {
-                start.setDate(start.getDate() - 2);
-            } else if (range === '1week') {
-                start.setDate(start.getDate() - 6);
-            }
-            return start;
-        }
-
-        function filterBills() {
-            currentDateRange = document.getElementById('dateRangeFilter').value;
-            const searchName = document.getElementById('searchName').value.trim();
-            const searchPlace = document.getElementById('searchPlace').value.trim();
-            const searchMobile = document.getElementById('searchMobile').value.trim();
-            isTextSearchActive = searchName !== '' || searchPlace !== '' || searchMobile !== '';
-            displayFilteredBills(allBillsData);
-        }
-
-        function displayFilteredBills(bills) {
-            const billListContainer = document.getElementById('billListContainer');
-            const searchName = document.getElementById('searchName').value.trim().toLowerCase();
-            const searchPlace = document.getElementById('searchPlace').value.trim().toLowerCase();
-            const searchMobile = document.getElementById('searchMobile').value.trim();
-
-            let filteredBills = [];
-            let headerHTML = '';
-
-            if (isTextSearchActive) {
-                filteredBills = bills.filter(bill => {
-                    const nameMatch = !searchName || (bill.customerName || '').toLowerCase().includes(searchName);
-                    const placeMatch = !searchPlace || (bill.customerPlace || '').toLowerCase().includes(searchPlace);
-                    const mobileMatch = !searchMobile || (bill.customerMobile || '').includes(searchMobile);
-                    return nameMatch && placeMatch && mobileMatch;
-                });
-                if (filteredBills.length > 0) {
-                    headerHTML = `<div style="background: #e8f4fc; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid var(--accent-color);"><i class="fas fa-search"></i> Found ${filteredBills.length} bill(s) matching search <span style="color: #666; font-size: 0.9rem;">(across all dates)</span></div>`;
-                }
-            } else {
-                const startDate = getRangeStartDate(currentDateRange);
-                const endDate = new Date();
-                endDate.setHours(23, 59, 59, 999);
-
-                filteredBills = bills.filter(bill => {
-                    const billDate = new Date(bill.billingDate);
-                    return billDate >= startDate && billDate <= endDate;
-                });
-
-                const labelMap = { 'today': 'Today', '3days': 'Last 3 Days', '1week': 'Last 1 Week' };
-                if (filteredBills.length > 0) {
-                    headerHTML = `<div style="background: #d4edda; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid var(--success-color);"><i class="fas fa-calendar"></i> Showing ${filteredBills.length} bill(s) for ${labelMap[currentDateRange]}</div>`;
-                }
-            }
-
-            filteredBills.sort((a, b) => b.timestamp - a.timestamp);
-
-            if (filteredBills.length === 0) {
-                billListContainer.innerHTML = `<div class="no-results"><i class="fas fa-inbox" style="font-size: 3rem; color: #ccc; margin-bottom: 15px;"></i><h4>No bills found</h4></div>`;
-                return;
-            }
-
-            billListContainer.innerHTML = headerHTML;
-
-            filteredBills.forEach((bill, index) => {
-                const billNumber = filteredBills.length - index;
-                const billDiv = document.createElement('div');
-                billDiv.className = bill.type === 'sales' ? 'bill-item sales' : 'bill-item return';
-                billDiv.onclick = () => showBillDetail(bill.id);
-
-                const typeLabel = bill.type === 'sales' ? 'Sales' : 'Return';
-                const exchangeLabel = (bill.type === 'return' && bill.exchangeEnabled) ? '(Exchange)' : '';
-
-                billDiv.innerHTML = `
-                    <div class="bill-header">
-                        <span class="bill-number">Bill #${billNumber} (${typeLabel}) ${exchangeLabel}</span>
-                        <span class="bill-date">${new Date(bill.billingDate).toLocaleDateString()}</span>
-                    </div>
-                    <div class="bill-details">
-                        <div class="bill-detail-item"><div class="bill-detail-label">Customer Name</div><div class="bill-detail-value">${bill.customerName || '-'}</div></div>
-                        <div class="bill-detail-item"><div class="bill-detail-label">Mobile Number</div><div class="bill-detail-value">${bill.customerMobile || '-'}</div></div>
-                        <div class="bill-detail-item"><div class="bill-detail-label">Place</div><div class="bill-detail-value">${bill.customerPlace || '-'}</div></div>
-                        ${bill.type === 'sales' ? `
-                        <div class="bill-detail-item"><div class="bill-detail-label">Total Amount</div><div class="bill-detail-value">₹${(bill.totalAmount || 0).toFixed(2)}</div></div>
-                        <div class="bill-detail-item"><div class="bill-detail-label">After Discount</div><div class="bill-detail-value">₹${(bill.totalAfterDiscount || 0).toFixed(2)}</div></div>` 
-                        : `
-                        <div class="bill-detail-item"><div class="bill-detail-label">Return Amount</div><div class="bill-detail-value">₹${(bill.returnAmount || 0).toFixed(2)}</div></div>
-                        <div class="bill-detail-item"><div class="bill-detail-label">Exchange Amount</div><div class="bill-detail-value">₹${(bill.exchangeAmount || 0).toFixed(2)}</div></div>`}
-                        <div class="bill-detail-item"><div class="bill-detail-label">Net Amount</div><div class="bill-detail-value">₹${bill.netAmount.toFixed(2)}</div></div>
-                        <div class="bill-detail-item"><div class="bill-detail-label">Amount Paid</div><div class="bill-detail-value">₹${bill.amountPaid.toFixed(2)}</div></div>
-                        <div class="bill-detail-item"><div class="bill-detail-label">Balance</div><div class="bill-detail-value">₹${bill.balanceAmount.toFixed(2)}</div></div>
-                    </div>
-                    <div class="bill-total">Net Amount: ₹${bill.netAmount.toFixed(2)}</div>
-                `;
-                billListContainer.appendChild(billDiv);
-            });
-        }
-
+        // 35. Load Bills (Sales & Returns)
         function loadBills() {
             const billListContainer = document.getElementById('billListContainer');
-            billListContainer.innerHTML = '<div class="loading">Loading bills...</div>';
+            
             database.ref('shops/' + shopID + '/billings').on('value', (snapshot) => {
-                allBillsData = [];
+                billListContainer.innerHTML = '';
+
                 if (!snapshot.exists()) {
                     billListContainer.innerHTML = '<div class="no-results">No bills found.</div>';
                     return;
                 }
+
+                let bills = [];
                 snapshot.forEach((childSnapshot) => {
-                    allBillsData.push({ id: childSnapshot.key, ...childSnapshot.val() });
+                    const data = childSnapshot.val();
+                    bills.push({
+                        id: childSnapshot.key,
+                        ...data
+                    });
                 });
-                document.getElementById('dateRangeFilter').value = 'today';
-                currentDateRange = 'today';
-                displayFilteredBills(allBillsData);
-            });
-        }
 
-        function showBillDetail(billId) {
-            database.ref('shops/' + shopID + '/billings/' + billId).once('value', (snapshot) => {
-                if (!snapshot.exists()) {
-                    alert("Bill not found!");
-                    return;
-                }
+                // Sort by date (newest first)
+                bills.sort((a, b) => b.timestamp - a.timestamp);
 
-                const bill = snapshot.val();
-                const billDetailContent = document.getElementById('billDetailContent');
-                
-                let itemsHtml = '';
-                if (bill.items && bill.items.length > 0) {
-                    bill.items.forEach((item, index) => {
-                        itemsHtml += `<tr><td>${index + 1}</td><td>${item.sizeName || '-'}</td><td>${item.tileName || '-'}</td><td>${item.boxes || 0}</td><td>₹${(item.rate || 0).toFixed(2)}</td><td>₹${(item.total || 0).toFixed(2)}</td></tr>`;
-                    });
-                } else {
-                    itemsHtml = '<tr><td colspan="6" style="text-align:center;">No items</td></tr>';
-                }
-                
-                let exchangeItemsHtml = '';
-                if (bill.exchangeEnabled && bill.exchangeItems && bill.exchangeItems.length > 0) {
-                    bill.exchangeItems.forEach((item, index) => {
-                        exchangeItemsHtml += `<tr><td>${index + 1}</td><td>${item.sizeName || '-'}</td><td>${item.tileName || '-'}</td><td>${item.boxes || 0}</td><td>₹${(item.rate || 0).toFixed(2)}</td><td>₹${(item.total || 0).toFixed(2)}</td></tr>`;
-                    });
-                } else {
-                    exchangeItemsHtml = '<tr><td colspan="6" style="text-align:center;">No exchange items</td></tr>';
-                }
+                // Display bills
+                bills.forEach((bill, index) => {
+                    const billNumber = bills.length - index;
+                    const billDiv = document.createElement('div');
+                    
+                    // Apply class based on type
+                    if (bill.type === 'sales') {
+                        billDiv.className = 'bill-item sales';
+                    } else {
+                        billDiv.className = 'bill-item return';
+                    }
+                    
+                    billDiv.onclick = () => showBillDetail(bill.id);
 
-                const typeLabel = bill.type === 'sales' ? 'Sales' : 'Return';
-                const currentBalance = bill.balanceAmount || 0;
+                    const typeLabel = bill.type === 'sales' ? 'Sales' : 'Return';
+                    const exchangeLabel = (bill.type === 'return' && bill.exchangeEnabled) ? '(Exchange)' : '';
 
-                billDetailContent.innerHTML = `
-                    <div class="bill-header">
-                        <span class="bill-number">Bill #${billId.substring(0, 8)} (${typeLabel})</span>
-                        <span class="bill-date">${new Date(bill.billingDate).toLocaleDateString()}</span>
-                    </div>
-                    <div class="bill-details" style="margin-bottom: 20px;">
-                        <div class="bill-detail-item"><div class="bill-detail-label">Customer Name</div><div class="bill-detail-value">${bill.customerName || '-'}</div></div>
-                        <div class="bill-detail-item"><div class="bill-detail-label">Mobile Number</div><div class="bill-detail-value">${bill.customerMobile || '-'}</div></div>
-                        <div class="bill-detail-item"><div class="bill-detail-label">Place</div><div class="bill-detail-value">${bill.customerPlace || '-'}</div></div>
-                    </div>
-                    <h3 style="color: var(--primary-color); margin: 20px 0 10px;">${typeLabel} Items</h3>
-                    <table class="items-detail-table">
-                        <thead><tr><th>S.No</th><th>Size</th><th>Tile Name</th><th>Boxes</th><th>Rate</th><th>Total</th></tr></thead>
-                        <tbody>${itemsHtml}</tbody>
-                    </table>
-                    ${bill.exchangeEnabled ? `
-                    <h3 style="color: var(--primary-color); margin: 20px 0 10px;">Exchange Items</h3>
-                    <table class="items-detail-table">
-                        <thead><tr><th>S.No</th><th>Size</th><th>Tile Name</th><th>Boxes</th><th>Rate</th><th>Total</th></tr></thead>
-                        <tbody>${exchangeItemsHtml}</tbody>
-                    </table>` : ''}
-                    <div class="bill-details" style="margin-top: 20px;">
-                        <div class="bill-detail-item"><div class="bill-detail-label">Amount Paid</div><div class="bill-detail-value" style="color: var(--success-color);">₹${(bill.amountPaid || 0).toFixed(2)}</div></div>
-                        <div class="bill-detail-item"><div class="bill-detail-label">Balance Amount</div><div class="bill-detail-value" style="color: var(--danger-color);">₹${currentBalance.toFixed(2)}</div></div>
-                    </div>
-                    ${currentBalance > 0 ? `
-                    <div style="margin-top: 20px; padding: 15px; border: 1px solid #ddd; background: #f9f9f9;">
-                        <label><strong>Receive New Payment:</strong></label>
-                        <div style="display: flex; gap: 10px; margin-top: 5px;">
-                            <input type="number" id="newPaymentInput" placeholder="Enter amount" style="padding: 8px; flex-grow: 1;">
-                            <button type="button" class="search-btn" onclick="updateBillBalance('${billId}', ${currentBalance}, ${bill.amountPaid || 0})">Save Payment</button>
+                    billDiv.innerHTML = `
+                        <div class="bill-header">
+                            <span class="bill-number">Bill #${billNumber} (${typeLabel}) ${exchangeLabel}</span>
+                            <span class="bill-date">${new Date(bill.billingDate).toLocaleDateString()}</span>
                         </div>
-                    </div>` : '<div style="margin-top: 20px; color: var(--success-color); font-weight: bold; text-align: center;">Bill Fully Paid</div>'}
+                        <div class="bill-details">
+                            <div class="bill-detail-item">
+                                <div class="bill-detail-label">Customer Name</div>
+                                <div class="bill-detail-value">${bill.customerName || '-'}</div>
+                            </div>
+                            <div class="bill-detail-item">
+                                <div class="bill-detail-label">Mobile Number</div>
+                                <div class="bill-detail-value">${bill.customerMobile || '-'}</div>
+                            </div>
+                            <div class="bill-detail-item">
+                                <div class="bill-detail-label">Place</div>
+                                <div class="bill-detail-value">${bill.customerPlace || '-'}</div>
+                            </div>
+                            ${bill.type === 'sales' ? `
+                            <div class="bill-detail-item">
+                                <div class="bill-detail-label">Total Amount</div>
+                                <div class="bill-detail-value">₹${(bill.totalAmount || 0).toFixed(2)}</div>
+                            </div>
+                            <div class="bill-detail-item">
+                                <div class="bill-detail-label">After Discount</div>
+                                <div class="bill-detail-value">₹${(bill.totalAfterDiscount || 0).toFixed(2)}</div>
+                            </div>
+                            ` : `
+                            <div class="bill-detail-item">
+                                <div class="bill-detail-label">Return Amount</div>
+                                <div class="bill-detail-value">₹${(bill.returnAmount || 0).toFixed(2)}</div>
+                            </div>
+                            <div class="bill-detail-item">
+                                <div class="bill-detail-label">Exchange Amount</div>
+                                <div class="bill-detail-value">₹${(bill.exchangeAmount || 0).toFixed(2)}</div>
+                            </div>
+                            `}
+                            <div class="bill-detail-item">
+                                <div class="bill-detail-label">Net Amount</div>
+                                <div class="bill-detail-value" style="color: var(--success-color); font-weight: bold;">₹${bill.amountPaid.toFixed(2)}</div>
+                            </div>
+                            <div class="bill-detail-item">
+                                <div class="bill-detail-label">Amount Paid</div>
+                                <div class="bill-detail-value">₹${bill.amountPaid.toFixed(2)}</div>
+                            </div>
+                            <div class="bill-detail-item">
+                                <div class="bill-detail-label">Balance</div>
+                                <div class="bill-detail-value">₹${bill.balanceAmount.toFixed(2)}</div>
+                            </div>
+                        </div>
+                        <div class="bill-total">
+                            Net Amount: ₹${bill.netAmount.toFixed(2)}
+                        </div>
+                    `;
+
+                    billListContainer.appendChild(billDiv);
+                });
+            });
+        }
+
+// 36. Show Bill Detail Modal (UPDATED)
+// 36. Show Bill Detail Modal (UPDATED)
+function showBillDetail(billId) {
+    const database = firebase.database();
+    
+    database.ref('shops/' + shopID + '/billings/' + billId).once('value', (snapshot) => {
+        if (!snapshot.exists()) {
+            alert("Bill not found!");
+            return;
+        }
+
+        const bill = snapshot.val();
+        const billDetailContent = document.getElementById('billDetailContent');
+        
+        // Build items table
+        let itemsHtml = '';
+        if (bill.items && bill.items.length > 0) {
+            bill.items.forEach((item, index) => {
+                itemsHtml += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${item.sizeName || '-'}</td>
+                        <td>${item.tileName || '-'}</td>
+                        <td>${item.boxes || 0}</td>
+                        <td>₹${(item.rate || 0).toFixed(2)}</td>
+                        <td>₹${(item.total || 0).toFixed(2)}</td>
+                    </tr>
                 `;
-                document.getElementById('billDetailModal').classList.add('show');
             });
+        } else {
+            itemsHtml = '<tr><td colspan="6" style="text-align:center;">No items</td></tr>';
+        }
+        
+        // Build exchange items table
+        let exchangeItemsHtml = '';
+        if (bill.exchangeEnabled && bill.exchangeItems && bill.exchangeItems.length > 0) {
+            bill.exchangeItems.forEach((item, index) => {
+                exchangeItemsHtml += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${item.sizeName || '-'}</td>
+                        <td>${item.tileName || '-'}</td>
+                        <td>${item.boxes || 0}</td>
+                        <td>₹${(item.rate || 0).toFixed(2)}</td>
+                        <td>₹${(item.total || 0).toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+        } else {
+            exchangeItemsHtml = '<tr><td colspan="6" style="text-align:center;">No exchange items</td></tr>';
         }
 
-        function updateBillBalance(billId, oldBalance, oldPaid) {
-            const payment = parseFloat(document.getElementById('newPaymentInput').value);
-            if (isNaN(payment) || payment <= 0) {
-                alert("Please enter a valid amount.");
-                return;
-            }
-            if (payment > oldBalance) {
-                alert("Payment cannot exceed the balance amount!");
-                return;
-            }
-            database.ref('shops/' + shopID + '/billings/' + billId).update({
-                balanceAmount: oldBalance - payment,
-                amountPaid: oldPaid + payment
-            }).then(() => {
-                alert("Balance updated successfully!");
-                document.getElementById('billDetailModal').classList.remove('show');
-                loadBills();
-            });
-        }
+        const typeLabel = bill.type === 'sales' ? 'Sales' : 'Return';
+        const exchangeLabel = (bill.type === 'return' && bill.exchangeEnabled) ? '(Exchange)' : '';
+        const currentBalance = bill.balanceAmount || 0;
 
+        billDetailContent.innerHTML = `
+            <div class="bill-header">
+                <span class="bill-number">Bill #${billId.substring(0, 8)} (${typeLabel}) ${exchangeLabel}</span>
+                <span class="bill-date">${new Date(bill.billingDate).toLocaleDateString()}</span>
+            </div>
+            
+            <div class="bill-details" style="margin-bottom: 20px;">
+                <div class="bill-detail-item">
+                    <div class="bill-detail-label">Customer Name</div>
+                    <div class="bill-detail-value">${bill.customerName || '-'}</div>
+                </div>
+                <div class="bill-detail-item">
+                    <div class="bill-detail-label">Mobile Number</div>
+                    <div class="bill-detail-value">${bill.customerMobile || '-'}</div>
+                </div>
+                <div class="bill-detail-item">
+                    <div class="bill-detail-label">Place</div>
+                    <div class="bill-detail-value">${bill.customerPlace || '-'}</div>
+                </div>
+            </div>
+            
+            <h3 style="color: var(--primary-color); margin: 20px 0 10px;">${typeLabel} Items</h3>
+            <table class="items-detail-table">
+                <thead>
+                    <tr><th>S.No</th><th>Size</th><th>Tile Name</th><th>Boxes</th><th>Rate</th><th>Total</th></tr>
+                </thead>
+                <tbody>${itemsHtml}</tbody>
+            </table>
+            
+            ${bill.exchangeEnabled ? `
+            <h3 style="color: var(--primary-color); margin: 20px 0 10px;">Exchange Items (Customer Taking)</h3>
+            <table class="items-detail-table">
+                <thead>
+                    <tr><th>S.No</th><th>Size</th><th>Tile Name</th><th>Boxes</th><th>Rate</th><th>Total</th></tr>
+                </thead>
+                <tbody>${exchangeItemsHtml}</tbody>
+            </table>` : ''}
+            
+            <div class="bill-details" style="margin-top: 20px;">
+                ${bill.type === 'sales' ? `
+                <div class="bill-detail-item"><div class="bill-detail-label">Total Amount</div><div class="bill-detail-value">₹${(bill.totalAmount || 0).toFixed(2)}</div></div>
+                <div class="bill-detail-item"><div class="bill-detail-label">Discount</div><div class="bill-detail-value">₹${(bill.discount || 0).toFixed(2)}</div></div>
+                <div class="bill-detail-item"><div class="bill-detail-label">Total After Discount</div><div class="bill-detail-value">₹${(bill.totalAfterDiscount || 0).toFixed(2)}</div></div>` 
+                : `
+                <div class="bill-detail-item"><div class="bill-detail-label">Return Amount</div><div class="bill-detail-value">₹${(bill.returnAmount || 0).toFixed(2)}</div></div>
+                <div class="bill-detail-item"><div class="bill-detail-label">Exchange Amount</div><div class="bill-detail-value">₹${(bill.exchangeAmount || 0).toFixed(2)}</div></div>`}
+                
+                <div class="bill-detail-item"><div class="bill-detail-label">Amount Paid</div><div class="bill-detail-value" style="color: var(--success-color); font-weight: bold;">₹${(bill.amountPaid || 0).toFixed(2)}</div></div>
+                <div class="bill-detail-item"><div class="bill-detail-label">Balance Amount</div><div class="bill-detail-value" style="color: var(--danger-color); font-weight: bold;">₹${currentBalance.toFixed(2)}</div></div>
+            </div>
+
+            ${currentBalance > 0 ? `
+            <div class="update-balance-section" style="margin-top: 20px; padding: 15px; border: 1px solid #ddd; background: #f9f9f9;">
+                <label><strong>Receive New Payment:</strong></label>
+                <div style="display: flex; gap: 10px; margin-top: 5px;">
+                    <input type="number" id="newPaymentInput" placeholder="Enter amount" style="padding: 8px; flex-grow: 1;">
+                    <button type="button" class="btn" onclick="updateBillBalance('${billId}', ${currentBalance}, ${bill.amountPaid || 0})">Save Payment</button>
+                </div>
+            </div>` : '<div style="margin-top: 20px; color: var(--success-color); font-weight: bold; text-align: center;">Bill Fully Paid</div>'}
+        `;
+        
+        document.getElementById('billDetailModal').classList.add('show');
+    });
+}
+
+// Helper: Update Balance in Firebase
+function updateBillBalance(billId, oldBalance, oldPaid) {
+    const paymentInput = document.getElementById('newPaymentInput');
+    const payment = parseFloat(paymentInput.value);
+
+    if (isNaN(payment) || payment <= 0) {
+        alert("Please enter a valid amount.");
+        return;
+    }
+
+    if (payment > oldBalance) {
+        alert("Payment cannot exceed the balance amount!");
+        return;
+    }
+
+    const newBalance = oldBalance - payment;
+    const newTotalPaid = oldPaid + payment;
+
+    firebase.database().ref('shops/' + shopID + '/billings/' + billId).update({
+        balanceAmount: newBalance,
+        amountPaid: newTotalPaid
+    }).then(() => {
+        alert("Balance updated successfully!");
+        document.getElementById('billDetailModal').classList.remove('show');
+        if (typeof loadBills === 'function') loadBills();
+    }).catch((error) => {
+        alert("Error: " + error.message);
+    });
+}
+        // 37. Close Bill Detail Modal
         function closeBillDetail() {
             document.getElementById('billDetailModal').classList.remove('show');
         }
 
+        // 38. Search Bills
         function searchBills() {
-            isTextSearchActive = true;
-            displayFilteredBills(allBillsData);
+            const searchName = document.getElementById('searchName').value.trim().toLowerCase();
+            const searchPlace = document.getElementById('searchPlace').value.trim().toLowerCase();
+            const searchMobile = document.getElementById('searchMobile').value.trim();
+
+            const billListContainer = document.getElementById('billListContainer');
+            
+            database.ref('shops/' + shopID + '/billings').once('value', (snapshot) => {
+                billListContainer.innerHTML = '';
+
+                if (!snapshot.exists()) {
+                    billListContainer.innerHTML = '<div class="no-results">No bills found.</div>';
+                    return;
+                }
+
+                let bills = [];
+                snapshot.forEach((childSnapshot) => {
+                    const data = childSnapshot.val();
+                    bills.push({
+                        id: childSnapshot.key,
+                        ...data
+                    });
+                });
+
+                // Filter bills based on search criteria
+                const filteredBills = bills.filter(bill => {
+                    const nameMatch = searchName === '' || bill.customerName.toLowerCase().includes(searchName);
+                    const placeMatch = searchPlace === '' || bill.customerPlace.toLowerCase().includes(searchPlace);
+                    const mobileMatch = searchMobile === '' || bill.customerMobile.includes(searchMobile);
+                    
+                    return nameMatch && placeMatch && mobileMatch;
+                });
+
+                // Sort by date (newest first)
+                filteredBills.sort((a, b) => b.timestamp - a.timestamp);
+
+                if (filteredBills.length === 0) {
+                    billListContainer.innerHTML = '<div class="no-results">No matching bills found.</div>';
+                    return;
+                }
+
+                // Display filtered bills
+                filteredBills.forEach((bill, index) => {
+                    const billNumber = filteredBills.length - index;
+                    const billDiv = document.createElement('div');
+                    
+                    // Apply class based on type
+                    if (bill.type === 'sales') {
+                        billDiv.className = 'bill-item sales';
+                    } else {
+                        billDiv.className = 'bill-item return';
+                    }
+                    
+                    billDiv.onclick = () => showBillDetail(bill.id);
+
+                    const typeLabel = bill.type === 'sales' ? 'Sales' : 'Return';
+                    const exchangeLabel = (bill.type === 'return' && bill.exchangeEnabled) ? '(Exchange)' : '';
+
+                    billDiv.innerHTML = `
+                        <div class="bill-header">
+                            <span class="bill-number">Bill #${billNumber} (${typeLabel}) ${exchangeLabel}</span>
+                            <span class="bill-date">${new Date(bill.billingDate).toLocaleDateString()}</span>
+                        </div>
+                        <div class="bill-details">
+                            <div class="bill-detail-item">
+                                <div class="bill-detail-label">Customer Name</div>
+                                <div class="bill-detail-value">${bill.customerName || '-'}</div>
+                            </div>
+                            <div class="bill-detail-item">
+                                <div class="bill-detail-label">Mobile Number</div>
+                                <div class="bill-detail-value">${bill.customerMobile || '-'}</div>
+                            </div>
+                            <div class="bill-detail-item">
+                                <div class="bill-detail-label">Place</div>
+                                <div class="bill-detail-value">${bill.customerPlace || '-'}</div>
+                            </div>
+                            ${bill.type === 'sales' ? `
+                            <div class="bill-detail-item">
+                                <div class="bill-detail-label">Total Amount</div>
+                                <div class="bill-detail-value">₹${(bill.totalAmount || 0).toFixed(2)}</div>
+                            </div>
+                            <div class="bill-detail-item">
+                                <div class="bill-detail-label">After Discount</div>
+                                <div class="bill-detail-value">₹${(bill.totalAfterDiscount || 0).toFixed(2)}</div>
+                            </div>
+                            ` : `
+                            <div class="bill-detail-item">
+                                <div class="bill-detail-label">Return Amount</div>
+                                <div class="bill-detail-value">₹${(bill.returnAmount || 0).toFixed(2)}</div>
+                            </div>
+                            <div class="bill-detail-item">
+                                <div class="bill-detail-label">Exchange Amount</div>
+                                <div class="bill-detail-value">₹${(bill.exchangeAmount || 0).toFixed(2)}</div>
+                            </div>
+                            `}
+                            <div class="bill-detail-item">
+                                <div class="bill-detail-label">Net Amount</div>
+                                <div class="bill-detail-value" style="color: ${bill.netAmount >= 0 ? 'var(--success-color)' : 'var(--danger-color)'};">₹${bill.netAmount.toFixed(2)}</div>
+                            </div>
+                            <div class="bill-detail-item">
+                                <div class="bill-detail-label">Amount Paid</div>
+                                <div class="bill-detail-value">₹${bill.amountPaid.toFixed(2)}</div>
+                            </div>
+                            <div class="bill-detail-item">
+                                <div class="bill-detail-label">Balance</div>
+                                <div class="bill-detail-value">₹${bill.balanceAmount.toFixed(2)}</div>
+                            </div>
+                        </div>
+                        <div class="bill-total">
+                            Net Amount: ₹${bill.netAmount.toFixed(2)}
+                        </div>
+                    `;
+
+                    billListContainer.appendChild(billDiv);
+                });
+            });
         }
 
-        function clearAllFilters() {
+        // 39. Clear Search
+        function clearSearch() {
             document.getElementById('searchName').value = '';
             document.getElementById('searchPlace').value = '';
             document.getElementById('searchMobile').value = '';
-            document.getElementById('dateRangeFilter').value = 'today';
-            currentDateRange = 'today';
-            isTextSearchActive = false;
-            displayFilteredBills(allBillsData);
+            loadBills(); // Reload all bills
         }
 
-        function initializePage() {
-            addItem();
-            loadAllSizesAndTiles();
-            loadBills();
+// Global variables for filtering
+let allBillsData = [];
+let currentFilterMonth = '';
+let currentFilterYear = '';
+let isTextSearchActive = false;
+
+// ============================================
+// SAVED BILLS - DATE RANGE FILTER (Today / Last 3 Days / Last 1 Week)
+// ============================================
+
+// Global variable for current date range
+let currentDateRange = 'today';
+
+// Helper: Get start date based on selected range
+function getRangeStartDate(range) {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // today 00:00:00
+    if (range === '3days') {
+        start.setDate(start.getDate() - 2); // today + 2 previous days = 3 days total
+    } else if (range === '1week') {
+        start.setDate(start.getDate() - 6); // today + 6 previous days = 7 days total
+    }
+    return start;
+}
+
+// 42. Filter Bills Logic - PRIORITY: Text Search > Date Range
+function filterBills() {
+    currentDateRange = document.getElementById('dateRangeFilter').value;
+
+    // Check if text search is active
+    const searchName = document.getElementById('searchName').value.trim();
+    const searchPlace = document.getElementById('searchPlace').value.trim();
+    const searchMobile = document.getElementById('searchMobile').value.trim();
+
+    isTextSearchActive = searchName !== '' || searchPlace !== '' || searchMobile !== '';
+
+    displayFilteredBills(allBillsData);
+}
+
+// 43. Display Filtered Bills - Correct Priority Logic
+function displayFilteredBills(bills) {
+    const billListContainer = document.getElementById('billListContainer');
+
+    const searchName = document.getElementById('searchName').value.trim().toLowerCase();
+    const searchPlace = document.getElementById('searchPlace').value.trim().toLowerCase();
+    const searchMobile = document.getElementById('searchMobile').value.trim();
+
+    let filteredBills = [];
+    let headerHTML = '';
+
+    if (isTextSearchActive) {
+        // **PRIORITY 1: TEXT SEARCH - Show ALL matching bills regardless of date**
+        filteredBills = bills.filter(bill => {
+            const nameMatch = !searchName || (bill.customerName || '').toLowerCase().includes(searchName);
+            const placeMatch = !searchPlace || (bill.customerPlace || '').toLowerCase().includes(searchPlace);
+            const mobileMatch = !searchMobile || (bill.customerMobile || '').includes(searchMobile);
+
+            return nameMatch && placeMatch && mobileMatch;
+        });
+
+        if (filteredBills.length > 0) {
+            headerHTML = `
+                <div style="background: #e8f4fc; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid var(--accent-color);">
+                    <i class="fas fa-search"></i>
+                    Found ${filteredBills.length} bill(s) matching "${searchName || searchPlace || searchMobile}"
+                    <span style="color: #666; font-size: 0.9rem;">(across all dates)</span>
+                </div>
+            `;
+        }
+    } else {
+        // **PRIORITY 2: Date Range Filter - Today / Last 3 Days / Last 1 Week**
+        const startDate = getRangeStartDate(currentDateRange);
+        const endDate = new Date();
+        endDate.setHours(23, 59, 59, 999);
+
+        filteredBills = bills.filter(bill => {
+            const billDate = new Date(bill.billingDate);
+            return billDate >= startDate && billDate <= endDate;
+        });
+
+        const labelMap = {
+            'today': 'Today',
+            '3days': 'Last 3 Days',
+            '1week': 'Last 1 Week'
+        };
+
+        if (filteredBills.length > 0) {
+            headerHTML = `
+                <div style="background: #d4edda; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid var(--success-color);">
+                    <i class="fas fa-calendar"></i>
+                    Showing ${filteredBills.length} bill(s) for ${labelMap[currentDateRange]}
+                </div>
+            `;
+        }
+    }
+
+    // Sort by date (newest first)
+    filteredBills.sort((a, b) => b.timestamp - a.timestamp);
+
+    if (filteredBills.length === 0) {
+        billListContainer.innerHTML = `
+            <div class="no-results">
+                <i class="fas fa-inbox" style="font-size: 3rem; color: #ccc; margin-bottom: 15px;"></i>
+                <h4>No bills found</h4>
+                ${isTextSearchActive ?
+                    'Try different search terms or clear the search.' :
+                    'No bills found for selected date range.'}
+            </div>
+        `;
+        return;
+    }
+
+    // Set header first, then append bill items
+    billListContainer.innerHTML = headerHTML;
+
+    // Display bills (same as before)
+    filteredBills.forEach((bill, index) => {
+        const billNumber = filteredBills.length - index;
+        const billDiv = document.createElement('div');
+
+        if (bill.type === 'sales') {
+            billDiv.className = 'bill-item sales';
+        } else {
+            billDiv.className = 'bill-item return';
         }
 
-        document.getElementById('searchName').addEventListener('input', () => setTimeout(() => displayFilteredBills(allBillsData), 300));
-        document.getElementById('searchPlace').addEventListener('input', () => setTimeout(() => displayFilteredBills(allBillsData), 300));
-        document.getElementById('searchMobile').addEventListener('input', () => setTimeout(() => displayFilteredBills(allBillsData), 300));
+        billDiv.onclick = () => showBillDetail(bill.id);
 
-        window.addEventListener('DOMContentLoaded', initializePage);
+        const typeLabel = bill.type === 'sales' ? 'Sales' : 'Return';
+        const exchangeLabel = (bill.type === 'return' && bill.exchangeEnabled) ? '(Exchange)' : '';
+
+        billDiv.innerHTML = `
+            <div class="bill-header">
+                <span class="bill-number">Bill #${billNumber} (${typeLabel}) ${exchangeLabel}</span>
+                <span class="bill-date">${new Date(bill.billingDate).toLocaleDateString()}</span>
+            </div>
+            <div class="bill-details">
+                <div class="bill-detail-item">
+                    <div class="bill-detail-label">Customer Name</div>
+                    <div class="bill-detail-value">${bill.customerName || '-'}</div>
+                </div>
+                <div class="bill-detail-item">
+                    <div class="bill-detail-label">Mobile Number</div>
+                    <div class="bill-detail-value">${bill.customerMobile || '-'}</div>
+                </div>
+                <div class="bill-detail-item">
+                    <div class="bill-detail-label">Place</div>
+                    <div class="bill-detail-value">${bill.customerPlace || '-'}</div>
+                </div>
+                ${bill.type === 'sales' ? `
+                <div class="bill-detail-item">
+                    <div class="bill-detail-label">Total Amount</div>
+                    <div class="bill-detail-value">₹${(bill.totalAmount || 0).toFixed(2)}</div>
+                </div>
+                <div class="bill-detail-item">
+                    <div class="bill-detail-label">After Discount</div>
+                    <div class="bill-detail-value">₹${(bill.totalAfterDiscount || 0).toFixed(2)}</div>
+                </div>
+                ` : `
+                <div class="bill-detail-item">
+                    <div class="bill-detail-label">Return Amount</div>
+                    <div class="bill-detail-value">₹${(bill.returnAmount || 0).toFixed(2)}</div>
+                </div>
+                <div class="bill-detail-item">
+                    <div class="bill-detail-label">Exchange Amount</div>
+                    <div class="bill-detail-value">₹${(bill.exchangeAmount || 0).toFixed(2)}</div>
+                </div>
+                `}
+                <div class="bill-detail-item">
+                    <div class="bill-detail-label">Net Amount</div>
+                    <div class="bill-detail-value">₹${bill.netAmount.toFixed(2)}</div>
+                </div>
+                <div class="bill-detail-item">
+                    <div class="bill-detail-label">Amount Paid</div>
+                    <div class="bill-detail-value">₹${bill.amountPaid.toFixed(2)}</div>
+                </div>
+                <div class="bill-detail-item">
+                    <div class="bill-detail-label">Balance</div>
+                    <div class="bill-detail-value">₹${bill.balanceAmount.toFixed(2)}</div>
+                </div>
+            </div>
+            <div class="bill-total">
+                Net Amount: ₹${bill.netAmount.toFixed(2)}
+            </div>
+        `;
+
+        billListContainer.appendChild(billDiv);
+    });
+}
+
+// 44. Load Bills - Default to "Today" on Page Load
+function loadBills() {
+    const billListContainer = document.getElementById('billListContainer');
+    billListContainer.innerHTML = '<div class="loading">Loading bills...</div>';
+
+    database.ref('shops/' + shopID + '/billings').on('value', (snapshot) => {
+        allBillsData = [];
+
+        if (!snapshot.exists()) {
+            billListContainer.innerHTML = '<div class="no-results">No bills found.</div>';
+            return;
+        }
+
+        snapshot.forEach((childSnapshot) => {
+            const data = childSnapshot.val();
+            allBillsData.push({
+                id: childSnapshot.key,
+                ...data
+            });
+        });
+
+        // **DEFAULT TO TODAY ON PAGE LOAD**
+        document.getElementById('dateRangeFilter').value = 'today';
+        currentDateRange = 'today';
+
+        displayFilteredBills(allBillsData);
+    });
+}
+
+// 45. Search Bills (unchanged behaviour)
+function searchBills() {
+    isTextSearchActive = true;
+    displayFilteredBills(allBillsData);
+}
+
+// 46. Clear All Filters - Reset to Today
+function clearAllFilters() {
+    // Reset search fields
+    document.getElementById('searchName').value = '';
+    document.getElementById('searchPlace').value = '';
+    document.getElementById('searchMobile').value = '';
+
+    // Reset date range to TODAY
+    document.getElementById('dateRangeFilter').value = 'today';
+    currentDateRange = 'today';
+    isTextSearchActive = false;
+
+    displayFilteredBills(allBillsData);
+}
+
+// 40. Initialize Page
+function initializePage() {
+    // Add first item row
+    addItem();
+
+    // Load all sizes and tiles
+    loadAllSizesAndTiles();
+
+    // Load bills (will auto-filter to Today)
+    loadBills();
+}
+
+// Real-time search on typing (Optional)
+document.getElementById('searchName').addEventListener('input', function() {
+    setTimeout(() => displayFilteredBills(allBillsData), 300);
+});
+document.getElementById('searchPlace').addEventListener('input', function() {
+    setTimeout(() => displayFilteredBills(allBillsData), 300);
+});
+document.getElementById('searchMobile').addEventListener('input', function() {
+    setTimeout(() => displayFilteredBills(allBillsData), 300);
+});
+
+// Initialize when page loads
+window.addEventListener('DOMContentLoaded', initializePage);
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
-        async function shareBillAsImage() {
-            const billElement = document.getElementById("billDetailContent");
-            if (!billElement) {
-                alert("Bill content not found!");
-                return;
-            }
-            const canvas = await html2canvas(billElement, { scale: 2, useCORS: true });
-            const imageData = canvas.toDataURL("image/jpeg", 1.0);
-            const blob = await (await fetch(imageData)).blob();
-            const file = new File([blob], "Bill.jpg", { type: "image/jpeg" });
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                await navigator.share({ files: [file], title: "Bill", text: "Here is your bill" });
-            } else {
-                const link = document.createElement("a");
-                link.href = imageData;
-                link.download = "Bill.jpg";
-                link.click();
-            }
+
+    // all your existing functions above
+
+    async function shareBillAsImage() {
+
+        const billElement = document.getElementById("billDetailContent");
+
+        if (!billElement) {
+            alert("Bill content not found!");
+            return;
         }
-    </script>
+
+        const canvas = await html2canvas(billElement, {
+            scale: 2,
+            useCORS: true
+        });
+
+        const imageData = canvas.toDataURL("image/jpeg", 1.0);
+
+        const blob = await (await fetch(imageData)).blob();
+        const file = new File([blob], "Bill.jpg", { type: "image/jpeg" });
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+                files: [file],
+                title: "Bill",
+                text: "Here is your bill"
+            });
+        } else {
+            const link = document.createElement("a");
+            link.href = imageData;
+            link.download = "Bill.jpg";
+            link.click();
+        }
+    }
+
+</script>
 </body>
 </html>
