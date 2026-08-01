@@ -504,7 +504,13 @@ white-space:nowrap;
 @media screen and (max-width: 768px) {
     html {
         /* Automatically shrinks the desktop layout down to fit small mobile screens */
-        zoom: 42%; 
+        zoom: 40%; 
+    }
+}
+/* 🖨️ PDF Generation Override: Reset Mobile Zoom during PDF Export */
+@media print {
+    html {
+        zoom: 100% !important; /* Forces normal scale when generating print/PDF views */
     }
 }
     </style>
@@ -1406,6 +1412,11 @@ function downloadPDF() {
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating PDF...';
     btn.disabled = true;
 
+    // 🔥 Temporarily remove the mobile zoom constraint on the html element for clean snapshot rendering
+    const htmlElement = document.documentElement;
+    const previousZoom = htmlElement.style.zoom;
+    htmlElement.style.zoom = '100%';
+
     const opt = {
         margin: [5, 5, 5, 5],
         filename: fileName,
@@ -1427,6 +1438,9 @@ function downloadPDF() {
     // Use .output('datauristring') instead of .save() 
     // This sends the file data directly to your Android WebView DownloadListener
     html2pdf().set(opt).from(element).toPdf().output('datauristring').then(function (pdfBase64) {
+        // Restore previous mobile zoom view configuration after rendering completes
+        htmlElement.style.zoom = previousZoom;
+
         const link = document.createElement('a');
         link.href = pdfBase64;
         link.download = fileName;
@@ -1437,6 +1451,9 @@ function downloadPDF() {
         btn.disabled = false;
     }).catch(err => {
         console.error('PDF Error:', err);
+        // Ensure zoom is restored even if an error is caught
+        htmlElement.style.zoom = previousZoom;
+        
         btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error - Try Again';
         btn.disabled = false;
     });
