@@ -2,22 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Return & Sales Billing - Stock Management</title>
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* Prevent mobile browsers from zooming in on table inputs and form fields */
-@media screen and (max-width: 768px) {
-    input[type="text"],
-    input[type="number"],
-    input[type="tel"],
-    input[type="date"],
-    select {
-        font-size: 16px !important;
-    }
-}
         :root {
             --primary-color: #2c3e50;
             --accent-color: #3498db;
@@ -42,10 +32,7 @@
             flex-direction: column;
             min-height: 100vh;
         }
-html, body {
-    width: 100%;
-    overflow-x: hidden;
-}
+
         header {
             background-color: var(--primary-color);
             color: var(--white);
@@ -62,14 +49,12 @@ html, body {
             font-size: 1.5rem; 
         }
 
-.container {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 10px;
-    flex: 1;
-    overflow-x: hidden;
-}
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 15px;
+            flex: 1;
+        }
 
         /* Button Group */
         .button-group {
@@ -513,20 +498,20 @@ html, body {
             margin-bottom: 15px;
         }
 
-.search-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 2 columns on desktop/tablet */
-    gap: 15px;
-    margin-bottom: 15px;
-}
+        .search-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
 
-.search-grid input {
-    width: 100%;
-    padding: 12px 12px 12px 15px; /* Fixed padding */
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 1rem;
-}
+        .search-grid input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
 
         .search-grid input:focus {
             outline: none;
@@ -739,172 +724,12 @@ html, body {
             color: #666;
         }
 
-/* ---------- Mobile Friendly Item Form ---------- */
-@media (max-width: 768px) {
-  /* Hide table header on mobile */
-  .items-table thead {
-    display: none;
-  }
-  
-  .items-table, 
-  .items-table tbody, 
-  .items-table tr, 
-  .items-table td {
-    display: block;
-    width: 100%;
-  }
-  
-  .items-table tr {
-    background: #ffffff;
-    border: 1px solid #e0e0e0;
-    border-radius: 12px;
-    padding: 16px 12px 12px 12px;
-    margin-bottom: 15px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-    
-    /* Position context for the absolute delete button */
-    position: relative;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px 10px;
-    align-items: flex-end;
-  }
-  
-  .items-table td {
-    border: none;
-    padding: 0;
-    text-align: left;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  /* Hide serial number */
-  .items-table td:first-child {
-    display: none;
-  }
-  
-  /* Row 1: Select Size takes full width minus space for the corner button */
-  .items-table td:nth-child(2) {
-    flex: 1 1 100%;
-    padding-right: 35px; /* Prevent text/dropdown from overlapping the absolute delete button */
-  }
-  
-  /* Row 2: Enter Tile Name & Enter Boxes side-by-side */
-  .items-table td:nth-child(3) {
-    flex: 1 1 54%;
-  }
-  
-  .items-table td:nth-child(4) {
-    flex: 1 1 42%;
-  }
-  
-  /* Row 3: Enter Rate & Total Amount side-by-side */
-  .items-table td:nth-child(5) {
-    flex: 1 1 48%;
-  }
-  
-  .items-table td:nth-child(6) {
-    flex: 1 1 48%;
-  }
-  
-  /* Row 4: Absolute Top-Right Delete Button */
-  .items-table td:nth-child(7) {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    width: auto;
-    flex: none;
-  }
-
-  /* Field Labels */
-  .items-table td:nth-child(2)::before {
-    content: 'Select Size';
-    display: block;
-    font-size: 12px;
-    font-weight: 700;
-    color: #2c3e50;
-    margin-bottom: 5px;
-  }
-  
-  .items-table td:nth-child(3)::before {
-    content: 'Enter Tile Name';
-    display: block;
-    font-size: 12px;
-    font-weight: 700;
-    color: #2c3e50;
-    margin-bottom: 5px;
-  }
-  
-  .items-table td:nth-child(4)::before {
-    content: 'Enter Boxes';
-    display: block;
-    font-size: 12px;
-    font-weight: 700;
-    color: #2c3e50;
-    margin-bottom: 5px;
-  }
-  
-  .items-table td:nth-child(5)::before {
-    content: 'Enter Rate';
-    display: block;
-    font-size: 12px;
-    font-weight: 700;
-    color: #2c3e50;
-    margin-bottom: 5px;
-  }
-  
-  .items-table td:nth-child(6)::before {
-    content: 'Total Amount';
-    display: block;
-    font-size: 12px;
-    font-weight: 700;
-    color: #2c3e50;
-    margin-bottom: 5px;
-  }
-  
-  .items-table td:nth-child(7)::before {
-    display: none;
-  }
-  
-  /* Inputs full width */
-  .items-table input, 
-  .items-table select {
-    width: 100%;
-    font-size: 14px;
-    padding: 10px;
-    border-radius: 8px;
-  }
-  
-  /* Delete button styling matching your screenshot */
-  .remove-item-btn {
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    font-size: 13px;
-    border-radius: 50%;
-    background: #ffffff;
-    border: 1px solid #e74c3c;
-    color: #e74c3c;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  }
-  
-  .remove-item-btn:hover {
-    background: #fff5f5;
-    color: #c0392b;
-  }
-  
-  /* Add item button */
-  .add-item-btn {
-    width: 100%;
-    padding: 12px;
-    font-size: 15px;
-    border-radius: 10px;
-    margin-top: 10px;
-  }
+/* 📱 Mobile Automatic Scale-to-Fit Viewport Fix */
+@media screen and (max-width: 768px) {
+    html {
+        /* Automatically shrinks the desktop layout down to fit small mobile screens */
+        zoom: 42%; 
+    }
 }
         /* Hidden Shop ID */
         #shopId {
@@ -958,6 +783,10 @@ html, body {
     </button>
 </div>
 
+<div class="table-responsive">
+    <table class="items-table" id="itemsTable">
+        </table>
+</div>
 
         <!-- Billing Form Section -->
         <div id="billingFormSection" class="billing-form-section">
@@ -1025,29 +854,29 @@ html, body {
                 </button>
             </div>
 
-<!-- Sales / Return Items Section -->
-<div class="items-section">
-    <h2 id="itemsSectionTitle"><i class="fas fa-boxes"></i> Sales Items</h2>
-        <table class="items-table" id="itemsTable">
-            <thead>
-                <tr>
-                    <th style="width: 50px;">S.No</th>
-                    <th style="width: 150px;">Size</th>
-                    <th style="width: 180px;">Tile Name</th>
-                    <th style="width: 80px;">Boxes</th>
-                    <th style="width: 100px;">Rate</th>
-                    <th style="width: 100px;">Total</th>
-                    <th style="width: 70px;">Action</th>
-                </tr>
-            </thead>
-            <tbody id="itemsTableBody">
-                <!-- Rows dynamically added here -->
-            </tbody>
-        </table>
-    <button type="button" class="add-item-btn" id="addItemBtn" onclick="addItem()">
-        <i class="fas fa-plus"></i> Add Item
-    </button>
-</div>
+            <!-- Items Table Section (Return Items / Sales Items) -->
+            <div class="items-section">
+                <h2 id="itemsSectionTitle"><i class="fas fa-boxes"></i> Sales Items</h2>
+                <table class="items-table" id="itemsTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">S.No</th>
+                            <th style="width: 200px;">Size</th>
+                            <th style="width: 200px;">Tile Name</th>
+                            <th style="width: 100px;">Boxes</th>
+                            <th style="width: 120px;">Rate</th>
+                            <th style="width: 120px;">Total</th>
+                            <th style="width: 80px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="itemsTableBody">
+                        <!-- Items will be added here -->
+                    </tbody>
+                </table>
+                <button type="button" class="add-item-btn" id="addItemBtn" onclick="addItem()">
+                    <i class="fas fa-plus"></i> Add Item
+                </button>
+            </div>
 
             <!-- Payment Section -->
             <div class="payment-section">
@@ -1117,12 +946,12 @@ html, body {
             </div>
         </div>
 
-<!-- Search Section -->
+<!-- Search Section - UPDATED DESIGN (Today / Last 3 Days / Last 1 Week) -->
 <div class="search-section">
     <h3><i class="fas fa-search"></i> Filter & Search Bills</h3>
     <div class="search-grid">
-        <!-- Date Range Filter - Full width on mobile/grid -->
-        <div style="grid-column: 1 / -1;">
+        <!-- Date Range Filter - Today / Last 3 Days / Last 1 Week -->
+        <div style="grid-column: span 2;">
             <label for="dateRangeFilter" style="font-weight: 600; color: var(--primary-color); font-size: 0.9rem; margin-bottom: 5px; display: block;">Date Filter</label>
             <select id="dateRangeFilter" onchange="filterBills()" style="
                 width: 100%; padding: 12px; border: 2px solid #e0e6ed;
@@ -1137,9 +966,9 @@ html, body {
         </div>
 
         <!-- Search Fields -->
-        <input type="text" id="searchName" placeholder="Name">
-        <input type="text" id="searchPlace" placeholder="Place">
-        <input type="tel" id="searchMobile" placeholder="Number" maxlength="10" style="grid-column: 1 / -1;">
+        <input type="text" id="searchName" placeholder="👤 Customer Name" style="padding-left: 40px;">
+        <input type="text" id="searchPlace" placeholder="🏠 Customer Place" style="padding-left: 40px;">
+        <input type="tel" id="searchMobile" placeholder="📱 Mobile Number" maxlength="10" style="padding-left: 40px;">
     </div>
     <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
         <button type="button" class="search-btn" onclick="searchBills()" style="flex: 1; min-width: 120px;">
@@ -2388,156 +2217,168 @@ return newBoxes;
             });
         }
 
-// 36. Show Bill Detail Modal (UPDATED)
-// 36. Show Bill Detail Modal (UPDATED)
-function showBillDetail(billId) {
-    const database = firebase.database();
-    
-    database.ref('shops/' + shopID + '/billings/' + billId).once('value', (snapshot) => {
-        if (!snapshot.exists()) {
-            alert("Bill not found!");
-            return;
-        }
+        // 36. Show Bill Detail Modal
+        function showBillDetail(billId) {
+            const database = firebase.database();
+            
+            database.ref('shops/' + shopID + '/billings/' + billId).once('value', (snapshot) => {
+                if (!snapshot.exists()) {
+                    alert("Bill not found!");
+                    return;
+                }
 
-        const bill = snapshot.val();
-        const billDetailContent = document.getElementById('billDetailContent');
-        
-        // Build items table
-        let itemsHtml = '';
-        if (bill.items && bill.items.length > 0) {
-            bill.items.forEach((item, index) => {
-                itemsHtml += `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${item.sizeName || '-'}</td>
-                        <td>${item.tileName || '-'}</td>
-                        <td>${item.boxes || 0}</td>
-                        <td>₹${(item.rate || 0).toFixed(2)}</td>
-                        <td>₹${(item.total || 0).toFixed(2)}</td>
-                    </tr>
-                `;
-            });
-        } else {
-            itemsHtml = '<tr><td colspan="6" style="text-align:center;">No items</td></tr>';
-        }
-        
-        // Build exchange items table
-        let exchangeItemsHtml = '';
-        if (bill.exchangeEnabled && bill.exchangeItems && bill.exchangeItems.length > 0) {
-            bill.exchangeItems.forEach((item, index) => {
-                exchangeItemsHtml += `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${item.sizeName || '-'}</td>
-                        <td>${item.tileName || '-'}</td>
-                        <td>${item.boxes || 0}</td>
-                        <td>₹${(item.rate || 0).toFixed(2)}</td>
-                        <td>₹${(item.total || 0).toFixed(2)}</td>
-                    </tr>
-                `;
-            });
-        } else {
-            exchangeItemsHtml = '<tr><td colspan="6" style="text-align:center;">No exchange items</td></tr>';
-        }
-
-        const typeLabel = bill.type === 'sales' ? 'Sales' : 'Return';
-        const exchangeLabel = (bill.type === 'return' && bill.exchangeEnabled) ? '(Exchange)' : '';
-        const currentBalance = bill.balanceAmount || 0;
-
-        billDetailContent.innerHTML = `
-            <div class="bill-header">
-                <span class="bill-number">Bill #${billId.substring(0, 8)} (${typeLabel}) ${exchangeLabel}</span>
-                <span class="bill-date">${new Date(bill.billingDate).toLocaleDateString()}</span>
-            </div>
-            
-            <div class="bill-details" style="margin-bottom: 20px;">
-                <div class="bill-detail-item">
-                    <div class="bill-detail-label">Customer Name</div>
-                    <div class="bill-detail-value">${bill.customerName || '-'}</div>
-                </div>
-                <div class="bill-detail-item">
-                    <div class="bill-detail-label">Mobile Number</div>
-                    <div class="bill-detail-value">${bill.customerMobile || '-'}</div>
-                </div>
-                <div class="bill-detail-item">
-                    <div class="bill-detail-label">Place</div>
-                    <div class="bill-detail-value">${bill.customerPlace || '-'}</div>
-                </div>
-            </div>
-            
-            <h3 style="color: var(--primary-color); margin: 20px 0 10px;">${typeLabel} Items</h3>
-            <table class="items-detail-table">
-                <thead>
-                    <tr><th>S.No</th><th>Size</th><th>Tile Name</th><th>Boxes</th><th>Rate</th><th>Total</th></tr>
-                </thead>
-                <tbody>${itemsHtml}</tbody>
-            </table>
-            
-            ${bill.exchangeEnabled ? `
-            <h3 style="color: var(--primary-color); margin: 20px 0 10px;">Exchange Items (Customer Taking)</h3>
-            <table class="items-detail-table">
-                <thead>
-                    <tr><th>S.No</th><th>Size</th><th>Tile Name</th><th>Boxes</th><th>Rate</th><th>Total</th></tr>
-                </thead>
-                <tbody>${exchangeItemsHtml}</tbody>
-            </table>` : ''}
-            
-            <div class="bill-details" style="margin-top: 20px;">
-                ${bill.type === 'sales' ? `
-                <div class="bill-detail-item"><div class="bill-detail-label">Total Amount</div><div class="bill-detail-value">₹${(bill.totalAmount || 0).toFixed(2)}</div></div>
-                <div class="bill-detail-item"><div class="bill-detail-label">Discount</div><div class="bill-detail-value">₹${(bill.discount || 0).toFixed(2)}</div></div>
-                <div class="bill-detail-item"><div class="bill-detail-label">Total After Discount</div><div class="bill-detail-value">₹${(bill.totalAfterDiscount || 0).toFixed(2)}</div></div>` 
-                : `
-                <div class="bill-detail-item"><div class="bill-detail-label">Return Amount</div><div class="bill-detail-value">₹${(bill.returnAmount || 0).toFixed(2)}</div></div>
-                <div class="bill-detail-item"><div class="bill-detail-label">Exchange Amount</div><div class="bill-detail-value">₹${(bill.exchangeAmount || 0).toFixed(2)}</div></div>`}
+                const bill = snapshot.val();
+                const billDetailContent = document.getElementById('billDetailContent');
                 
-                <div class="bill-detail-item"><div class="bill-detail-label">Amount Paid</div><div class="bill-detail-value" style="color: var(--success-color); font-weight: bold;">₹${(bill.amountPaid || 0).toFixed(2)}</div></div>
-                <div class="bill-detail-item"><div class="bill-detail-label">Balance Amount</div><div class="bill-detail-value" style="color: var(--danger-color); font-weight: bold;">₹${currentBalance.toFixed(2)}</div></div>
-            </div>
+                // Build items table
+                let itemsHtml = '';
+                if (bill.items && bill.items.length > 0) {
+                    bill.items.forEach((item, index) => {
+                        itemsHtml += `
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td>${item.sizeName || '-'}</td>
+                                <td>${item.tileName || '-'}</td>
+                                <td>${item.boxes || 0}</td>
+                                <td>₹${(item.rate || 0).toFixed(2)}</td>
+                                <td>₹${(item.total || 0).toFixed(2)}</td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    itemsHtml = '<tr><td colspan="6" style="text-align:center;">No items</td></tr>';
+                }
+                
+                // Build exchange items table (Only for Returns)
+                let exchangeItemsHtml = '';
+                if (bill.exchangeEnabled && bill.exchangeItems && bill.exchangeItems.length > 0) {
+                    bill.exchangeItems.forEach((item, index) => {
+                        exchangeItemsHtml += `
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td>${item.sizeName || '-'}</td>
+                                <td>${item.tileName || '-'}</td>
+                                <td>${item.boxes || 0}</td>
+                                <td>₹${(item.rate || 0).toFixed(2)}</td>
+                                <td>₹${(item.total || 0).toFixed(2)}</td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    exchangeItemsHtml = '<tr><td colspan="6" style="text-align:center;">No exchange items</td></tr>';
+                }
 
-            ${currentBalance > 0 ? `
-            <div class="update-balance-section" style="margin-top: 20px; padding: 15px; border: 1px solid #ddd; background: #f9f9f9;">
-                <label><strong>Receive New Payment:</strong></label>
-                <div style="display: flex; gap: 10px; margin-top: 5px;">
-                    <input type="number" id="newPaymentInput" placeholder="Enter amount" style="padding: 8px; flex-grow: 1;">
-                    <button type="button" class="btn" onclick="updateBillBalance('${billId}', ${currentBalance}, ${bill.amountPaid || 0})">Save Payment</button>
-                </div>
-            </div>` : '<div style="margin-top: 20px; color: var(--success-color); font-weight: bold; text-align: center;">Bill Fully Paid</div>'}
-        `;
-        
-        document.getElementById('billDetailModal').classList.add('show');
-    });
-}
+                const typeLabel = bill.type === 'sales' ? 'Sales' : 'Return';
+                const exchangeLabel = (bill.type === 'return' && bill.exchangeEnabled) ? '(Exchange)' : '';
 
-// Helper: Update Balance in Firebase
-function updateBillBalance(billId, oldBalance, oldPaid) {
-    const paymentInput = document.getElementById('newPaymentInput');
-    const payment = parseFloat(paymentInput.value);
+                billDetailContent.innerHTML = `
+                    <div class="bill-header">
+                        <span class="bill-number">Bill #${billId.substring(0, 8)} (${typeLabel}) ${exchangeLabel}</span>
+                        <span class="bill-date">${new Date(bill.billingDate).toLocaleDateString()}</span>
+                    </div>
+                    
+                    <div class="bill-details" style="margin-bottom: 20px;">
+                        <div class="bill-detail-item">
+                            <div class="bill-detail-label">Customer Name</div>
+                            <div class="bill-detail-value">${bill.customerName || '-'}</div>
+                        </div>
+                        <div class="bill-detail-item">
+                            <div class="bill-detail-label">Mobile Number</div>
+                            <div class="bill-detail-value">${bill.customerMobile || '-'}</div>
+                        </div>
+                        <div class="bill-detail-item">
+                            <div class="bill-detail-label">Place</div>
+                            <div class="bill-detail-value">${bill.customerPlace || '-'}</div>
+                        </div>
+                    </div>
+                    
+                    <h3 style="color: var(--primary-color); margin: 20px 0 10px;">${typeLabel} Items</h3>
+                    <table class="items-detail-table">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th>Size</th>
+                                <th>Tile Name</th>
+                                <th>Boxes</th>
+                                <th>Rate</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${itemsHtml}
+                        </tbody>
+                    </table>
+                    
+                    ${bill.exchangeEnabled ? `
+                    <h3 style="color: var(--primary-color); margin: 20px 0 10px;">Exchange Items (Customer Taking)</h3>
+                    <table class="items-detail-table">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th>Size</th>
+                                <th>Tile Name</th>
+                                <th>Boxes</th>
+                                <th>Rate</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${exchangeItemsHtml}
+                        </tbody>
+                    </table>
+                    ` : ''}
+                    
+                    <div class="bill-details" style="margin-top: 20px;">
+                        ${bill.type === 'sales' ? `
+                        <div class="bill-detail-item">
+                            <div class="bill-detail-label">Total Amount</div>
+                            <div class="bill-detail-value">₹${(bill.totalAmount || 0).toFixed(2)}</div>
+                        </div>
+                        <div class="bill-detail-item">
+                            <div class="bill-detail-label">Discount</div>
+                            <div class="bill-detail-value">₹${(bill.discount || 0).toFixed(2)}</div>
+                        </div>
+                        <div class="bill-detail-item">
+                            <div class="bill-detail-label">Total After Discount</div>
+                            <div class="bill-detail-value">₹${(bill.totalAfterDiscount || 0).toFixed(2)}</div>
+                        </div>
+                        ` : `
+                        <div class="bill-detail-item">
+                            <div class="bill-detail-label">Return Amount</div>
+                            <div class="bill-detail-value">₹${(bill.returnAmount || 0).toFixed(2)}</div>
+                        </div>
+                        <div class="bill-detail-item">
+                            <div class="bill-detail-label">Exchange Amount</div>
+                            <div class="bill-detail-value">₹${(bill.exchangeAmount || 0).toFixed(2)}</div>
+                        </div>
+                        `}
+                        <div class="bill-detail-item">
+                            <div class="bill-detail-label">Net Amount</div>
+                            <div class="bill-detail-value" style="color: var(--success-color); font-weight: bold;">₹${bill.amountPaid.toFixed(2)}</div>
+                        </div>
+                    </div>
+                    
+<div class="bill-details" style="margin-top: 20px;">
+    <div class="bill-detail-item">
+        <div class="bill-detail-label">Amount Paid</div>
+        <div class="bill-detail-value" style="color: var(--success-color); font-weight: bold;">₹${bill.amountPaid.toFixed(2)}</div>
+    </div>
+    <div class="bill-detail-item">
+        <div class="bill-detail-label">Balance Amount</div>
+        <div class="bill-detail-value">₹${bill.balanceAmount.toFixed(2)}</div>
+    </div>
+</div>
+                    
+                    <div class="bill-total" style="margin-top: 20px;">
+                        <div class="bill-detail-value">₹${bill.netAmount.toFixed(2)}</div>
+                    </div>
+                `;
+                
+                // Show modal
+                document.getElementById('billDetailModal').classList.add('show');
+            });
+        }
 
-    if (isNaN(payment) || payment <= 0) {
-        alert("Please enter a valid amount.");
-        return;
-    }
-
-    if (payment > oldBalance) {
-        alert("Payment cannot exceed the balance amount!");
-        return;
-    }
-
-    const newBalance = oldBalance - payment;
-    const newTotalPaid = oldPaid + payment;
-
-    firebase.database().ref('shops/' + shopID + '/billings/' + billId).update({
-        balanceAmount: newBalance,
-        amountPaid: newTotalPaid
-    }).then(() => {
-        alert("Balance updated successfully!");
-        document.getElementById('billDetailModal').classList.remove('show');
-        if (typeof loadBills === 'function') loadBills();
-    }).catch((error) => {
-        alert("Error: " + error.message);
-    });
-}
         // 37. Close Bill Detail Modal
         function closeBillDetail() {
             document.getElementById('billDetailModal').classList.remove('show');
