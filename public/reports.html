@@ -500,7 +500,13 @@ white-space:nowrap;
     }
 
 }
-
+/* 📱 Mobile Automatic Scale-to-Fit Viewport Fix */
+@media screen and (max-width: 768px) {
+    html {
+        /* Automatically shrinks the desktop layout down to fit small mobile screens */
+        zoom: 30%; 
+    }
+}
     </style>
 </head>
 <body>
