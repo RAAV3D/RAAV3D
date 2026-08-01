@@ -741,123 +741,135 @@ html, body {
 
 /* ---------- Mobile Friendly Item Form ---------- */
 @media (max-width: 768px) {
-
-    /* Hide table header on mobile */
-    .items-table thead {
-        display: none;
-    }
-
-    /* Convert each row into a card */
-    .items-table,
-    .items-table tbody,
-    .items-table tr,
-    .items-table td {
-        display: block;
-        width: 100%;
-    }
-
-    .items-table tr {
-        background: #ffffff;
-        border: 1px solid #e0e0e0;
-        border-radius: 12px;
-        padding: 12px;
-        margin-bottom: 15px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    }
-
-    .items-table td {
-        border: none;
-        padding: 8px 0;
-        text-align: left;
-    }
-
-    /* Hide serial number */
-    .items-table td:first-child {
-        display: none;
-    }
-
-    /* Add field labels automatically */
-    .items-table td:nth-child(2)::before {
-        content: 'Select Size';
-        display: block;
-        font-size: 12px;
-        font-weight: 700;
-        color: #2c3e50;
-        margin-bottom: 5px;
-    }
-
-    .items-table td:nth-child(3)::before {
-        content: 'Enter Tile Name';
-        display: block;
-        font-size: 12px;
-        font-weight: 700;
-        color: #2c3e50;
-        margin-bottom: 5px;
-    }
-
-    .items-table td:nth-child(4)::before {
-        content: 'Enter Boxes';
-        display: block;
-        font-size: 12px;
-        font-weight: 700;
-        color: #2c3e50;
-        margin-bottom: 5px;
-    }
-
-    .items-table td:nth-child(5)::before {
-        content: 'Enter Rate';
-        display: block;
-        font-size: 12px;
-        font-weight: 700;
-        color: #2c3e50;
-        margin-bottom: 5px;
-    }
-
-    .items-table td:nth-child(6)::before {
-        content: 'Total Amount';
-        display: block;
-        font-size: 12px;
-        font-weight: 700;
-        color: #2c3e50;
-        margin-bottom: 5px;
-    }
-
-    .items-table td:nth-child(7)::before {
-        content: 'Remove Item';
-        display: block;
-        font-size: 12px;
-        font-weight: 700;
-        color: #2c3e50;
-        margin-bottom: 5px;
-    }
-
-    /* Inputs full width */
-    .items-table input,
-    .items-table select {
-        width: 100%;
-        font-size: 14px;
-        padding: 10px;
-        border-radius: 8px;
-    }
-
-    /* Remove button full width */
-    .remove-item-btn {
-        width: 100%;
-        padding: 10px;
-        font-size: 14px;
-        border-radius: 8px;
-    }
-
-    /* Add item button */
-    .add-item-btn {
-        width: 100%;
-        padding: 12px;
-        font-size: 15px;
-        border-radius: 10px;
-        margin-top: 10px;
-    }
+  /* Hide table header on mobile */
+  .items-table thead {
+    display: none;
+  }
+  
+  /* Convert each row into a card */
+  .items-table, 
+  .items-table tbody, 
+  .items-table tr, 
+  .items-table td {
+    display: block;
+    width: 100%;
+  }
+  
+  .items-table tr {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  }
+  
+  .items-table td {
+    border: none;
+    padding: 8px 0;
+    text-align: left;
+  }
+  
+  /* Hide serial number */
+  .items-table td:first-child {
+    display: none;
+  }
+  
+  /* Add field labels automatically */
+  .items-table td:nth-child(2)::before {
+    content: 'Select Size';
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 5px;
+  }
+  
+  .items-table td:nth-child(3)::before {
+    content: 'Enter Tile Name';
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 5px;
+  }
+  
+  .items-table td:nth-child(4)::before {
+    content: 'Enter Boxes';
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 5px;
+  }
+  
+  .items-table td:nth-child(5)::before {
+    content: 'Enter Rate';
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 5px;
+  }
+  
+  .items-table td:nth-child(6)::before {
+    content: 'Total Amount';
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 5px;
+  }
+  
+  .items-table td:nth-child(7)::before {
+    content: 'Remove Item';
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 5px;
+  }
+  
+  /* Inputs full width */
+  .items-table input, 
+  .items-table select {
+    width: 100%;
+    font-size: 14px;
+    padding: 10px;
+    border-radius: 8px;
+  }
+  
+  /* Small delete icon button on mobile */
+  .remove-item-btn {
+    width: auto;
+    min-width: 42px;
+    height: 42px;
+    padding: 0;
+    font-size: 16px;
+    border-radius: 8px;
+    background: #ffffff;
+    border: 1px solid #e74c3c;
+    color: #e74c3c;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 6px;
+  }
+  
+  .remove-item-btn:hover {
+    background: #fff5f5;
+    color: #c0392b;
+  }
+  
+  /* Add item button */
+  .add-item-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 15px;
+    border-radius: 10px;
+    margin-top: 10px;
+  }
 }
-
         /* Hidden Shop ID */
         #shopId {
             display: none;
