@@ -2781,39 +2781,44 @@ window.addEventListener('DOMContentLoaded', initializePage);
     <script>
 
     // all your existing functions above
+async function shareBillAsImage() {
+    const billElement = document.getElementById("billDetailContent");
 
-    async function shareBillAsImage() {
-
-        const billElement = document.getElementById("billDetailContent");
-
-        if (!billElement) {
-            alert("Bill content not found!");
-            return;
-        }
-
-        const canvas = await html2canvas(billElement, {
-            scale: 2,
-            useCORS: true
-        });
-
-        const imageData = canvas.toDataURL("image/jpeg", 1.0);
-
-        const blob = await (await fetch(imageData)).blob();
-        const file = new File([blob], "Bill.jpg", { type: "image/jpeg" });
-
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({
-                files: [file],
-                title: "Bill",
-                text: "Here is your bill"
-            });
-        } else {
-            const link = document.createElement("a");
-            link.href = imageData;
-            link.download = "Bill.jpg";
-            link.click();
-        }
+    if (!billElement) {
+        alert("Bill content not found!");
+        return;
     }
+
+    const canvas = await html2canvas(billElement, {
+        scale: 2,
+        useCORS: true
+    });
+
+    const imageData = canvas.toDataURL("image/jpeg", 1.0); // Base64 String
+
+    // 1. IF RUNNING INSIDE YOUR ANDROID APP
+    if (window.AndroidBridge) {
+        window.AndroidBridge.shareBase64Image(imageData, "Bill.jpg");
+        return;
+    }
+
+    // 2. IF RUNNING IN REGULAR BROWSERS
+    const blob = await (await fetch(imageData)).blob();
+    const file = new File([blob], "Bill.jpg", { type: "image/jpeg" });
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+            files: [file],
+            title: "Bill",
+            text: "Here is your bill"
+        });
+    } else {
+        const link = document.createElement("a");
+        link.href = imageData;
+        link.download = "Bill.jpg";
+        link.click();
+    }
+}
 
 </script>
 </body>
