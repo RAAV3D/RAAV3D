@@ -343,7 +343,7 @@ function handle2DVisualizerClick() {
 
 function handleMyStockClick() {
     const targetShopId = globalRealShopId || localStorage.getItem('shopId');
-    location.href = targetShopId ? "mystock.html?shopId=" + encodeURIComponent(targetShopId) : "mystock.html";
+    location.href = targetShopId ? "workerstock.html?shopId=" + encodeURIComponent(targetShopId) : "workerstock.html";
 }
 
 function handleBillingClick() {
