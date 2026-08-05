@@ -548,7 +548,7 @@
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
-        const auth = getAuth();
+        const auth = getAuth(app);
 
         // 1. Owner Login Form Submission
         document.getElementById('loginForm').addEventListener('submit', async function (e) {
@@ -590,6 +590,11 @@
                 await update(ref(database, 'users/' + foundShopId), {
                     last_login: new Date().toISOString()
                 });
+
+                // Clear any worker flags if logging in as Owner
+                localStorage.removeItem('isWorkerLoggedIn');
+                localStorage.removeItem('workerId');
+                localStorage.removeItem('workerName');
 
                 localStorage.setItem('shopId', foundShopId);
                 window.location.href = 'index.html';
@@ -661,10 +666,11 @@
                     throw new Error('Incorrect Worker Password.');
                 }
 
-                // Store Worker Session Details in LocalStorage
+                // Store Worker Session Details & Persistent Worker Flag
                 localStorage.setItem('shopId', shopId);
                 localStorage.setItem('workerId', workerId);
                 localStorage.setItem('workerName', workerData.name || workerId);
+                localStorage.setItem('isWorkerLoggedIn', 'true');
 
                 // Instantly forward to workerpage.html with shopId parameter
                 window.location.href = `workerpage.html?shopId=${encodeURIComponent(shopId)}`;

@@ -396,6 +396,25 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
 
+// Worker persistence check on initial load
+const savedShopId = localStorage.getItem('shopId');
+const savedWorkerId = localStorage.getItem('workerId');
+
+if (savedShopId && savedWorkerId) {
+    const workerRef = ref(db, `shops/${savedShopId}/worker/${savedWorkerId}`);
+    get(workerRef).then((snapshot) => {
+        if (snapshot.exists()) {
+            window.location.href = `workerpage.html?shopId=${encodeURIComponent(savedShopId)}`;
+        } else {
+            localStorage.removeItem('workerId');
+            localStorage.removeItem('workerName');
+            localStorage.removeItem('isWorkerLoggedIn');
+        }
+    }).catch((err) => {
+        console.error("Worker verification error:", err);
+    });
+}
+
 onAuthStateChanged(auth, async (user) => {
     const topNav = document.getElementById('topNavActions');
     const shopContainer = document.getElementById('shopIdDisplayContainer');
@@ -465,7 +484,12 @@ onAuthStateChanged(auth, async (user) => {
         `;
         shopContainer.style.display = "none";
         globalRealShopId = "";
-        localStorage.clear();
+        
+        // Preserve worker state cleanup without wiping unauthenticated states prematurely
+        if (!localStorage.getItem('isWorkerLoggedIn')) {
+            localStorage.clear();
+        }
+        
         loadingState.style.display = "none";
         actionGrid.classList.remove('hidden-portal');
     }

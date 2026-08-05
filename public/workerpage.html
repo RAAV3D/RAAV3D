@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mera-Tile</title>
+<title>Worker Portal - Mera-Tile</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="icon" type="image/png" href="/weblogo.png">
 <link rel="shortcut icon" href="/weblogo.png">
@@ -261,7 +261,7 @@ body {
     </div>
 
     <div id="portalLoadingState" class="portal-loader">
-        <i class="fas fa-circle-notch fa-spin"></i> Loading secure dashboard...
+        <i class="fas fa-circle-notch fa-spin"></i> Loading worker portal...
     </div>
 
     <div class="portal-grid hidden-portal" id="actionPortalGrid">
@@ -401,65 +401,96 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
 
-document.getElementById('logOutBtn').addEventListener('click', () => {
-    if(confirm("Do you want to sign out?")) {
-        signOut(auth).then(() => { 
-            localStorage.clear(); 
-            location.href = "login.html"; 
-        });
+// Worker / Account Logout Action
+document.getElementById('logOutBtn').addEventListener('click', async () => {
+    if(confirm("Do you want to log out of the Worker Portal?")) {
+        // Clear worker session storage data
+        localStorage.removeItem('isWorkerLoggedIn');
+        localStorage.removeItem('workerId');
+        localStorage.removeItem('workerName');
+        localStorage.removeItem('shopId');
+
+        try {
+            await signOut(auth);
+        } catch (e) {
+            console.warn("Auth signout completed or bypassed:", e);
+        }
+
+        location.href = "login.html"; 
     }
 });
 
-onAuthStateChanged(auth, async (user) => {
+// Primary Session Validation
+async function validateWorkerSession() {
     const loadingState = document.getElementById('portalLoadingState');
     const actionGrid = document.getElementById('actionPortalGrid');
     const userAvatar = document.getElementById('logOutBtn');
-            
-    if (user && user.email === 'trsenterprises148@gmail.com') {
-        alert("Access restricted for this account.");
-        await signOut(auth);
-        location.reload();
-        return;
-    }
 
-    if (user) {
-        const initialLetter = user.email ? user.email.charAt(0).toUpperCase() : 'U';
+    const isWorkerLoggedIn = localStorage.getItem('isWorkerLoggedIn') === 'true';
+    const workerName = localStorage.getItem('workerName') || localStorage.getItem('workerId') || 'Worker';
+
+    if (isWorkerLoggedIn) {
+        // Configure Worker UI
+        const initialLetter = workerName.charAt(0).toUpperCase();
         userAvatar.innerHTML = initialLetter;
-        userAvatar.title = `Logged in as: ${user.email}\nClick to logout`;
+        userAvatar.title = `Logged in as Worker: ${workerName}\nClick to logout`;
 
-        try {
-            const usersRef = ref(db, 'users');
-            const snapshot = await get(usersRef);
-            if (snapshot.exists()) {
-                let foundShopId = "";
-                snapshot.forEach(child => {
-                    const data = child.val();
-                    if (data.uid === user.uid && data.shopId) {
-                        foundShopId = data.shopId;
-                    }
-                });
-                
-                if (foundShopId) {
-                    globalRealShopId = foundShopId;
-                    localStorage.setItem('shopId', globalRealShopId);
-                    showShopIdInUI();
-                }
-            }
-        } catch(e) { 
-            console.error("Error retrieving shop ID:", e); 
-        } finally {
-            if (globalRealShopId) showShopIdInUI();
-            loadingState.style.display = "none";
-            actionGrid.classList.remove('hidden-portal');
-        }
-    } else {
         if (globalRealShopId) {
             showShopIdInUI();
         }
+
         loadingState.style.display = "none";
         actionGrid.classList.remove('hidden-portal');
+        return;
     }
-});
+
+    // Fallback Check for Owner / Firebase Auth User
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            if (user.email === 'trsenterprises148@gmail.com') {
+                alert("Access restricted for this account.");
+                await signOut(auth);
+                location.href = "login.html";
+                return;
+            }
+
+            const initialLetter = user.email ? user.email.charAt(0).toUpperCase() : 'U';
+            userAvatar.innerHTML = initialLetter;
+            userAvatar.title = `Logged in as: ${user.email}\nClick to logout`;
+
+            try {
+                const usersRef = ref(db, 'users');
+                const snapshot = await get(usersRef);
+                if (snapshot.exists()) {
+                    let foundShopId = "";
+                    snapshot.forEach(child => {
+                        const data = child.val();
+                        if (data.uid === user.uid && data.shopId) {
+                            foundShopId = data.shopId;
+                        }
+                    });
+
+                    if (foundShopId) {
+                        globalRealShopId = foundShopId;
+                        localStorage.setItem('shopId', globalRealShopId);
+                        showShopIdInUI();
+                    }
+                }
+            } catch(e) {
+                console.error("Error retrieving shop ID:", e);
+            } finally {
+                if (globalRealShopId) showShopIdInUI();
+                loadingState.style.display = "none";
+                actionGrid.classList.remove('hidden-portal');
+            }
+        } else {
+            // Unauthenticated - redirect to login page
+            location.href = "login.html";
+        }
+    });
+}
+
+validateWorkerSession();
 </script>
 </body>
 </html>
