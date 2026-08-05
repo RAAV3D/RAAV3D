@@ -228,7 +228,6 @@ body {
 /* 📱 Mobile Automatic Scale-to-Fit Viewport Fix */
 @media screen and (max-width: 768px) {
     html {
-        /* Automatically shrinks the desktop layout down to fit small mobile screens */
         zoom: 80%; 
     }
 }
@@ -310,11 +309,19 @@ body {
 let globalRealShopId = "";
 let isShopIdVisible = true;
 
-// Extract shopId immediately on page init
+// Extract shopId, workerId, and appAuth immediately on page init
 (function initShopId() {
     const urlParams = new URLSearchParams(window.location.search);
     const shopIdFromUrl = urlParams.get('shopId');
+    const workerIdFromUrl = urlParams.get('workerId');
+    const isAppAuth = urlParams.get('appAuth') === 'true';
     const shopIdFromStorage = localStorage.getItem('shopId');
+
+    // If redirected from Android App with credentials, persist authentication locally
+    if (isAppAuth || (shopIdFromUrl && workerIdFromUrl)) {
+        localStorage.setItem('isWorkerLoggedIn', 'true');
+        if (workerIdFromUrl) localStorage.setItem('workerId', workerIdFromUrl);
+    }
 
     if (shopIdFromUrl) {
         globalRealShopId = shopIdFromUrl;
@@ -404,7 +411,6 @@ const auth = getAuth(app);
 // Worker / Account Logout Action
 document.getElementById('logOutBtn').addEventListener('click', async () => {
     if(confirm("Do you want to log out of the Worker Portal?")) {
-        // Clear worker session storage data
         localStorage.removeItem('isWorkerLoggedIn');
         localStorage.removeItem('workerId');
         localStorage.removeItem('workerName');
@@ -426,11 +432,13 @@ async function validateWorkerSession() {
     const actionGrid = document.getElementById('actionPortalGrid');
     const userAvatar = document.getElementById('logOutBtn');
 
-    const isWorkerLoggedIn = localStorage.getItem('isWorkerLoggedIn') === 'true';
+    const urlParams = new URLSearchParams(window.location.search);
+    const isAppAuth = urlParams.get('appAuth') === 'true';
+    const isWorkerLoggedIn = localStorage.getItem('isWorkerLoggedIn') === 'true' || isAppAuth;
     const workerName = localStorage.getItem('workerName') || localStorage.getItem('workerId') || 'Worker';
 
     if (isWorkerLoggedIn) {
-        // Configure Worker UI
+        // Configure Worker UI without forcing web login redirection
         const initialLetter = workerName.charAt(0).toUpperCase();
         userAvatar.innerHTML = initialLetter;
         userAvatar.title = `Logged in as Worker: ${workerName}\nClick to logout`;
@@ -484,7 +492,7 @@ async function validateWorkerSession() {
                 actionGrid.classList.remove('hidden-portal');
             }
         } else {
-            // Unauthenticated - redirect to login page
+            // Unauthenticated - redirect to login page only when accessed externally without appAuth
             location.href = "login.html";
         }
     });
