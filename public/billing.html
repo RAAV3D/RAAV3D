@@ -8,6 +8,22 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
+                .back-btn {
+            color: white;
+            text-decoration: none;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.3s ease;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+
+        .back-btn:hover {
+            color: var(--accent-color);
+        }
         :root {
             --primary-color: #2c3e50;
             --accent-color: #3498db;
@@ -768,6 +784,9 @@
 <body>
 
     <header>
+                <button id="backToDashboard" class="back-btn" onclick="goBack()">
+            <i class="fas fa-arrow-left"></i> Back
+        </button>
         <h1><i class="fas fa-cash-register"></i> Billing Management</h1>
     </header>
 
@@ -1043,6 +1062,14 @@
         if (!shopID) {
             alert("Error: Shop ID is missing! Please navigate from the dashboard.");
             window.location.href = "myshop.html";
+        }
+                // 2. Navigation Function: Go back to previous history page
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = currentShopId ? `index.html?shopId=${currentShopId}` : 'index.html';
+            }
         }
 
         // Set hidden shop ID

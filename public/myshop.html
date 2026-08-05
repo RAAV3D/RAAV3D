@@ -2,12 +2,28 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Shop Dashboard</title>
     <!-- Link to FontAwesome for Icons/Logos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
+                .back-btn {
+            color: white;
+            text-decoration: none;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.3s ease;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+
+        .back-btn:hover {
+            color: var(--accent-color);
+        }
         /* --- 1. GLOBAL STYLES --- */
         :root {
             --primary-color: #2c3e50;
@@ -15,6 +31,7 @@
             --success-color: #27ae60;
             --warning-color: #f39c12;
             --danger-color: #e74c3c;
+            --worker-color: #9b59b6; /* Color for Worker Card */
             --bg-color: #f0f2f5;
             --card-bg: #ffffff;
             --text-color: #333;
@@ -110,7 +127,7 @@
             color: white;
         }
 
-        /* --- 3. DASHBOARD SUMMARY (Optional but useful) --- */
+        /* --- 3. DASHBOARD SUMMARY --- */
         .summary-bar {
             display: flex;
             justify-content: space-around;
@@ -139,7 +156,7 @@
             color: var(--primary-color);
         }
 
-        /* --- 4. MAIN GRID LAYOUT (The Magic Part) --- */
+        /* --- 4. MAIN GRID LAYOUT --- */
         .main-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -150,8 +167,6 @@
 
         .dashboard-grid {
             display: grid;
-            /* This line makes it responsive automatically:
-               It creates as many columns as fit, with a minimum width of 150px per button */
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 20px;
         }
@@ -207,6 +222,9 @@
         .card-reports { border-color: var(--primary-color); }
         .card-reports i { color: var(--primary-color); }
 
+        .card-worker { border-color: var(--worker-color); }
+        .card-worker i { color: var(--worker-color); }
+
         .card-settings { border-color: #95a5a6; }
         .card-settings i { color: #95a5a6; }
 
@@ -227,68 +245,61 @@
         @media (max-width: 600px) {
             .shop-name { font-size: 1.2rem; }
             .logo-img { width: 40px; height: 40px; font-size: 18px; }
-            .dashboard-grid { grid-template-columns: 1fr; } /* Force 1 column on very small phones */
+            .dashboard-grid { grid-template-columns: 1fr; }
             .shop-id-input { width: 120px; }
         }
+
         .shop-id-input[readonly] {
-    cursor: not-allowed;
-    background: rgba(255, 255, 255, 0.05); /* Slightly darker to look locked */
-    border-color: #7f8c8d; /* Greyer border */
-}
-/* Prevent zoom on inputs (iOS + mobile fix) */
-input, select, textarea {
-    font-size: 16px; /* Prevents auto zoom on focus */
-}
+            cursor: not-allowed;
+            background: rgba(255, 255, 255, 0.05);
+            border-color: #7f8c8d;
+        }
 
-/* Disable text selection zoom behavior */
-html, body {
-    touch-action: manipulation;
-    -webkit-text-size-adjust: 100%;
-}
+        /* Prevent zoom on inputs */
+        input, select, textarea {
+            font-size: 16px;
+        }
 
-/* Ensure full fit on screen */
-body {
-    overflow-x: hidden;
-}
+        html, body {
+            touch-action: manipulation;
+            -webkit-text-size-adjust: 100%;
+            overflow-x: hidden;
+        }
 
-/* Better mobile spacing */
-.main-container {
-    padding: 15px;
-}
+        .main-container {
+            padding: 15px;
+        }
 
-/* Improve card scaling on small screens */
-.dashboard-grid {
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 15px;
-}
+        .dashboard-grid {
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+        }
 
-/* Make buttons slightly compact for mobile */
-.action-card {
-    padding: 20px 10px;
-}
+        .action-card {
+            padding: 20px 10px;
+        }
 
-/* Improve icon scaling */
-.action-card i {
-    font-size: 2.2rem;
-}
+        .action-card i {
+            font-size: 2.2rem;
+        }
 
-/* Better header scaling */
-header {
-    padding: 12px;
-}
+        header {
+            padding: 12px;
+        }
 
-/* Prevent zoom double tap (extra safety) */
-* {
-    touch-action: manipulation;
-}
+        * {
+            touch-action: manipulation;
+        }
     </style>
 </head>
 <body>
 
     <!-- Header with Logo -->
     <header>
+                <button id="backToDashboard" class="back-btn" onclick="goBack()">
+            <i class="fas fa-arrow-left"></i> Back
+        </button>
         <div class="logo-container">
-            <!-- Replace 'fa-store' with your actual image tag if you have a logo file -->
             <div class="logo-img">
                 <i class="fas fa-store"></i>
             </div>
@@ -307,10 +318,10 @@ header {
     <div class="main-container">
         <div class="dashboard-grid">
             
-            <!-- 1. My Stock (First Button) -->
+            <!-- 1. My Stock -->
             <a href="mystock.html" class="action-card card-stock" id="stockLink">
                 <i class="fas fa-boxes"></i>
-                <h3>My Stock</h3>
+                <h3>Stock</h3>
                 <p>View Inventory</p>
             </a>
 
@@ -318,7 +329,7 @@ header {
             <a href="billing.html" class="action-card card-billing" id="billingLink">
                 <i class="fas fa-cash-register"></i>
                 <h3>Billing</h3>
-                <p>New Sale</p>
+                <p>Add Sale</p>
             </a>
 
             <!-- 3. Purchase Button -->
@@ -335,6 +346,13 @@ header {
                 <p>Weekly/Monthly</p>
             </a>
 
+            <!-- 5. Add Worker Button (NEW) -->
+            <a href="worker.html" class="action-card card-worker" id="workerLink">
+                <i class="fas fa-user-plus"></i>
+                <h3>Add Worker</h3>
+                <p>Manage Staff</p>
+            </a>
+
         </div>
     </div>
 
@@ -343,7 +361,7 @@ header {
     </footer>
 
     <script>
-        // Shop ID Input Element
+        // Elements
         const shopIdInput = document.getElementById('shopIdInput');
         const eyeIcon = document.getElementById('eyeIcon');
         
@@ -352,25 +370,29 @@ header {
         const billingLink = document.getElementById('billingLink');
         const purchaseLink = document.getElementById('purchaseLink');
         const reportsLink = document.getElementById('reportsLink');
+        const workerLink = document.getElementById('workerLink');
 
         // 1. Load Shop ID from URL or localStorage on page load
         window.onload = function() {
-            // Get Shop ID from URL parameter
             const urlParams = new URLSearchParams(window.location.search);
             const urlShopId = urlParams.get('shopId');
-            
-            // Get Shop ID from localStorage
             const localStorageShopId = localStorage.getItem('shopId');
             
-            // Priority: URL > localStorage > empty
             let shopId = urlShopId || localStorageShopId || '';
             
-            // Auto-fill the input field
             if (shopId) {
                 shopIdInput.value = shopId;
                 updateLinks(shopId);
             }
         };
+                // 2. Navigation Function: Go back to previous history page
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = currentShopId ? `index.html?shopId=${currentShopId}` : 'index.html';
+            }
+        }
 
         // 2. Save Shop ID to localStorage when input changes
         function saveShopId() {
@@ -386,6 +408,7 @@ header {
                 billingLink.href = `billing.html?shopId=${shopId}`;
                 purchaseLink.href = `purchase.html?shopId=${shopId}`;
                 reportsLink.href = `reports.html?shopId=${shopId}`;
+                workerLink.href = `worker.html?shopId=${shopId}`;
             }
         }
 

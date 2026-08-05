@@ -71,31 +71,6 @@ body {
     gap: 12px;
     align-items: center;
 }
-.nav-btn {
-    padding: 8px 20px;
-    border: 1px solid rgba(255,255,255,0.4);
-    border-radius: 4px;
-    background: transparent;
-    color: #ffffff;
-    font-weight: 600;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-decoration: none;
-}
-.nav-btn.primary {
-    background-color: #ffffff;
-    color: #243b53;
-    border: 1px solid #ffffff;
-}
-.nav-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-}
-.nav-btn.primary:hover {
-    background-color: #f0f3f6;
-    color: #1b2d40;
-}
 
 .user-avatar {
     width: 38px;
@@ -107,14 +82,15 @@ body {
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 1rem;
+    font-size: 1.1rem;
     text-transform: uppercase;
     cursor: pointer;
     border: 2px solid rgba(255,255,255,0.2);
-    transition: transform 0.2s ease;
+    transition: transform 0.2s ease, background-color 0.2s ease;
 }
 .user-avatar:hover {
     transform: scale(1.05);
+    background: #ffffff;
 }
 
 .main-wrapper {
@@ -122,11 +98,11 @@ body {
     max-width: 1200px;
     text-align: center;
     margin: auto 0;
-    padding: 60px 20px;
+    padding: 40px 20px;
 }
 
 .shop-meta-row {
-    margin-bottom: 40px;
+    margin-bottom: 30px;
 }
 .shop-display-box {
     display: inline-flex;
@@ -159,8 +135,8 @@ body {
 
 .portal-grid {
     display: flex;
-    flex-direction: row;
-    gap: 25px;
+    flex-wrap: wrap;
+    gap: 20px;
     justify-content: center;
     align-items: center;
     width: 100%;
@@ -187,9 +163,9 @@ body {
     background: #ffffff;
     border: 1px solid #e4e7eb;
     border-radius: 16px;
-    padding: 35px 25px;
-    width: 280px;
-    min-height: 180px;
+    padding: 30px 20px;
+    width: 220px;
+    min-height: 170px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -208,7 +184,8 @@ body {
 }
 .portal-action-panel.v-3d::before { background-color: #9c27b0; }
 .portal-action-panel.v-2d::before { background-color: #e91e63; }
-.portal-action-panel.v-inventory::before { background-color: #2196f3; }
+.portal-action-panel.v-mystock::before { background-color: #2196f3; }
+.portal-action-panel.v-billing::before { background-color: #ff9800; }
 .portal-action-panel.v-quotation::before { background-color: #009688; }
 
 .portal-action-panel:hover {
@@ -218,12 +195,13 @@ body {
 
 .panel-icon-container {
     font-size: 2.2rem;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
     transition: transform 0.2s ease;
 }
 .portal-action-panel.v-3d .panel-icon-container { color: #9c27b0; }
 .portal-action-panel.v-2d .panel-icon-container { color: #e91e63; }
-.portal-action-panel.v-inventory .panel-icon-container { color: #2196f3; }
+.portal-action-panel.v-mystock .panel-icon-container { color: #2196f3; }
+.portal-action-panel.v-billing .panel-icon-container { color: #ff9800; }
 .portal-action-panel.v-quotation .panel-icon-container { color: #009688; }
 
 .portal-action-panel:hover .panel-icon-container {
@@ -231,10 +209,10 @@ body {
 }
 
 .panel-title {
-    font-size: 1.35rem;
+    font-size: 1.25rem;
     font-weight: 700;
     color: #102a43;
-    margin-bottom: 5px;
+    margin-bottom: 4px;
 }
 .panel-subtitle {
     font-size: 0.85rem;
@@ -247,15 +225,12 @@ body {
 .footer-link { color: #627d98; text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
 .footer-link:hover { color: #243b53; }
 
-@media (max-width: 992px) {
-    .portal-grid { flex-wrap: wrap; }
-}
-@media (max-width: 768px) {
-    .app-header { padding: 15px 20px; }
-    .brand-title-text { font-size: 1.2rem; }
-    .main-wrapper { padding: 40px 15px; }
-    .portal-grid { flex-direction: column; width: 100%; gap: 20px; }
-    .portal-action-panel { width: 100%; max-width: 340px; min-height: 160px; padding: 25px 20px; }
+/* 📱 Mobile Automatic Scale-to-Fit Viewport Fix */
+@media screen and (max-width: 768px) {
+    html {
+        /* Automatically shrinks the desktop layout down to fit small mobile screens */
+        zoom: 80%; 
+    }
 }
 </style>
 </head>
@@ -266,16 +241,21 @@ body {
         <img src="/images/weblogo.png" alt="Mera-Tile Logo" class="brand-logo-img">
         <div class="brand-title-text">Mera-Tile</div>
     </div>
-    <div class="top-nav" id="topNavActions"></div>
+    <div class="top-nav" id="topNavActions">
+        <div class="user-avatar" id="logOutBtn" title="Account / Logout">
+            <i class="fas fa-user"></i>
+        </div>
+    </div>
 </header>
 
 <div class="main-wrapper">
+    <!-- Active Shop ID Display Banner -->
     <div class="shop-meta-row">
         <div class="shop-display-box" id="shopIdDisplayContainer" style="display: none;">
             <i class="fas fa-building"></i> Active Shop ID: 
-            <span id="maskedShopId">******</span>
+            <span id="maskedShopId">------</span>
             <button class="view-shop-id-btn" id="toggleShopIdBtn" onclick="toggleShopIdVisibility()">
-                <i class="fas fa-eye" id="shopIdEyeIcon"></i>
+                <i class="fas fa-eye-slash" id="shopIdEyeIcon"></i>
             </button>
         </div>
     </div>
@@ -297,10 +277,16 @@ body {
             <div class="panel-subtitle">2D Visualizer</div>
         </div>
 
-        <div class="portal-action-panel v-inventory" id="inventoryPanel" onclick="handleLiveInventoryClick()">
+        <div class="portal-action-panel v-mystock" onclick="handleMyStockClick()">
             <div class="panel-icon-container"><i class="fas fa-boxes-stacked"></i></div>
-            <div class="panel-title">My Shop</div>
+            <div class="panel-title">My Stock</div>
             <div class="panel-subtitle">View Inventory</div>
+        </div>
+
+        <div class="portal-action-panel v-billing" onclick="handleBillingClick()">
+            <div class="panel-icon-container"><i class="fas fa-receipt"></i></div>
+            <div class="panel-title">Billing</div>
+            <div class="panel-subtitle">Invoices & Payment</div>
         </div>
 
         <div class="portal-action-panel v-quotation" id="quotationPanel" onclick="handleQuotationClick()">
@@ -322,59 +308,78 @@ body {
 
 <script>
 let globalRealShopId = "";
-let isShopIdVisible = false;
-let isUserLoggedIn = false;
+let isShopIdVisible = true;
 
-function goToLogin(){location.href="login.html?redirect=index.html"}
-function goToRegister(){location.href="register.html"}
+// Extract shopId immediately on page init
+(function initShopId() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const shopIdFromUrl = urlParams.get('shopId');
+    const shopIdFromStorage = localStorage.getItem('shopId');
+
+    if (shopIdFromUrl) {
+        globalRealShopId = shopIdFromUrl;
+        localStorage.setItem('shopId', shopIdFromUrl);
+    } else if (shopIdFromStorage) {
+        globalRealShopId = shopIdFromStorage;
+    }
+})();
+
+function showShopIdInUI() {
+    if (!globalRealShopId) return;
+    const container = document.getElementById('shopIdDisplayContainer');
+    if (container) container.style.display = "inline-flex";
+    updateShopIdUI();
+}
 
 function handle3DVisualizerClick() {
-    if (isUserLoggedIn && globalRealShopId) {
-        location.href = "3D_view.html?shopId=" + globalRealShopId;
-    } else {
-        location.href = "3D_view.html";
-    }
+    const targetShopId = globalRealShopId || localStorage.getItem('shopId');
+    location.href = targetShopId ? "3D_view.html?shopId=" + encodeURIComponent(targetShopId) : "3D_view.html";
 }
 
 function handle2DVisualizerClick() {
-    if (isUserLoggedIn && globalRealShopId) {
-        location.href = "2D_view.html?shopId=" + globalRealShopId;
-    } else {
-        location.href = "2D_view.html";
-    }
+    const targetShopId = globalRealShopId || localStorage.getItem('shopId');
+    location.href = targetShopId ? "2D_view.html?shopId=" + encodeURIComponent(targetShopId) : "2D_view.html";
 }
 
-function handleLiveInventoryClick() {
-    if (isUserLoggedIn && globalRealShopId) {
-        location.href = "myshop.html?shopId=" + globalRealShopId;
-    } else {
-        location.href = "login.html?redirect=index.html";
-    }
+function handleMyStockClick() {
+    const targetShopId = globalRealShopId || localStorage.getItem('shopId');
+    location.href = targetShopId ? "mystock.html?shopId=" + encodeURIComponent(targetShopId) : "mystock.html";
+}
+
+function handleBillingClick() {
+    const targetShopId = globalRealShopId || localStorage.getItem('shopId');
+    location.href = targetShopId ? "billing.html?shopId=" + encodeURIComponent(targetShopId) : "billing.html";
 }
 
 function handleQuotationClick() {
-    if (isUserLoggedIn && globalRealShopId) {
-        location.href = "quotation.html?shopId=" + globalRealShopId;
+    const targetShopId = globalRealShopId || localStorage.getItem('shopId');
+    location.href = targetShopId ? "quotation.html?shopId=" + encodeURIComponent(targetShopId) : "quotation.html";
+}
+
+function updateShopIdUI() {
+    const textEl = document.getElementById('maskedShopId');
+    const iconEl = document.getElementById('shopIdEyeIcon');
+    if (!globalRealShopId || !textEl || !iconEl) return;
+
+    if (isShopIdVisible) {
+        textEl.textContent = globalRealShopId;
+        iconEl.className = "fas fa-eye-slash";
     } else {
-        location.href = "login.html?redirect=index.html";
+        textEl.textContent = "******";
+        iconEl.className = "fas fa-eye";
     }
 }
 
 function toggleShopIdVisibility() {
-    const textEl = document.getElementById('maskedShopId');
-    const iconEl = document.getElementById('shopIdEyeIcon');
-    if(!globalRealShopId) return;
-    
-    if(isShopIdVisible) {
-        textEl.textContent = "******";
-        iconEl.className = "fas fa-eye";
-        isShopIdVisible = false;
-    } else {
-        textEl.textContent = globalRealShopId;
-        iconEl.className = "fas fa-eye-slash";
-        isShopIdVisible = true;
-    }
+    isShopIdVisible = !isShopIdVisible;
+    updateShopIdUI();
 }
+
+window.addEventListener('DOMContentLoaded', () => {
+    if (globalRealShopId) {
+        showShopIdInUI();
+    }
+});
 </script>
 
 <script type="module">
@@ -396,11 +401,19 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
 
+document.getElementById('logOutBtn').addEventListener('click', () => {
+    if(confirm("Do you want to sign out?")) {
+        signOut(auth).then(() => { 
+            localStorage.clear(); 
+            location.href = "login.html"; 
+        });
+    }
+});
+
 onAuthStateChanged(auth, async (user) => {
-    const topNav = document.getElementById('topNavActions');
-    const shopContainer = document.getElementById('shopIdDisplayContainer');
     const loadingState = document.getElementById('portalLoadingState');
     const actionGrid = document.getElementById('actionPortalGrid');
+    const userAvatar = document.getElementById('logOutBtn');
             
     if (user && user.email === 'trsenterprises148@gmail.com') {
         alert("Access restricted for this account.");
@@ -408,35 +421,20 @@ onAuthStateChanged(auth, async (user) => {
         location.reload();
         return;
     }
-    if (user) {
-        isUserLoggedIn = true;
-        const initialLetter = user.email ? user.email.charAt(0).toUpperCase() : '?';
-        topNav.innerHTML = `<div class="user-avatar" id="logOutBtn" title="Logout: ${user.email}">${initialLetter}</div>`;
-        
-        document.getElementById('logOutBtn').addEventListener('click', () => {
-            if(confirm("Do you want to sign out?")) {
-                signOut(auth).then(() => { localStorage.clear(); location.reload(); });
-            }
-        });
 
-        const cachedShopId = localStorage.getItem('shopId');
-        if (cachedShopId) {
-            globalRealShopId = cachedShopId;
-            shopContainer.style.display = "inline-flex";
-            document.getElementById('maskedShopId').textContent = "******";
-            
-            loadingState.style.display = "none";
-            actionGrid.classList.remove('hidden-portal');
-        }
+    if (user) {
+        const initialLetter = user.email ? user.email.charAt(0).toUpperCase() : 'U';
+        userAvatar.innerHTML = initialLetter;
+        userAvatar.title = `Logged in as: ${user.email}\nClick to logout`;
 
         try {
             const usersRef = ref(db, 'users');
             const snapshot = await get(usersRef);
-            if(snapshot.exists()){
+            if (snapshot.exists()) {
                 let foundShopId = "";
                 snapshot.forEach(child => {
                     const data = child.val();
-                    if(data.uid === user.uid) {
+                    if (data.uid === user.uid && data.shopId) {
                         foundShopId = data.shopId;
                     }
                 });
@@ -444,28 +442,20 @@ onAuthStateChanged(auth, async (user) => {
                 if (foundShopId) {
                     globalRealShopId = foundShopId;
                     localStorage.setItem('shopId', globalRealShopId);
-                    
-                    shopContainer.style.display = "inline-flex";
-                    if (!isShopIdVisible) {
-                        document.getElementById('maskedShopId').textContent = "******";
-                    } else {
-                        document.getElementById('maskedShopId').textContent = globalRealShopId;
-                    }
+                    showShopIdInUI();
                 }
             }
-        } catch(e) { console.error(e); } finally {
+        } catch(e) { 
+            console.error("Error retrieving shop ID:", e); 
+        } finally {
+            if (globalRealShopId) showShopIdInUI();
             loadingState.style.display = "none";
             actionGrid.classList.remove('hidden-portal');
         }
     } else {
-        isUserLoggedIn = false;
-        topNav.innerHTML = `
-            <button class="nav-btn" onclick="goToLogin()">Sign In</button>
-            <button class="nav-btn primary" onclick="goToRegister()">Sign Up</button>
-        `;
-        shopContainer.style.display = "none";
-        globalRealShopId = "";
-        localStorage.clear();
+        if (globalRealShopId) {
+            showShopIdInUI();
+        }
         loadingState.style.display = "none";
         actionGrid.classList.remove('hidden-portal');
     }

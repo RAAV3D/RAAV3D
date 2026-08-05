@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worker Management - My Shop</title>
+    
+    <!-- Link to FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDKs (v8 compatibility mode) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <style>
+        /* --- 1. GLOBAL STYLES --- */
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --success-color: #27ae60;
+            --danger-color: #e74c3c;
+            --worker-color: #9b59b6;
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-color: #333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            touch-action: manipulation;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        /* --- 2. HEADER --- */
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 15px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .back-btn {
+            color: white;
+            text-decoration: none;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.3s ease;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+
+        .back-btn:hover {
+            color: var(--accent-color);
+        }
+
+        .header-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .shop-badge {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid var(--accent-color);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+        }
+
+        /* --- 3. MAIN CONTAINER & CONTROLS --- */
+        .main-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            width: 100%;
+            flex: 1;
+        }
+
+        .top-action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .add-worker-btn {
+            background-color: var(--worker-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 10px rgba(155, 89, 182, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .add-worker-btn:hover {
+            background-color: #8e44ad;
+            transform: translateY(-2px);
+        }
+
+        /* --- 4. WORKER CARDS DISPLAY GRID --- */
+        .workers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .worker-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-top: 5px solid var(--worker-color);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+        }
+
+        .worker-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .worker-card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 12px;
+        }
+
+        .avatar-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #f0e6f6;
+            color: var(--worker-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+
+        .worker-info h3 {
+            font-size: 1.1rem;
+            color: var(--primary-color);
+        }
+
+        .worker-info p {
+            font-size: 0.85rem;
+            color: #777;
+        }
+
+        .worker-card-body {
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #555;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .delete-card-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: var(--danger-color);
+            font-size: 1.1rem;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .delete-card-btn:hover {
+            opacity: 1;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 12px;
+            color: #888;
+            grid-column: 1 / -1;
+        }
+
+        /* --- 5. POPUP MODAL STYLES --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 15px;
+        }
+
+        .modal-container {
+            background: white;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .close-modal-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.3rem;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .form-control:focus {
+            border-color: var(--worker-color);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 70px;
+        }
+
+        .password-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            cursor: pointer;
+            color: #777;
+        }
+
+        .save-btn {
+            background-color: var(--worker-color);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .save-btn:hover {
+            background-color: #8e44ad;
+        }
+
+        /* --- 6. DETAIL DISPLAY MODAL --- */
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 0.95rem;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: #666;
+        }
+
+        .detail-value {
+            color: #333;
+            text-align: right;
+            max-width: 65%;
+            word-break: break-word;
+        }
+
+        /* --- 7. FOOTER --- */
+        footer {
+            text-align: center;
+            padding: 15px;
+            background-color: #e0e0e0;
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <button id="backToDashboard" class="back-btn" onclick="goBack()">
+            <i class="fas fa-arrow-left"></i> Back
+        </button>
+        <div class="header-title">Worker Management</div>
+        <div class="shop-badge">
+            Shop ID: <span id="shopIdDisplay">Loading...</span>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-container">
+
+        <div class="top-action-bar">
+            <h2 style="font-size: 1.3rem; color: var(--primary-color);">Worker Directory</h2>
+            <button class="add-worker-btn" onclick="openAddModal()">
+                <i class="fas fa-user-plus"></i> Add Worker
+            </button>
+        </div>
+
+        <!-- Workers Display Grid -->
+        <div class="workers-grid" id="workersGrid">
+            <!-- Cards loaded dynamically from Firebase -->
+        </div>
+
+    </div>
+
+    <!-- ADD WORKER CONTAINER / MODAL -->
+    <div class="modal-overlay" id="addModalOverlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-plus"></i> Add New Worker</h3>
+                <button class="close-modal-btn" onclick="closeAddModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addWorkerForm">
+                    <div class="form-group">
+                        <label for="workerId">Worker ID (4 Characters) *</label>
+                        <input type="text" id="workerId" class="form-control" placeholder="e.g. W101" maxlength="4" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="workerPassword">Worker Password (4 Characters) *</label>
+                        <div class="password-input-wrapper">
+                            <input type="password" id="workerPassword" class="form-control" placeholder="4 letters or numbers" maxlength="4" required>
+                            <i class="fas fa-eye toggle-password" id="togglePassIcon" onclick="togglePasswordVisibility()"></i>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="workerName">Worker Full Name *</label>
+                        <input type="text" id="workerName" class="form-control" placeholder="e.g. John Doe" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="workerMobile">Mobile Number (10 Digits) *</label>
+                        <input type="tel" id="workerMobile" class="form-control" placeholder="e.g. 9876543210" maxlength="10" inputmode="numeric" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="workerAddress">Address *</label>
+                        <textarea id="workerAddress" class="form-control" placeholder="Enter full address..." required></textarea>
+                    </div>
+
+                    <button type="submit" class="save-btn">
+                        <i class="fas fa-save"></i> Save Worker Data
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIEW WORKER DETAILS MODAL -->
+    <div class="modal-overlay" id="viewModalOverlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3><i class="fas fa-id-card"></i> Worker Details</h3>
+                <button class="close-modal-btn" onclick="closeViewModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-row">
+                    <span class="detail-label">Worker ID:</span>
+                    <span class="detail-value" id="viewId">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Full Name:</span>
+                    <span class="detail-value" id="viewName">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Mobile Number:</span>
+                    <span class="detail-value" id="viewMobile">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Password:</span>
+                    <span class="detail-value" id="viewPassword">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Address:</span>
+                    <span class="detail-value" id="viewAddress">-</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2023 My Shop Management System
+    </footer>
+
+    <script>
+        // 1. Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDLwU2O2MQA3SWSlbw9Wa75_KByQ0EkZI8",
+            authDomain: "raav3d-50f8c.firebaseapp.com",
+            databaseURL: "https://raav3d-50f8c-default-rtdb.firebaseio.com",
+            projectId: "raav3d-50f8c",
+            storageBucket: "raav3d-50f8c.firebasestorage.app",
+            messagingSenderId: "528524618407",
+            appId: "1:528524618407:web:acb2c4fca0dcadd7934982"
+        };
+
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const database = firebase.database();
+
+        let currentShopId = '';
+
+        // 2. Navigation Function: Go back to previous history page
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = currentShopId ? `index.html?shopId=${currentShopId}` : 'index.html';
+            }
+        }
+
+        // 3. Real-time Input Validation Filters
+        document.getElementById('workerId').addEventListener('input', function() {
+            this.value = this.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 4);
+        });
+
+        document.getElementById('workerPassword').addEventListener('input', function() {
+            this.value = this.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 4);
+        });
+
+        document.getElementById('workerMobile').addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);
+        });
+
+        // 4. Initialize Page
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlShopId = urlParams.get('shopId');
+            const localStorageShopId = localStorage.getItem('shopId');
+            
+            currentShopId = urlShopId || localStorageShopId || '';
+
+            const shopIdDisplay = document.getElementById('shopIdDisplay');
+
+            if (currentShopId) {
+                shopIdDisplay.textContent = currentShopId;
+                listenToWorkersData();
+            } else {
+                shopIdDisplay.textContent = 'Not Found';
+                document.getElementById('workersGrid').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: #e74c3c; margin-bottom: 10px;"></i>
+                        <p>No Shop ID found. Please set your Shop ID on the dashboard home screen.</p>
+                    </div>
+                `;
+            }
+        };
+
+        // 5. Realtime Listener from Firebase Database: shops/[shopId]/worker
+        function listenToWorkersData() {
+            const workersRef = database.ref('shops/' + currentShopId + '/worker');
+            
+            workersRef.on('value', (snapshot) => {
+                const workersGrid = document.getElementById('workersGrid');
+                workersGrid.innerHTML = '';
+
+                const data = snapshot.val();
+
+                if (!data) {
+                    workersGrid.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-users-slash" style="font-size: 2.5rem; margin-bottom: 10px; color: #bbb;"></i>
+                            <p>No workers added yet for Shop ID: <strong>${escapeHtml(currentShopId)}</strong>.</p>
+                            <p style="font-size: 0.85rem; color: #aaa; margin-top: 5px;">Click "Add Worker" to create your first worker record.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                Object.keys(data).forEach((key) => {
+                    const worker = data[key];
+                    const workerId = key;
+
+                    const card = document.createElement('div');
+                    card.className = 'worker-card';
+                    card.onclick = (e) => {
+                        if (!e.target.closest('.delete-card-btn')) {
+                            openViewModal(workerId, worker);
+                        }
+                    };
+
+                    card.innerHTML = `
+                        <button class="delete-card-btn" onclick="deleteWorker('${escapeHtml(workerId)}')" title="Delete Worker">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                        <div class="worker-card-header">
+                            <div class="avatar-circle">${escapeHtml(worker.name ? worker.name.charAt(0).toUpperCase() : 'W')}</div>
+                            <div class="worker-info">
+                                <h3>${escapeHtml(worker.name || 'Unnamed')}</h3>
+                                <p>ID: <strong>${escapeHtml(workerId)}</strong></p>
+                            </div>
+                        </div>
+                        <div class="worker-card-body">
+                            <div><i class="fas fa-phone" style="width: 20px; color: var(--worker-color);"></i> ${escapeHtml(worker.mobile || 'N/A')}</div>
+                            <div><i class="fas fa-map-marker-alt" style="width: 20px; color: var(--worker-color);"></i> ${escapeHtml(worker.address || 'No address provided')}</div>
+                        </div>
+                    `;
+
+                    workersGrid.appendChild(card);
+                });
+            });
+        }
+
+        // 6. Form Submit: Validate & Save Data to Firebase
+        document.getElementById('addWorkerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (!currentShopId) {
+                alert('Shop ID is missing!');
+                return;
+            }
+
+            const id = document.getElementById('workerId').value.trim();
+            const password = document.getElementById('workerPassword').value.trim();
+            const name = document.getElementById('workerName').value.trim();
+            const mobile = document.getElementById('workerMobile').value.trim();
+            const address = document.getElementById('workerAddress').value.trim();
+
+            // Strict Validation Checks
+            if (id.length !== 4) {
+                alert('Worker ID must be exactly 4 letters or numbers.');
+                return;
+            }
+
+            if (password.length !== 4) {
+                alert('Worker Password must be exactly 4 letters or numbers.');
+                return;
+            }
+
+            if (!name) {
+                alert('Please enter Worker Full Name.');
+                return;
+            }
+
+            if (mobile.length !== 10 || !/^\d{10}$/.test(mobile)) {
+                alert('Mobile Number must be exactly 10 digits.');
+                return;
+            }
+
+            if (!address) {
+                alert('Address is required. Please enter worker address.');
+                return;
+            }
+
+            // Save to Firebase Path: shops -> [currentShopId] -> worker -> [id]
+            const workerRef = database.ref('shops/' + currentShopId + '/worker/' + id);
+
+            workerRef.set({
+                password: password,
+                name: name,
+                mobile: mobile,
+                address: address
+            }, (error) => {
+                if (error) {
+                    alert('Failed to save worker data: ' + error.message);
+                } else {
+                    alert('Worker added successfully!');
+                    document.getElementById('addWorkerForm').reset();
+                    closeAddModal();
+                }
+            });
+        });
+
+        // 7. Delete Worker Record from Firebase
+        function deleteWorker(workerId) {
+            if (confirm(`Are you sure you want to delete worker "${workerId}"?`)) {
+                database.ref('shops/' + currentShopId + '/worker/' + workerId).remove()
+                    .then(() => {
+                        alert('Worker removed successfully.');
+                    })
+                    .catch((error) => {
+                        alert('Error deleting worker: ' + error.message);
+                    });
+            }
+        }
+
+        // 8. Modal Control Functions
+        function openAddModal() {
+            document.getElementById('addModalOverlay').style.display = 'flex';
+        }
+
+        function closeAddModal() {
+            document.getElementById('addModalOverlay').style.display = 'none';
+        }
+
+        function openViewModal(id, data) {
+            document.getElementById('viewId').textContent = id;
+            document.getElementById('viewName').textContent = data.name || 'N/A';
+            document.getElementById('viewMobile').textContent = data.mobile || 'N/A';
+            document.getElementById('viewPassword').textContent = data.password || 'N/A';
+            document.getElementById('viewAddress').textContent = data.address || 'N/A';
+            document.getElementById('viewModalOverlay').style.display = 'flex';
+        }
+
+        function closeViewModal() {
+            document.getElementById('viewModalOverlay').style.display = 'none';
+        }
+
+        function togglePasswordVisibility() {
+            const passInput = document.getElementById('workerPassword');
+            const icon = document.getElementById('togglePassIcon');
+
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return String(text)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
