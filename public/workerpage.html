@@ -184,8 +184,7 @@ body {
 }
 .portal-action-panel.v-3d::before { background-color: #9c27b0; }
 .portal-action-panel.v-2d::before { background-color: #e91e63; }
-.portal-action-panel.v-mystock::before { background-color: #2196f3; }
-.portal-action-panel.v-billing::before { background-color: #ff9800; }
+.portal-action-panel.v-myshop::before { background-color: #2196f3; }
 .portal-action-panel.v-quotation::before { background-color: #009688; }
 
 .portal-action-panel:hover {
@@ -200,8 +199,7 @@ body {
 }
 .portal-action-panel.v-3d .panel-icon-container { color: #9c27b0; }
 .portal-action-panel.v-2d .panel-icon-container { color: #e91e63; }
-.portal-action-panel.v-mystock .panel-icon-container { color: #2196f3; }
-.portal-action-panel.v-billing .panel-icon-container { color: #ff9800; }
+.portal-action-panel.v-myshop .panel-icon-container { color: #2196f3; }
 .portal-action-panel.v-quotation .panel-icon-container { color: #009688; }
 
 .portal-action-panel:hover .panel-icon-container {
@@ -276,16 +274,10 @@ body {
             <div class="panel-subtitle">2D Visualizer</div>
         </div>
 
-        <div class="portal-action-panel v-mystock" onclick="handleMyStockClick()">
-            <div class="panel-icon-container"><i class="fas fa-boxes-stacked"></i></div>
-            <div class="panel-title">My Stock</div>
+        <div class="portal-action-panel v-myshop" onclick="handleMyShopClick()">
+            <div class="panel-icon-container"><i class="fas fa-store"></i></div>
+            <div class="panel-title">My Shop</div>
             <div class="panel-subtitle">View Inventory</div>
-        </div>
-
-        <div class="portal-action-panel v-billing" onclick="handleBillingClick()">
-            <div class="panel-icon-container"><i class="fas fa-receipt"></i></div>
-            <div class="panel-title">Billing</div>
-            <div class="panel-subtitle">Invoices & Payment</div>
         </div>
 
         <div class="portal-action-panel v-quotation" id="quotationPanel" onclick="handleQuotationClick()">
@@ -348,14 +340,9 @@ function handle2DVisualizerClick() {
     location.href = targetShopId ? "2D_view.html?shopId=" + encodeURIComponent(targetShopId) : "2D_view.html";
 }
 
-function handleMyStockClick() {
+function handleMyShopClick() {
     const targetShopId = globalRealShopId || localStorage.getItem('shopId');
-    location.href = targetShopId ? "workerstock.html?shopId=" + encodeURIComponent(targetShopId) : "workerstock.html";
-}
-
-function handleBillingClick() {
-    const targetShopId = globalRealShopId || localStorage.getItem('shopId');
-    location.href = targetShopId ? "billing.html?shopId=" + encodeURIComponent(targetShopId) : "billing.html";
+    location.href = targetShopId ? "workermyshop.html?shopId=" + encodeURIComponent(targetShopId) : "workermyshop.html";
 }
 
 function handleQuotationClick() {

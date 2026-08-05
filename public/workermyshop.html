@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worker My Shop Dashboard</title>
+    <!-- Link to FontAwesome for Icons/Logos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        .back-btn {
+            color: white;
+            text-decoration: none;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.3s ease;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+
+        .back-btn:hover {
+            color: var(--accent-color);
+        }
+
+        /* --- 1. GLOBAL STYLES --- */
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-color: #333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- 2. HEADER & LOGO --- */
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .logo-img {
+            width: 50px;
+            height: 50px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--primary-color);
+            border: 2px solid var(--accent-color);
+        }
+
+        .shop-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        /* Shop ID Input Section */
+        .shop-id-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+
+        .shop-id-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid var(--accent-color);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 1rem;
+            width: 150px;
+            text-align: center;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .shop-id-input:focus {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 10px var(--accent-color);
+        }
+
+        .eye-icon {
+            cursor: pointer;
+            color: var(--accent-color);
+            font-size: 1.2rem;
+            transition: color 0.3s ease;
+        }
+
+        .eye-icon:hover {
+            color: white;
+        }
+
+        /* --- 3. MAIN GRID LAYOUT --- */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            width: 100%;
+            flex: 1;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        /* --- 4. BUTTON CARDS --- */
+        .action-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px 15px;
+            text-align: center;
+            text-decoration: none;
+            color: var(--text-color);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            border-top: 5px solid transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .action-card i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .action-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .action-card p {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        /* Specific Colors for Buttons */
+        .card-stock { border-color: var(--accent-color); }
+        .card-stock i { color: var(--accent-color); }
+
+        .card-billing { border-color: var(--success-color); }
+        .card-billing i { color: var(--success-color); }
+
+        /* --- 5. FOOTER --- */
+        footer {
+            text-align: center;
+            padding: 15px;
+            background-color: #e0e0e0;
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: auto;
+        }
+
+        /* --- 6. MOBILE TWEAKS --- */
+        @media (max-width: 600px) {
+            .shop-name { font-size: 1.2rem; }
+            .logo-img { width: 40px; height: 40px; font-size: 18px; }
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .shop-id-input { width: 120px; }
+        }
+
+        .shop-id-input[readonly] {
+            cursor: not-allowed;
+            background: rgba(255, 255, 255, 0.05);
+            border-color: #7f8c8d;
+        }
+
+        /* Prevent zoom on inputs */
+        input, select, textarea {
+            font-size: 16px;
+        }
+
+        html, body {
+            touch-action: manipulation;
+            -webkit-text-size-adjust: 100%;
+            overflow-x: hidden;
+        }
+
+        .main-container {
+            padding: 15px;
+        }
+
+        .dashboard-grid {
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+        }
+
+        .action-card {
+            padding: 20px 10px;
+        }
+
+        .action-card i {
+            font-size: 2.2rem;
+        }
+
+        header {
+            padding: 12px;
+        }
+
+        * {
+            touch-action: manipulation;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header with Logo -->
+    <header>
+        <button id="backToDashboard" class="back-btn" onclick="goBack()">
+            <i class="fas fa-arrow-left"></i> Back
+        </button>
+        <div class="logo-container">
+            <div class="logo-img">
+                <i class="fas fa-store"></i>
+            </div>
+            <div class="shop-name">My Shop</div>
+        </div>
+        
+        <!-- Shop ID Input Section -->
+        <div class="shop-id-container">
+            <label style="font-size: 0.9rem; margin-right: 5px;">Shop ID:</label>
+            <input type="password" id="shopIdInput" class="shop-id-input" placeholder="Shop ID" readonly>
+            <i class="fas fa-eye eye-icon" id="eyeIcon" onclick="toggleShopIdVisibility()"></i>
+        </div>
+    </header>
+
+    <!-- Main Dashboard Area -->
+    <div class="main-container">
+        <div class="dashboard-grid">
+            
+            <!-- 1. My Stock -->
+            <a href="workerstock.html" class="action-card card-stock" id="stockLink">
+                <i class="fas fa-boxes"></i>
+                <h3>Stock</h3>
+                <p>View Inventory</p>
+            </a>
+
+            <!-- 2. Billing Button -->
+            <a href="billing.html" class="action-card card-billing" id="billingLink">
+                <i class="fas fa-cash-register"></i>
+                <h3>Billing</h3>
+                <p>Add Sale</p>
+            </a>
+
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2023 My Shop Management System
+    </footer>
+
+    <script>
+        // Elements
+        const shopIdInput = document.getElementById('shopIdInput');
+        const eyeIcon = document.getElementById('eyeIcon');
+        
+        // Links to remaining pages
+        const stockLink = document.getElementById('stockLink');
+        const billingLink = document.getElementById('billingLink');
+
+        let currentShopId = "";
+
+        // 1. Load Shop ID from URL or localStorage on page load
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlShopId = urlParams.get('shopId');
+            const localStorageShopId = localStorage.getItem('shopId');
+            
+            currentShopId = urlShopId || localStorageShopId || '';
+            
+            if (currentShopId) {
+                shopIdInput.value = currentShopId;
+                updateLinks(currentShopId);
+            }
+        };
+
+        // 2. Navigation Function: Go back to previous history page
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = currentShopId ? `workerpage.html?shopId=${currentShopId}` : 'workerpage.html';
+            }
+        }
+
+        // 3. Update remaining links with Shop ID parameter
+        function updateLinks(shopId) {
+            if (shopId) {
+                stockLink.href = `workerstock.html?shopId=${encodeURIComponent(shopId)}`;
+                billingLink.href = `billing.html?shopId=${encodeURIComponent(shopId)}`;
+            }
+        }
+
+        // 4. Toggle Shop ID Visibility
+        function toggleShopIdVisibility() {
+            if (shopIdInput.type === "password") {
+                shopIdInput.type = "text";
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                shopIdInput.type = "password";
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        }
+    </script>
+
+</body>
+</html>
