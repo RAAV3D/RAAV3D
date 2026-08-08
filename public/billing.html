@@ -779,6 +779,10 @@
 .share-btn:hover{
     background:#1e8449;
 }
+/* Utility class to hide elements inside the Android App */
+.is-android-app .share-btn {
+    display: none !important;
+}
     </style>
 </head>
 <body>
@@ -2395,6 +2399,17 @@ return newBoxes;
         <div class="bill-detail-value">₹${bill.balanceAmount.toFixed(2)}</div>
     </div>
 </div>
+
+<!-- New Payment Section inside Modal -->
+<div style="margin-top: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
+    <h4 style="margin: 0 0 10px 0; color: var(--primary-color);">Update Balance Payment</h4>
+    <div style="display: flex; gap: 10px; align-items: center;">
+        <input type="number" id="additionalPaymentInput" placeholder="Enter amount paid" min="0" step="0.01" style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px;" ${bill.balanceAmount <= 0 ? 'disabled' : ''}>
+        <button type="button" id="payBalanceBtn" onclick="payBalanceAmount('${billId}')" style="background: var(--success-color); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer;" ${bill.balanceAmount <= 0 ? 'disabled style="background: #95a5a6; cursor: not-allowed;"' : ''}>
+            <i class="fas fa-money-check-alt"></i> Save Payment
+        </button>
+    </div>
+</div>
                     
                     <div class="bill-total" style="margin-top: 20px;">
                         <div class="bill-detail-value">₹${bill.netAmount.toFixed(2)}</div>
@@ -2410,7 +2425,51 @@ return newBoxes;
         function closeBillDetail() {
             document.getElementById('billDetailModal').classList.remove('show');
         }
+// 37.1 Pay Balance Amount inside Bill Modal
+        function payBalanceAmount(billId) {
+            const inputField = document.getElementById('additionalPaymentInput');
+            const paidAmount = parseFloat(inputField.value) || 0;
 
+            if (paidAmount <= 0) {
+                alert("Please enter a valid paid amount!");
+                return;
+            }
+
+            database.ref('shops/' + shopID + '/billings/' + billId).once('value', (snapshot) => {
+                if (!snapshot.exists()) {
+                    alert("Bill not found!");
+                    return;
+                }
+
+                const bill = snapshot.val();
+                const currentBalance = bill.balanceAmount || 0;
+                const currentPaid = bill.amountPaid || 0;
+
+                if (currentBalance <= 0) {
+                    alert("This bill has no remaining balance.");
+                    return;
+                }
+
+                if (paidAmount > currentBalance) {
+                    alert(`Entered amount (₹${paidAmount}) is greater than the remaining balance (₹${currentBalance}).`);
+                    return;
+                }
+
+                const newBalance = currentBalance - paidAmount;
+                const newPaid = currentPaid + paidAmount;
+
+                // Update Firebase
+                database.ref('shops/' + shopID + '/billings/' + billId).update({
+                    balanceAmount: newBalance,
+                    amountPaid: newPaid
+                }).then(() => {
+                    alert("Balance payment updated successfully!");
+                    showBillDetail(billId); // Refresh modal content
+                }).catch((error) => {
+                    alert("Error updating payment: " + error.message);
+                });
+            });
+        }
         // 38. Search Bills
         function searchBills() {
             const searchName = document.getElementById('searchName').value.trim().toLowerCase();
@@ -2846,6 +2905,12 @@ async function shareBillAsImage() {
         link.click();
     }
 }
+document.addEventListener("DOMContentLoaded", function() {
+    // Check if running inside your Android WebView / App Bridge
+    if (window.AndroidBridge) {
+        document.body.classList.add("is-android-app");
+    }
+});
 
 </script>
 </body>
