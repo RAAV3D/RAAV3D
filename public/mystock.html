@@ -822,10 +822,6 @@
                 return;
             }
 
-<<<<<<< HEAD
-=======
-            // Confirmation alert showing old vs new details
->>>>>>> 2f6c207aa2af74b9c77c4b651f5373d33817d604
             const confirmMessage = `You are about to make changes to this size.\n\n` +
                                    `OLD DETAILS:\n` +
                                    `• Size Name: ${editingOriginalSizeName}\n` +
@@ -837,11 +833,7 @@
 
             const userConfirmed = confirm(confirmMessage);
             if (!userConfirmed) {
-<<<<<<< HEAD
                 return;
-=======
-                return; // User clicked Cancel; stop update.
->>>>>>> 2f6c207aa2af74b9c77c4b651f5373d33817d604
             }
 
             const safeNewSizeName = newSizeName.replace(/[.#$\-\[\]\/]/g, "_");
@@ -1084,7 +1076,6 @@
             const boxDifference = newBoxes - editingOriginalBoxes;
             const safeTileName = newTileName.replace(/[.#$\-\[\]\/]/g, "_");
 
-<<<<<<< HEAD
             tilesRef.once("value").then(snapshot => {
                 let exists = false;
 
@@ -1098,17 +1089,9 @@
                                 break;
                             }
                         }
-=======
-            if (safeTileName !== editingTileId) {
-                sizeRef.child('tiles/' + safeTileName).once("value").then(snapshot => {
-                    if (snapshot.exists()) {
-                        alert("Error: A tile with this new name already exists!");
-                        return;
->>>>>>> 2f6c207aa2af74b9c77c4b651f5373d33817d604
                     }
                 }
 
-<<<<<<< HEAD
                 if (exists) {
                     alert("Error: A tile with this name already exists in this size!");
                     return;
@@ -1116,9 +1099,6 @@
 
                 if (safeTileName !== editingTileId) {
                     tilesRef.child(safeTileName).set({
-=======
-                    sizeRef.child('tiles/' + safeTileName).set({
->>>>>>> 2f6c207aa2af74b9c77c4b651f5373d33817d604
                         name: newTileName,
                         boxes: newBoxes,
                         timestamp: firebase.database.ServerValue.TIMESTAMP
@@ -1134,7 +1114,6 @@
                     }).catch((error) => {
                         alert("Error updating tile: " + error.message);
                     });
-<<<<<<< HEAD
                 } else {
                     tilesRef.child(editingTileId).update({
                         name: newTileName,
@@ -1148,16 +1127,6 @@
                         alert("Tile Updated Successfully!");
                     }).catch((error) => {
                         alert("Error updating tile: " + error.message);
-=======
-                });
-            } else {
-                sizeRef.child('tiles/' + editingTileId).update({
-                    name: newTileName,
-                    boxes: newBoxes
-                }).then(() => {
-                    return sizeRef.child('totalBoxes').transaction((currentTotal) => {
-                        return (currentTotal || 0) + boxDifference;
->>>>>>> 2f6c207aa2af74b9c77c4b651f5373d33817d604
                     });
                 }
             }).catch((error) => {
