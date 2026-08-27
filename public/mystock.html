@@ -822,6 +822,7 @@
                 return;
             }
 
+            // Confirmation alert showing old vs new details
             const confirmMessage = `You are about to make changes to this size.\n\n` +
                                    `OLD DETAILS:\n` +
                                    `• Size Name: ${editingOriginalSizeName}\n` +
@@ -833,7 +834,7 @@
 
             const userConfirmed = confirm(confirmMessage);
             if (!userConfirmed) {
-                return;
+                return; // User clicked Cancel; stop update.
             }
 
             const safeNewSizeName = newSizeName.replace(/[.#$\-\[\]\/]/g, "_");
@@ -984,7 +985,7 @@
             isLoading = false;
         }
 
-        // Add Tile - STRICT DATABASE DUP CHECK
+        // Add Tile
         function addTile() {
             let tileName = document.getElementById('tileNameInput').value.trim().toUpperCase();
             const tileBoxesInput = document.getElementById('tileBoxesInput').value;
@@ -995,34 +996,17 @@
                 return;
             }
 
+            const safeTileName = tileName.replace(/[.#$\-\[\]\/]/g, "_");
             const sizeRef = database.ref('shops/' + shopID + '/credentials/' + currentSizeId);
-            const tilesRef = sizeRef.child('tiles');
+            const tileRef = sizeRef.child('tiles/' + safeTileName);
 
-            // Direct check against database across all existing items in this size
-            tilesRef.once("value").then(snapshot => {
-                let exists = false;
-
+            tileRef.once("value").then(snapshot => {
                 if (snapshot.exists()) {
-                    const existingTiles = snapshot.val();
-                    for (let key in existingTiles) {
-                        if (existingTiles[key] && existingTiles[key].name) {
-                            if (existingTiles[key].name.trim().toUpperCase() === tileName) {
-                                exists = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                if (exists) {
-                    alert("Error: This tile name already exists in this size category!");
+                    alert("Error: This tile name already exists in this size!");
                     return;
                 }
 
-                const safeTileName = tileName.replace(/[.#$\-\[\]\/]/g, "_");
-                const newTileRef = tilesRef.child(safeTileName);
-
-                newTileRef.set({
+                tileRef.set({
                     name: tileName,
                     boxes: tileBoxes,
                     timestamp: firebase.database.ServerValue.TIMESTAMP
@@ -1036,8 +1020,6 @@
                 }).catch((error) => {
                     alert("Error adding tile: " + error.message);
                 });
-            }).catch((error) => {
-                alert("Error verifying existing tiles: " + error.message);
             });
         }
 
@@ -1060,7 +1042,7 @@
             editingOriginalBoxes = 0;
         }
 
-        // Update Tile in Database - STRICT DATABASE DUP CHECK
+        // Update Tile in Database
         function updateTile() {
             let newTileName = document.getElementById('editTileNameInput').value.trim().toUpperCase();
             const newBoxesInput = document.getElementById('editTileBoxesInput').value;
@@ -1071,39 +1053,23 @@
                 return;
             }
 
-            const sizeRef = database.ref('shops/' + shopID + '/credentials/' + currentSizeId);
-            const tilesRef = sizeRef.child('tiles');
-            const boxDifference = newBoxes - editingOriginalBoxes;
             const safeTileName = newTileName.replace(/[.#$\-\[\]\/]/g, "_");
+            const sizeRef = database.ref('shops/' + shopID + '/credentials/' + currentSizeId);
+            const boxDifference = newBoxes - editingOriginalBoxes;
 
-            tilesRef.once("value").then(snapshot => {
-                let exists = false;
-
-                if (snapshot.exists()) {
-                    const existingTiles = snapshot.val();
-                    for (let key in existingTiles) {
-                        // Ignore current tile being edited
-                        if (key !== editingTileId && existingTiles[key] && existingTiles[key].name) {
-                            if (existingTiles[key].name.trim().toUpperCase() === newTileName) {
-                                exists = true;
-                                break;
-                            }
-                        }
+            if (safeTileName !== editingTileId) {
+                sizeRef.child('tiles/' + safeTileName).once("value").then(snapshot => {
+                    if (snapshot.exists()) {
+                        alert("Error: A tile with this new name already exists!");
+                        return;
                     }
-                }
 
-                if (exists) {
-                    alert("Error: A tile with this name already exists in this size!");
-                    return;
-                }
-
-                if (safeTileName !== editingTileId) {
-                    tilesRef.child(safeTileName).set({
+                    sizeRef.child('tiles/' + safeTileName).set({
                         name: newTileName,
                         boxes: newBoxes,
                         timestamp: firebase.database.ServerValue.TIMESTAMP
                     }).then(() => {
-                        return tilesRef.child(editingTileId).remove();
+                        return sizeRef.child('tiles/' + editingTileId).remove();
                     }).then(() => {
                         return sizeRef.child('totalBoxes').transaction((currentTotal) => {
                             return (currentTotal || 0) + boxDifference;
@@ -1114,24 +1080,22 @@
                     }).catch((error) => {
                         alert("Error updating tile: " + error.message);
                     });
-                } else {
-                    tilesRef.child(editingTileId).update({
-                        name: newTileName,
-                        boxes: newBoxes
-                    }).then(() => {
-                        return sizeRef.child('totalBoxes').transaction((currentTotal) => {
-                            return (currentTotal || 0) + boxDifference;
-                        });
-                    }).then(() => {
-                        closeEditTileModal();
-                        alert("Tile Updated Successfully!");
-                    }).catch((error) => {
-                        alert("Error updating tile: " + error.message);
+                });
+            } else {
+                sizeRef.child('tiles/' + editingTileId).update({
+                    name: newTileName,
+                    boxes: newBoxes
+                }).then(() => {
+                    return sizeRef.child('totalBoxes').transaction((currentTotal) => {
+                        return (currentTotal || 0) + boxDifference;
                     });
-                }
-            }).catch((error) => {
-                alert("Error checking tile existence: " + error.message);
-            });
+                }).then(() => {
+                    closeEditTileModal();
+                    alert("Tile Updated Successfully!");
+                }).catch((error) => {
+                    alert("Error updating tile: " + error.message);
+                });
+            }
         }
 
         function searchTiles() {
