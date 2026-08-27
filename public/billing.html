@@ -6,6 +6,8 @@
     <title>Return & Sales Billing - Stock Management</title>
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2pdf Library for Android WebView base64 generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
                 .back-btn {
@@ -763,21 +765,31 @@
     background-color: var(--accent-color) !important;
     color: white !important;
 }
-.download-pdf-btn{
-    background:#27ae60;
-    color:white;
-    border:none;
-    padding:8px 14px;
-    border-radius:6px;
-    cursor:pointer;
-    font-weight:500;
-    display:flex;
-    align-items:center;
-    gap:6px;
+.download-pdf-btn {
+    background: transparent;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
-.download-pdf-btn:hover{
-    background:#1e8449;
+.download-pdf-btn:hover {
+    transform: scale(1.08);
+}
+
+.download-pdf-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.download-pdf-btn img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
 }
     </style>
 </head>
@@ -1014,13 +1026,13 @@
 <div class="bill-detail-header">
     <h2 style="margin: 0; color: var(--primary-color);">Bill Details</h2>
 
-    <div style="display:flex; gap:10px;">
-        <!-- DOWNLOAD PDF BUTTON -->
-        <button type="button" class="download-pdf-btn" onclick="downloadPDF()">
-            <i class="fas fa-file-pdf"></i> Download PDF
+    <div style="display:flex; gap:10px; align-items: center;">
+        <!-- IMAGE-ONLY DOWNLOAD BUTTON -->
+        <button type="button" class="download-pdf-btn btn-download" onclick="downloadPDF()" title="Download PDF">
+            <img src="https://cdn-icons-png.flaticon.com/512/337/337946.png" alt="Download PDF">
         </button>
 
-        <!-- EXISTING CLOSE BUTTON -->
+        <!-- CLOSE BUTTON -->
         <button type="button" class="close-modal-btn" onclick="closeBillDetail()">
             <i class="fas fa-times"></i> Close
         </button>
@@ -2864,48 +2876,69 @@ window.addEventListener('DOMContentLoaded', initializePage);
     <script>
 
     // Download Bill as A4-sized PDF
-async function downloadPDF() {
-    const billElement = document.getElementById("billDetailContent");
-
-    if (!billElement) {
-        alert("Bill content not found!");
+function downloadPDF() {
+    const element = document.getElementById('billDetailContent');
+    if (!element) {
+        alert('Bill content not found!');
         return;
     }
 
-    try {
-        const canvas = await html2canvas(billElement, {
-            scale: 2,
-            useCORS: true,
-            logging: false
-        });
+    // Dynamic filename
+    const fileName = `Bill_Report_${Date.now()}.pdf`;
 
-        const imgData = canvas.toDataURL("image/jpeg", 1.0);
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF('p', 'mm', 'a4');
+    // UI Feedback: Show spinner icon on the image button during rendering
+    const btn = document.querySelector('.btn-download');
+    const originalBtnHtml = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size: 28px; color: #27ae60;"></i>';
+    btn.disabled = true;
+
+    // Temporarily reset mobile zoom for rendering full detail
+    const htmlElement = document.documentElement;
+    const previousZoom = htmlElement.style.zoom;
+    htmlElement.style.zoom = '100%';
+
+    const opt = {
+        margin: [5, 5, 5, 5],
+        filename: fileName,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+            scale: 2, 
+            useCORS: true, 
+            scrollY: 0,
+            letterRendering: true
+        },
+        jsPDF: { 
+            unit: 'mm', 
+            format: 'a4', 
+            orientation: 'portrait' 
+        },
+        pagebreak: { mode: ['css', 'legacy'] }
+    };
+
+    // Output Base64 string directly for Android WebView DownloadListener capture
+    html2pdf().set(opt).from(element).toPdf().output('datauristring').then(function (pdfBase64) {
+        // Restore mobile viewport zoom
+        htmlElement.style.zoom = previousZoom;
+
+        // Trigger base64 download link
+        const link = document.createElement('a');
+        link.href = pdfBase64;
+        link.download = fileName;
+        link.click();
         
-        const pdfWidth = pdf.internal.pageSize.getWidth(); // 210mm
-        const pdfHeight = pdf.internal.pageSize.getHeight(); // 297mm
+        // Restore original image button
+        btn.innerHTML = originalBtnHtml;
+        btn.disabled = false;
+    }).catch(err => {
+        console.error('PDF Generation Error:', err);
+        htmlElement.style.zoom = previousZoom;
         
-        const imgWidth = pdfWidth;
-        const imgHeight = (canvas.height * pdfWidth) / canvas.width;
-        
-        let heightLeft = imgHeight;
-        let position = 0;
-
-        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pdfHeight;
-
-        while (heightLeft > 0) {
-            position = heightLeft - imgHeight;
-            pdf.addPage();
-            pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-            heightLeft -= pdfHeight;
-        }
-
-        pdf.save("Bill.pdf");
-    } catch (error) {
-        alert("Error generating PDF: " + error.message);
-    }
+        btn.innerHTML = '<i class="fas fa-exclamation-triangle" style="font-size: 26px; color: #e74c3c;"></i>';
+        btn.disabled = false;
+        setTimeout(() => {
+            btn.innerHTML = originalBtnHtml;
+        }, 3000);
+    });
 }
 
 </script>
