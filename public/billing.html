@@ -763,7 +763,7 @@
     background-color: var(--accent-color) !important;
     color: white !important;
 }
-.share-btn{
+.download-pdf-btn{
     background:#27ae60;
     color:white;
     border:none;
@@ -776,7 +776,7 @@
     gap:6px;
 }
 
-.share-btn:hover{
+.download-pdf-btn:hover{
     background:#1e8449;
 }
     </style>
@@ -1015,9 +1015,9 @@
     <h2 style="margin: 0; color: var(--primary-color);">Bill Details</h2>
 
     <div style="display:flex; gap:10px;">
-        <!-- NEW SHARE BUTTON -->
-        <button type="button" class="share-btn" onclick="shareBillAsImage()">
-            <i class="fas fa-share-alt"></i> Share
+        <!-- DOWNLOAD PDF BUTTON -->
+        <button type="button" class="download-pdf-btn" onclick="downloadPDF()">
+            <i class="fas fa-file-pdf"></i> Download PDF
         </button>
 
         <!-- EXISTING CLOSE BUTTON -->
@@ -2860,10 +2860,11 @@ document.getElementById('searchMobile').addEventListener('input', function() {
 window.addEventListener('DOMContentLoaded', initializePage);
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
 
-    // all your existing functions above
-async function shareBillAsImage() {
+    // Download Bill as A4-sized PDF
+async function downloadPDF() {
     const billElement = document.getElementById("billDetailContent");
 
     if (!billElement) {
@@ -2871,34 +2872,39 @@ async function shareBillAsImage() {
         return;
     }
 
-    const canvas = await html2canvas(billElement, {
-        scale: 2,
-        useCORS: true
-    });
-
-    const imageData = canvas.toDataURL("image/jpeg", 1.0); // Base64 String
-
-    // 1. IF RUNNING INSIDE YOUR ANDROID APP
-    if (window.AndroidBridge) {
-        window.AndroidBridge.shareBase64Image(imageData, "Bill.jpg");
-        return;
-    }
-
-    // 2. IF RUNNING IN REGULAR BROWSERS
-    const blob = await (await fetch(imageData)).blob();
-    const file = new File([blob], "Bill.jpg", { type: "image/jpeg" });
-
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-            files: [file],
-            title: "Bill",
-            text: "Here is your bill"
+    try {
+        const canvas = await html2canvas(billElement, {
+            scale: 2,
+            useCORS: true,
+            logging: false
         });
-    } else {
-        const link = document.createElement("a");
-        link.href = imageData;
-        link.download = "Bill.jpg";
-        link.click();
+
+        const imgData = canvas.toDataURL("image/jpeg", 1.0);
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        
+        const pdfWidth = pdf.internal.pageSize.getWidth(); // 210mm
+        const pdfHeight = pdf.internal.pageSize.getHeight(); // 297mm
+        
+        const imgWidth = pdfWidth;
+        const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+        
+        let heightLeft = imgHeight;
+        let position = 0;
+
+        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pdfHeight;
+
+        while (heightLeft > 0) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pdfHeight;
+        }
+
+        pdf.save("Bill.pdf");
+    } catch (error) {
+        alert("Error generating PDF: " + error.message);
     }
 }
 
