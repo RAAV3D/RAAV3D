@@ -140,9 +140,10 @@
             background: var(--white);
             border-radius: 12px;
             box-shadow: var(--shadow);
-            overflow: hidden;
+            overflow: visible;
             border-top: 4px solid var(--accent-color);
             transition: all 0.3s ease;
+            position: relative;
         }
 
         /* Size Header with Dropdown Arrow */
@@ -150,6 +151,8 @@
             padding: 15px;
             background: #f8f9fa;
             border-bottom: 1px solid #eee;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
@@ -216,7 +219,6 @@
             border-bottom: none;
         }
 
-        /* Style for the serial number */
         .tile-sn {
             font-size: 0.95rem;
             font-weight: bold;
@@ -250,7 +252,6 @@
             font-size: 0.9rem;
         }
 
-        /* Very Small Edit Button */
         .btn-edit-tile {
             background: #f39c12;
             color: white;
@@ -263,7 +264,7 @@
             align-items: center;
             gap: 3px;
             transition: background 0.2s;
-            min-height: unset; /* override default button min-height */
+            min-height: unset;
             line-height: 1;
         }
 
@@ -271,7 +272,75 @@
             background: #d35400;
         }
 
-        /* Combined Total Box Pill formatting with icon only */
+        /* 3-Dot Action Menu Styling */
+        .action-menu-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .btn-dots {
+            background: transparent;
+            border: none;
+            color: #7f8c8d;
+            font-size: 1.1rem;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: unset;
+        }
+
+        .btn-dots:hover {
+            background-color: rgba(0, 0, 0, 0.08);
+            color: #2c3e50;
+        }
+
+        .size-header.active .btn-dots {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .size-header.active .btn-dots:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 110%;
+            background: #ffffff;
+            min-width: 140px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #334155;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8fafc;
+        }
+
         .total-boxes-pill {
             background: #e1f5fe;
             color: #0288d1;
@@ -337,7 +406,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.5);
-            z-index: 1000;
+            z-index: 10000;
             justify-content: center;
             align-items: center;
         }
@@ -398,50 +467,19 @@
             font-style: italic;
         }
 
-        /* Professional Green Add Button for the Header */
-        .btn-add-header {
-            background-color: #2980b9; 
-            color: white !important;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-            text-transform: none; 
-        }
-
-        .btn-add-header:hover {
-            background-color: #219150;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            transform: translateY(-1px);
-        }
-
-        .btn-add-header i {
-            font-size: 0.9rem;
-        }
-
-        /* Container to align button and arrow */
         .header-actions {
             margin-left: auto;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
         }
 
-        /* MOBILE ZOOM FIX */
         html, body {
             touch-action: manipulation;
             -webkit-text-size-adjust: 100%;
             overflow-x: hidden;
         }
 
-        /* Prevent input zoom */
         input, select, textarea {
             font-size: 16px;
         }
@@ -551,10 +589,23 @@
         <div class="modal-content">
             <div class="modal-header">Add New Size</div>
             <input type="text" id="sizeNameInput" class="modal-input" placeholder="Size Name (e.g., 2x4)" oninput="this.value = this.value.toUpperCase()">
-            <input type="number" id="sizeSqftInput" class="modal-input" placeholder="Square Feet per Box">
+            <input type="number" id="sizeSqftInput" class="modal-input" placeholder="Square Feet per Box" step="any">
             <div class="modal-buttons">
                 <button class="modal-btn btn-cancel" onclick="closeSizeModal()">Cancel</button>
                 <button class="modal-btn btn-confirm" onclick="addSize()">Add Size</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Size Modal -->
+    <div id="editSizeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Edit Size Details</div>
+            <input type="text" id="editSizeNameInput" class="modal-input" placeholder="Size Name (e.g., 2x4)" oninput="this.value = this.value.toUpperCase()">
+            <input type="number" id="editSizeSqftInput" class="modal-input" placeholder="Square Feet per Box" step="any">
+            <div class="modal-buttons">
+                <button class="modal-btn btn-cancel" onclick="closeEditSizeModal()">Cancel</button>
+                <button class="modal-btn btn-confirm" onclick="updateSize()">Save Changes</button>
             </div>
         </div>
     </div>
@@ -613,6 +664,9 @@
         }
 
         let currentSizeId = null;
+        let editingSizeId = null;
+        let editingOriginalSizeName = "";
+        let editingOriginalSqft = 0;
         let editingTileId = null;
         let editingOriginalBoxes = 0;
         let allSizesData = [];
@@ -621,6 +675,30 @@
         let currentPage = 1;
         let isLoading = false;
         let isSearching = false;
+
+        // Action Menu Helpers
+        function toggleActionMenu(event, menuId) {
+            event.stopPropagation();
+            const targetMenu = document.getElementById('menu-' + menuId);
+            const isOpen = targetMenu.classList.contains('show');
+            closeAllActionMenus();
+            if (!isOpen) {
+                targetMenu.classList.add('show');
+                const card = targetMenu.closest('.size-card');
+                if (card) {
+                    card.style.zIndex = '100';
+                }
+            }
+        }
+
+        function closeAllActionMenus() {
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                menu.classList.remove('show');
+            });
+            document.querySelectorAll('.size-card').forEach(card => {
+                card.style.zIndex = '';
+            });
+        }
 
         function toggleSize(card) {
             const sizeId = card.dataset.sizeId;
@@ -685,7 +763,7 @@
             const sizeName = document.getElementById('sizeNameInput').value.trim().toUpperCase();
             const sizeSqft = document.getElementById('sizeSqftInput').value;
 
-            if (sizeName === "" || sizeSqft === "" || sizeSqft <= 0) {
+            if (sizeName === "" || sizeSqft === "" || parseFloat(sizeSqft) <= 0) {
                 alert("Please enter valid Size Name and Square Feet!");
                 return;
             }
@@ -712,6 +790,92 @@
             }).catch((error) => {
                 alert("Error adding size: " + error.message);
             });
+        }
+
+        // Open Edit Size Modal
+        function openEditSizeModal(sizeId, sizeName, sqftPerBox) {
+            editingSizeId = sizeId;
+            editingOriginalSizeName = sizeName;
+            editingOriginalSqft = sqftPerBox;
+
+            document.getElementById('editSizeNameInput').value = sizeName;
+            document.getElementById('editSizeSqftInput').value = sqftPerBox;
+            document.getElementById('editSizeModal').style.display = 'flex';
+            document.getElementById('editSizeNameInput').focus();
+        }
+
+        function closeEditSizeModal() {
+            document.getElementById('editSizeModal').style.display = 'none';
+            editingSizeId = null;
+            editingOriginalSizeName = "";
+            editingOriginalSqft = 0;
+        }
+
+        // Update Size in Database
+        function updateSize() {
+            const newSizeName = document.getElementById('editSizeNameInput').value.trim().toUpperCase();
+            const newSqftInput = document.getElementById('editSizeSqftInput').value;
+            const newSqft = parseFloat(newSqftInput);
+
+            if (newSizeName === "" || newSqftInput === "" || isNaN(newSqft) || newSqft <= 0) {
+                alert("Please enter a valid Size Name and Square Feet!");
+                return;
+            }
+
+            const confirmMessage = `You are about to make changes to this size.\n\n` +
+                                   `OLD DETAILS:\n` +
+                                   `• Size Name: ${editingOriginalSizeName}\n` +
+                                   `• Sq.Ft / Box: ${editingOriginalSqft}\n\n` +
+                                   `NEW DETAILS:\n` +
+                                   `• Size Name: ${newSizeName}\n` +
+                                   `• Sq.Ft / Box: ${newSqft}\n\n` +
+                                   `Do you want to apply these changes?`;
+
+            const userConfirmed = confirm(confirmMessage);
+            if (!userConfirmed) {
+                return;
+            }
+
+            const safeNewSizeName = newSizeName.replace(/[.#$\-\[\]\/]/g, "_");
+            const oldRef = database.ref('shops/' + shopID + '/credentials/' + editingSizeId);
+
+            if (safeNewSizeName !== editingSizeId) {
+                const newRef = database.ref('shops/' + shopID + '/credentials/' + safeNewSizeName);
+                newRef.once("value").then(snapshot => {
+                    if (snapshot.exists()) {
+                        alert("Error: A size with this new name already exists!");
+                        return;
+                    }
+
+                    oldRef.once("value").then(oldSnapshot => {
+                        const oldData = oldSnapshot.val() || {};
+                        const updatedData = {
+                            ...oldData,
+                            name: newSizeName,
+                            sqftPerBox: newSqft
+                        };
+
+                        newRef.set(updatedData).then(() => {
+                            return oldRef.remove();
+                        }).then(() => {
+                            closeEditSizeModal();
+                            alert("Size Updated Successfully!");
+                        }).catch((error) => {
+                            alert("Error updating size: " + error.message);
+                        });
+                    });
+                });
+            } else {
+                oldRef.update({
+                    name: newSizeName,
+                    sqftPerBox: newSqft
+                }).then(() => {
+                    closeEditSizeModal();
+                    alert("Size Updated Successfully!");
+                }).catch((error) => {
+                    alert("Error updating size: " + error.message);
+                });
+            }
         }
 
         function loadSizes() {
@@ -775,7 +939,7 @@
                 const displayTotal = sizeData.totalBoxes || 0;
 
                 card.innerHTML = `
-                    <div class="size-header" onclick="if(!event.target.closest('button')) toggleSize(this.parentElement)">
+                    <div class="size-header" onclick="if(!event.target.closest('button') && !event.target.closest('.action-menu-container')) toggleSize(this.parentElement)">
                         <div class="size-title">
                             <i class="fas fa-layer-group"></i> 
                             <span>${sizeData.name}</span>
@@ -786,9 +950,19 @@
                             <span class="total-boxes-pill">
                                 <i class="fas fa-cubes"></i> ${displayTotal}
                             </span>
-                            <button class="btn-add-header" onclick="openTileModal('${sizeData.id}', '${sizeData.name}')">
-                                <i class="fas fa-plus"></i> Add Tile
-                            </button>
+                            <div class="action-menu-container">
+                                <button class="btn-dots" onclick="toggleActionMenu(event, '${sizeData.id}')">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div id="menu-${sizeData.id}" class="dropdown-menu">
+                                    <div class="dropdown-item" onclick="event.stopPropagation(); closeAllActionMenus(); openTileModal('${sizeData.id}', '${sizeData.name.replace(/'/g, "\\'")}')">
+                                        <i class="fas fa-plus" style="color: #0288d1;"></i> Add Tile
+                                    </div>
+                                    <div class="dropdown-item" onclick="event.stopPropagation(); closeAllActionMenus(); openEditSizeModal('${sizeData.id}', '${sizeData.name.replace(/'/g, "\\'")}', ${sizeData.sqftPerBox})">
+                                        <i class="fas fa-edit" style="color: #f39c12;"></i> Edit Size
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="size-body">
@@ -810,7 +984,7 @@
             isLoading = false;
         }
 
-        // Add Tile
+        // Add Tile - STRICT DATABASE DUP CHECK
         function addTile() {
             let tileName = document.getElementById('tileNameInput').value.trim().toUpperCase();
             const tileBoxesInput = document.getElementById('tileBoxesInput').value;
@@ -821,17 +995,34 @@
                 return;
             }
 
-            const safeTileName = tileName.replace(/[.#$\-\[\]\/]/g, "_");
             const sizeRef = database.ref('shops/' + shopID + '/credentials/' + currentSizeId);
-            const tileRef = sizeRef.child('tiles/' + safeTileName);
+            const tilesRef = sizeRef.child('tiles');
 
-            tileRef.once("value").then(snapshot => {
+            // Direct check against database across all existing items in this size
+            tilesRef.once("value").then(snapshot => {
+                let exists = false;
+
                 if (snapshot.exists()) {
-                    alert("Error: This tile name already exists in this size!");
+                    const existingTiles = snapshot.val();
+                    for (let key in existingTiles) {
+                        if (existingTiles[key] && existingTiles[key].name) {
+                            if (existingTiles[key].name.trim().toUpperCase() === tileName) {
+                                exists = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (exists) {
+                    alert("Error: This tile name already exists in this size category!");
                     return;
                 }
 
-                tileRef.set({
+                const safeTileName = tileName.replace(/[.#$\-\[\]\/]/g, "_");
+                const newTileRef = tilesRef.child(safeTileName);
+
+                newTileRef.set({
                     name: tileName,
                     boxes: tileBoxes,
                     timestamp: firebase.database.ServerValue.TIMESTAMP
@@ -845,6 +1036,8 @@
                 }).catch((error) => {
                     alert("Error adding tile: " + error.message);
                 });
+            }).catch((error) => {
+                alert("Error verifying existing tiles: " + error.message);
             });
         }
 
@@ -867,7 +1060,7 @@
             editingOriginalBoxes = 0;
         }
 
-        // Update Tile in Database
+        // Update Tile in Database - STRICT DATABASE DUP CHECK
         function updateTile() {
             let newTileName = document.getElementById('editTileNameInput').value.trim().toUpperCase();
             const newBoxesInput = document.getElementById('editTileBoxesInput').value;
@@ -878,26 +1071,39 @@
                 return;
             }
 
-            const safeTileName = newTileName.replace(/[.#$\-\[\]\/]/g, "_");
             const sizeRef = database.ref('shops/' + shopID + '/credentials/' + currentSizeId);
+            const tilesRef = sizeRef.child('tiles');
             const boxDifference = newBoxes - editingOriginalBoxes;
+            const safeTileName = newTileName.replace(/[.#$\-\[\]\/]/g, "_");
 
-            // Handle name change vs update boxes only
-            if (safeTileName !== editingTileId) {
-                // Changing Tile Name: check if new name exists first
-                sizeRef.child('tiles/' + safeTileName).once("value").then(snapshot => {
-                    if (snapshot.exists()) {
-                        alert("Error: A tile with this new name already exists!");
-                        return;
+            tilesRef.once("value").then(snapshot => {
+                let exists = false;
+
+                if (snapshot.exists()) {
+                    const existingTiles = snapshot.val();
+                    for (let key in existingTiles) {
+                        // Ignore current tile being edited
+                        if (key !== editingTileId && existingTiles[key] && existingTiles[key].name) {
+                            if (existingTiles[key].name.trim().toUpperCase() === newTileName) {
+                                exists = true;
+                                break;
+                            }
+                        }
                     }
+                }
 
-                    // Write to new tile ID and delete old tile ID
-                    sizeRef.child('tiles/' + safeTileName).set({
+                if (exists) {
+                    alert("Error: A tile with this name already exists in this size!");
+                    return;
+                }
+
+                if (safeTileName !== editingTileId) {
+                    tilesRef.child(safeTileName).set({
                         name: newTileName,
                         boxes: newBoxes,
                         timestamp: firebase.database.ServerValue.TIMESTAMP
                     }).then(() => {
-                        return sizeRef.child('tiles/' + editingTileId).remove();
+                        return tilesRef.child(editingTileId).remove();
                     }).then(() => {
                         return sizeRef.child('totalBoxes').transaction((currentTotal) => {
                             return (currentTotal || 0) + boxDifference;
@@ -908,23 +1114,24 @@
                     }).catch((error) => {
                         alert("Error updating tile: " + error.message);
                     });
-                });
-            } else {
-                // Updating values for existing name
-                sizeRef.child('tiles/' + editingTileId).update({
-                    name: newTileName,
-                    boxes: newBoxes
-                }).then(() => {
-                    return sizeRef.child('totalBoxes').transaction((currentTotal) => {
-                        return (currentTotal || 0) + boxDifference;
+                } else {
+                    tilesRef.child(editingTileId).update({
+                        name: newTileName,
+                        boxes: newBoxes
+                    }).then(() => {
+                        return sizeRef.child('totalBoxes').transaction((currentTotal) => {
+                            return (currentTotal || 0) + boxDifference;
+                        });
+                    }).then(() => {
+                        closeEditTileModal();
+                        alert("Tile Updated Successfully!");
+                    }).catch((error) => {
+                        alert("Error updating tile: " + error.message);
                     });
-                }).then(() => {
-                    closeEditTileModal();
-                    alert("Tile Updated Successfully!");
-                }).catch((error) => {
-                    alert("Error updating tile: " + error.message);
-                });
-            }
+                }
+            }).catch((error) => {
+                alert("Error checking tile existence: " + error.message);
+            });
         }
 
         function searchTiles() {
@@ -992,18 +1199,27 @@
                         });
 
                         card.innerHTML = `
-                            <div class="size-header" onclick="if(!event.target.closest('button')) toggleSize(this.parentElement)">
+                            <div class="size-header" onclick="if(!event.target.closest('button') && !event.target.closest('.action-menu-container')) toggleSize(this.parentElement)">
                                 <div class="size-title">
                                     <i class="fas fa-layer-group"></i> ${sizeData.name} (${matchingTiles.length})
                                 </div>
-                                <div style="display: flex; align-items: center; gap: 15px;">
+                                <div class="header-actions">
                                     <span class="total-boxes-pill">
                                         <i class="fas fa-cubes"></i> ${totalBoxesForSearchSize}
                                     </span>
-                                    <button class="btn-add-header" onclick="openTileModal('${sizeId}', '${sizeData.name}')">
-                                        <i class="fas fa-plus-circle"></i> Add Tile
-                                    </button>
-                                    <i class="fas fa-chevron-down dropdown-arrow"></i>
+                                    <div class="action-menu-container">
+                                        <button class="btn-dots" onclick="toggleActionMenu(event, '${sizeId}')">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <div id="menu-${sizeId}" class="dropdown-menu">
+                                            <div class="dropdown-item" onclick="event.stopPropagation(); closeAllActionMenus(); openTileModal('${sizeId}', '${sizeData.name.replace(/'/g, "\\'")}')">
+                                                <i class="fas fa-plus" style="color: #0288d1;"></i> Add Tile
+                                            </div>
+                                            <div class="dropdown-item" onclick="event.stopPropagation(); closeAllActionMenus(); openEditSizeModal('${sizeId}', '${sizeData.name.replace(/'/g, "\\'")}', ${sizeData.sqftPerBox})">
+                                                <i class="fas fa-edit" style="color: #f39c12;"></i> Edit Size
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="size-body expanded">
@@ -1058,6 +1274,13 @@
         document.getElementById('sizeSqftInput').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') { e.preventDefault(); addSize(); }
         });
+
+        document.getElementById('editSizeNameInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') { e.preventDefault(); document.getElementById('editSizeSqftInput').focus(); }
+        });
+        document.getElementById('editSizeSqftInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') { e.preventDefault(); updateSize(); }
+        });
         
         document.getElementById('tileNameInput').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') { e.preventDefault(); document.getElementById('tileBoxesInput').focus(); }
@@ -1079,15 +1302,22 @@
 
         window.onclick = function(event) {
             const sizeModal = document.getElementById('sizeModal');
+            const editSizeModal = document.getElementById('editSizeModal');
             const tileModal = document.getElementById('tileModal');
             const editTileModal = document.getElementById('editTileModal');
             
             if (event.target == sizeModal) closeSizeModal();
+            if (event.target == editSizeModal) closeEditSizeModal();
             if (event.target == tileModal) closeModal();
             if (event.target == editTileModal) closeEditTileModal();
+
+            if (!event.target.closest('.action-menu-container')) {
+                closeAllActionMenus();
+            }
         }
 
         loadSizes();
     </script>
 </body>
+
 </html>
