@@ -766,29 +766,34 @@
     color: white !important;
 }
 .download-pdf-btn {
-    background: transparent;
+    background-color: #27ae60;
+    color: #ffffff;
     border: none;
-    padding: 4px;
+    padding: 6px 12px;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    gap: 8px;
     border-radius: 6px;
-    transition: transform 0.2s ease, opacity 0.2s ease;
+    font-size: 14px;
+    font-weight: 500;
+    transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
 }
 
 .download-pdf-btn:hover {
-    transform: scale(1.08);
+    background-color: #219150;
+    transform: translateY(-1px);
 }
 
 .download-pdf-btn:disabled {
-    opacity: 0.6;
+    opacity: 0.65;
     cursor: not-allowed;
 }
 
 .download-pdf-btn img {
-    width: 32px;
-    height: 32px;
+    width: 20px;
+    height: 20px;
     object-fit: contain;
 }
     </style>
@@ -1027,9 +1032,10 @@
     <h2 style="margin: 0; color: var(--primary-color);">Bill Details</h2>
 
     <div style="display:flex; gap:10px; align-items: center;">
-        <!-- IMAGE-ONLY DOWNLOAD BUTTON -->
-        <button type="button" class="download-pdf-btn btn-download" onclick="downloadPDF()" title="Download PDF">
-            <img src="https://cdn-icons-png.flaticon.com/512/337/337946.png" alt="Download PDF">
+        <!-- BUTTON WITH LOGO AND TEXT -->
+        <button type="button" class="download-pdf-btn btn-download" onclick="downloadPDF()" title="Download PDF Report">
+            <img src="https://cdn-icons-png.flaticon.com/512/337/337946.png" alt="PDF Icon">
+            <span>Download PDF Report</span>
         </button>
 
         <!-- CLOSE BUTTON -->
@@ -2883,16 +2889,15 @@ function downloadPDF() {
         return;
     }
 
-    // Dynamic filename
     const fileName = `Bill_Report_${Date.now()}.pdf`;
 
-    // UI Feedback: Show spinner icon on the image button during rendering
+    // UI Feedback: Show spinner icon with loading text
     const btn = document.querySelector('.btn-download');
     const originalBtnHtml = btn.innerHTML;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size: 28px; color: #27ae60;"></i>';
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size: 18px;"></i> <span>Generating...</span>';
     btn.disabled = true;
 
-    // Temporarily reset mobile zoom for rendering full detail
+    // Temporarily reset zoom for accurate layout rendering
     const htmlElement = document.documentElement;
     const previousZoom = htmlElement.style.zoom;
     htmlElement.style.zoom = '100%';
@@ -2915,25 +2920,22 @@ function downloadPDF() {
         pagebreak: { mode: ['css', 'legacy'] }
     };
 
-    // Output Base64 string directly for Android WebView DownloadListener capture
     html2pdf().set(opt).from(element).toPdf().output('datauristring').then(function (pdfBase64) {
-        // Restore mobile viewport zoom
         htmlElement.style.zoom = previousZoom;
 
-        // Trigger base64 download link
         const link = document.createElement('a');
         link.href = pdfBase64;
         link.download = fileName;
         link.click();
         
-        // Restore original image button
+        // Restore original logo and text button state
         btn.innerHTML = originalBtnHtml;
         btn.disabled = false;
     }).catch(err => {
         console.error('PDF Generation Error:', err);
         htmlElement.style.zoom = previousZoom;
         
-        btn.innerHTML = '<i class="fas fa-exclamation-triangle" style="font-size: 26px; color: #e74c3c;"></i>';
+        btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> <span>Failed</span>';
         btn.disabled = false;
         setTimeout(() => {
             btn.innerHTML = originalBtnHtml;
