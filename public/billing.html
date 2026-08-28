@@ -6,6 +6,8 @@
     <title>Return & Sales Billing - Stock Management</title>
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 1. Add html2canvas library inside <head> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
                 .back-btn {
@@ -2863,43 +2865,30 @@ window.addEventListener('DOMContentLoaded', initializePage);
     <script>
 
     // all your existing functions above
-async function shareBillAsImage() {
-    const billElement = document.getElementById("billDetailContent");
-
+function shareBillAsImage() {
+    const billElement = document.getElementById('billDetailContent');
     if (!billElement) {
         alert("Bill content not found!");
         return;
     }
 
-    const canvas = await html2canvas(billElement, {
-        scale: 2,
-        useCORS: true
+    // Convert bill modal content into canvas image
+    html2canvas(billElement, { scale: 2, useCORS: true }).then(canvas => {
+        const imageDataUrl = canvas.toDataURL('image/png');
+
+        // Pass image Data URL to Android Native Interface
+        if (window.AndroidBridge && window.AndroidBridge.shareImage) {
+            window.AndroidBridge.shareImage(imageDataUrl);
+        } else {
+            // Fallback web download link
+            const link = document.createElement('a');
+            link.href = imageDataUrl;
+            link.download = `Bill_${Date.now()}.png`;
+            link.click();
+        }
+    }).catch(err => {
+        alert("Error generating bill image: " + err.message);
     });
-
-    const imageData = canvas.toDataURL("image/jpeg", 1.0); // Base64 String
-
-    // 1. IF RUNNING INSIDE YOUR ANDROID APP
-    if (window.AndroidBridge) {
-        window.AndroidBridge.shareBase64Image(imageData, "Bill.jpg");
-        return;
-    }
-
-    // 2. IF RUNNING IN REGULAR BROWSERS
-    const blob = await (await fetch(imageData)).blob();
-    const file = new File([blob], "Bill.jpg", { type: "image/jpeg" });
-
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-            files: [file],
-            title: "Bill",
-            text: "Here is your bill"
-        });
-    } else {
-        const link = document.createElement("a");
-        link.href = imageData;
-        link.download = "Bill.jpg";
-        link.click();
-    }
 }
 
 </script>
