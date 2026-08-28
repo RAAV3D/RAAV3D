@@ -2864,7 +2864,6 @@ window.addEventListener('DOMContentLoaded', initializePage);
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
 
-    // all your existing functions above
 function shareBillAsImage() {
     const billElement = document.getElementById('billDetailContent');
     if (!billElement) {
@@ -2872,8 +2871,25 @@ function shareBillAsImage() {
         return;
     }
 
-    // Convert bill modal content into canvas image
-    html2canvas(billElement, { scale: 2, useCORS: true }).then(canvas => {
+    // Save original styling to restore after capturing
+    const originalWidth = billElement.style.width;
+    const originalMinWidth = billElement.style.minWidth;
+
+    // Temporarily enforce desktop width so elements align cleanly without colliding
+    billElement.style.width = '800px';
+    billElement.style.minWidth = '800px';
+
+    // Convert bill modal content into canvas image with fixed desktop parameters
+    html2canvas(billElement, { 
+        scale: 2, 
+        useCORS: true,
+        width: 800,
+        windowWidth: 1024
+    }).then(canvas => {
+        // Restore original screen styling
+        billElement.style.width = originalWidth;
+        billElement.style.minWidth = originalMinWidth;
+
         const imageDataUrl = canvas.toDataURL('image/png');
 
         // Pass image Data URL to Android Native Interface
@@ -2887,6 +2903,10 @@ function shareBillAsImage() {
             link.click();
         }
     }).catch(err => {
+        // Restore original styling if an error occurs
+        billElement.style.width = originalWidth;
+        billElement.style.minWidth = originalMinWidth;
+
         alert("Error generating bill image: " + err.message);
     });
 }
