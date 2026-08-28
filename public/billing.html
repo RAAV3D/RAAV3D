@@ -6,8 +6,6 @@
     <title>Return & Sales Billing - Stock Management</title>
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- html2pdf Library for Android WebView base64 generation -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
                 .back-btn {
@@ -765,36 +763,21 @@
     background-color: var(--accent-color) !important;
     color: white !important;
 }
-.download-pdf-btn {
-    background-color: #27ae60;
-    color: #ffffff;
-    border: none;
-    padding: 6px 12px;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
+.share-btn{
+    background:#27ae60;
+    color:white;
+    border:none;
+    padding:8px 14px;
+    border-radius:6px;
+    cursor:pointer;
+    font-weight:500;
+    display:flex;
+    align-items:center;
+    gap:6px;
 }
 
-.download-pdf-btn:hover {
-    background-color: #219150;
-    transform: translateY(-1px);
-}
-
-.download-pdf-btn:disabled {
-    opacity: 0.65;
-    cursor: not-allowed;
-}
-
-.download-pdf-btn img {
-    width: 20px;
-    height: 20px;
-    object-fit: contain;
+.share-btn:hover{
+    background:#1e8449;
 }
     </style>
 </head>
@@ -1031,14 +1014,13 @@
 <div class="bill-detail-header">
     <h2 style="margin: 0; color: var(--primary-color);">Bill Details</h2>
 
-    <div style="display:flex; gap:10px; align-items: center;">
-        <!-- BUTTON WITH LOGO AND TEXT -->
-        <button type="button" class="download-pdf-btn btn-download" onclick="downloadPDF()" title="Download PDF Report">
-            <img src="https://cdn-icons-png.flaticon.com/512/337/337946.png" alt="PDF Icon">
-            <span>Download PDF Report</span>
+    <div style="display:flex; gap:10px;">
+        <!-- NEW SHARE BUTTON -->
+        <button type="button" class="share-btn" onclick="shareBillAsImage()">
+            <i class="fas fa-share-alt"></i> Share
         </button>
 
-        <!-- CLOSE BUTTON -->
+        <!-- EXISTING CLOSE BUTTON -->
         <button type="button" class="close-modal-btn" onclick="closeBillDetail()">
             <i class="fas fa-times"></i> Close
         </button>
@@ -2878,69 +2860,46 @@ document.getElementById('searchMobile').addEventListener('input', function() {
 window.addEventListener('DOMContentLoaded', initializePage);
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
 
-    // Download Bill as A4-sized PDF
-function downloadPDF() {
-    const element = document.getElementById('billDetailContent');
-    if (!element) {
-        alert('Bill content not found!');
+    // all your existing functions above
+async function shareBillAsImage() {
+    const billElement = document.getElementById("billDetailContent");
+
+    if (!billElement) {
+        alert("Bill content not found!");
         return;
     }
 
-    const fileName = `Bill_Report_${Date.now()}.pdf`;
-
-    // UI Feedback: Show spinner icon with loading text
-    const btn = document.querySelector('.btn-download');
-    const originalBtnHtml = btn.innerHTML;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size: 18px;"></i> <span>Generating...</span>';
-    btn.disabled = true;
-
-    // Temporarily reset zoom for accurate layout rendering
-    const htmlElement = document.documentElement;
-    const previousZoom = htmlElement.style.zoom;
-    htmlElement.style.zoom = '100%';
-
-    const opt = {
-        margin: [5, 5, 5, 5],
-        filename: fileName,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { 
-            scale: 2, 
-            useCORS: true, 
-            scrollY: 0,
-            letterRendering: true
-        },
-        jsPDF: { 
-            unit: 'mm', 
-            format: 'a4', 
-            orientation: 'portrait' 
-        },
-        pagebreak: { mode: ['css', 'legacy'] }
-    };
-
-    html2pdf().set(opt).from(element).toPdf().output('datauristring').then(function (pdfBase64) {
-        htmlElement.style.zoom = previousZoom;
-
-        const link = document.createElement('a');
-        link.href = pdfBase64;
-        link.download = fileName;
-        link.click();
-        
-        // Restore original logo and text button state
-        btn.innerHTML = originalBtnHtml;
-        btn.disabled = false;
-    }).catch(err => {
-        console.error('PDF Generation Error:', err);
-        htmlElement.style.zoom = previousZoom;
-        
-        btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> <span>Failed</span>';
-        btn.disabled = false;
-        setTimeout(() => {
-            btn.innerHTML = originalBtnHtml;
-        }, 3000);
+    const canvas = await html2canvas(billElement, {
+        scale: 2,
+        useCORS: true
     });
+
+    const imageData = canvas.toDataURL("image/jpeg", 1.0); // Base64 String
+
+    // 1. IF RUNNING INSIDE YOUR ANDROID APP
+    if (window.AndroidBridge) {
+        window.AndroidBridge.shareBase64Image(imageData, "Bill.jpg");
+        return;
+    }
+
+    // 2. IF RUNNING IN REGULAR BROWSERS
+    const blob = await (await fetch(imageData)).blob();
+    const file = new File([blob], "Bill.jpg", { type: "image/jpeg" });
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+            files: [file],
+            title: "Bill",
+            text: "Here is your bill"
+        });
+    } else {
+        const link = document.createElement("a");
+        link.href = imageData;
+        link.download = "Bill.jpg";
+        link.click();
+    }
 }
 
 </script>
