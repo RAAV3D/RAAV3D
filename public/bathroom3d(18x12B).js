@@ -94,16 +94,16 @@ let currentDesignIndex = -1;
 const textureLoader = new THREE.TextureLoader();
 let uploadedTextureL = null, uploadedTextureD = null, uploadedTextureHL = null, uploadedTextureF = null;
 
+/* Dynamic Real-Time Mirror Setup (CubeCamera) */
+let cubeRenderTarget, cubeCamera, mirrorMaterial, mirrorMesh = null;
+
 /* Auto rotation & clock */
 let autoRotate = true;
-let rotationSpeed = 0.5;
+let rotationSpeed = 0.2;
 const clock = new THREE.Clock();
 
 /* Loading flag to prevent concurrent loads */
 let isLoading = false;
-
-/* Video recording flag */
-let isRecording = false;
 
 /* ========== Initialize Three.js ========== */
 function initThree() {
@@ -113,18 +113,45 @@ function initThree() {
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
   camera.position.set(1.5, 2, 7);
 
-  renderer = new THREE.WebGLRenderer({ antialias: true });
+  // Added preserveDrawingBuffer: true for WebGL screenshot generation
+  renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.outputEncoding = THREE.sRGBEncoding;
   renderer.setPixelRatio(window.devicePixelRatio || 1);
   document.body.appendChild(renderer.domElement);
   renderer.domElement.style.display = 'none';
 
-  // Lights
-  scene.add(new THREE.AmbientLight(0x404040, 0.5));
-  const dir = new THREE.DirectionalLight(0xffffff, 0.8); dir.position.set(1,1,1); scene.add(dir);
-  const pt = new THREE.PointLight(0xffffff, 0.6); pt.position.set(0,0,2); scene.add(pt);
-  const hemi = new THREE.HemisphereLight(0x87CEEB, 0x8B4513, 0.3); scene.add(hemi);
+  // Balanced Lighting Setup
+  scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+  
+  const dir = new THREE.DirectionalLight(0xffffff, 0.7); 
+  dir.position.set(0, 5, 5); 
+  scene.add(dir);
+
+  // Soft Point Light at specified position (x: 0, y: 0, z: 1)
+  const pt = new THREE.PointLight(0xffffff, 0.2); 
+  pt.position.set(0, 0, 1.5); 
+  scene.add(pt);
+
+  const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 0.4); 
+  scene.add(hemi);
+
+  // High-Resolution & Crisp Mirror Setup (2048px without mipmap blur)
+  cubeRenderTarget = new THREE.WebGLCubeRenderTarget(2048, {
+    generateMipmaps: false,
+    minFilter: THREE.LinearFilter,
+    magFilter: THREE.LinearFilter,
+  });
+  cubeCamera = new THREE.CubeCamera(0.01, 100, cubeRenderTarget);
+  scene.add(cubeCamera);
+
+  mirrorMaterial = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    metalness: 1.0,
+    roughness: 0.0,
+    envMap: cubeRenderTarget.texture,
+    envMapIntensity: 1.0,
+  });
 
   // Environment map
   try {
@@ -143,13 +170,30 @@ function initThree() {
   controls.enableDamping = true;
   controls.dampingFactor = 0.07;
 
-  // Animation loop
+  // Animation loop with Dynamic Reflection Update
   (function animate() {
     requestAnimationFrame(animate);
     const delta = clock.getDelta();
-    if (autoRotate && gltfScene && !isRecording) {
+    if (autoRotate && gltfScene) {
       gltfScene.rotation.y += rotationSpeed * delta;
     }
+
+    // Capture dynamic reflections into mirror continuously
+    if (mirrorMesh && gltfScene) {
+      mirrorMesh.updateMatrixWorld(true);
+      
+      // Get mirror world position
+      mirrorMesh.getWorldPosition(cubeCamera.position);
+      
+      // Offset camera slightly forward from mirror face to prevent clipping
+      const normalVector = new THREE.Vector3(0, 0, 1).applyQuaternion(mirrorMesh.getWorldQuaternion(new THREE.Quaternion()));
+      cubeCamera.position.addScaledVector(normalVector, 0.02);
+
+      mirrorMesh.visible = false;
+      cubeCamera.update(renderer, scene);
+      mirrorMesh.visible = true;
+    }
+
     controls.update();
     renderer.render(scene, camera);
   })();
@@ -182,6 +226,7 @@ function loadGLBByIndex(idx) {
     scene.remove(gltfScene);
     disposeObject(gltfScene);
     gltfScene = null;
+    mirrorMesh = null;
   }
 
   const loader = new THREE.GLTFLoader();
@@ -199,21 +244,32 @@ function loadGLBByIndex(idx) {
       const size = new THREE.Vector3();
       boundingBox.getSize(size);
       const maxDim = Math.max(size.x, size.y, size.z) || 1.0;
-      controls.minDistance = Math.max(0.01, maxDim * 0.05);
-      controls.maxDistance = Math.max(maxDim * 0.2, 1);
+      controls.minDistance = Math.max(0.01, maxDim * 0.03);
+      controls.maxDistance = Math.max(maxDim * 0.2, 0.9);
 
       gltfScene.traverse((child) => {
         if (!child.isMesh) return;
+
+        const meshName = child.name || "";
+        const lowerName = meshName.toLowerCase();
+
+        // Target Glass / Cube.001 / Mirror mesh for Real-Time Reflection
+        if (lowerName === 'glass' || lowerName === 'cube.001' || lowerName.includes('glass') || lowerName.includes('mirror')) {
+          mirrorMesh = child;
+          child.material = mirrorMaterial;
+          return;
+        }
+
         let mat = (child.material && child.material.clone) ? child.material.clone() : undefined;
         if (!mat || mat.type !== "MeshStandardMaterial") mat = new THREE.MeshStandardMaterial({ color: 0xffffff });
-        const meshName = child.name || "";
+        
         if (fMeshes.includes(meshName)) {
           mat.roughness = 1.0;
           mat.metalness = 0.0;
           mat.envMap = null;
         } else {
           if (scene.environment) mat.envMap = scene.environment;
-          mat.roughness = 0.1;
+          mat.roughness = 0.35; // Roughness adjusted to eliminate white reflection spot on wall tiles
           mat.metalness = 0.0;
         }
         mat.emissive = new THREE.Color(0x000000);
@@ -441,177 +497,183 @@ function wireUI() {
     }
   });
 
-  // Download button with a smooth, fully-utilized 10-second timeline
+  // Download PDF Button Handler (with Filename Prompt & Android WebView Compatibility)
   document.getElementById("downloadBtn").addEventListener("click", async () => {
-    if (isRecording) {
-      alert("Recording already in progress!");
-      return;
-    }
-    
     if (!modelLoadedFlag) {
       alert("Please generate a model first!");
       return;
     }
-    
+
+    // Prompt user for custom PDF filename before generating
+    const defaultFileName = `Bathroom_Design_${currentDesignIndex + 1 || 1}`;
+    const userInput = prompt("Enter a name for your PDF file:", defaultFileName);
+
+    // If user clicks Cancel, exit without downloading
+    if (userInput === null) {
+      return;
+    }
+
+    // Sanitize user input & append .pdf extension if omitted
+    let fileName = userInput.trim() || defaultFileName;
+    if (!fileName.toLowerCase().endsWith('.pdf')) {
+      fileName += '.pdf';
+    }
+
+    const screenLoader = document.getElementById('screenLoader');
+    if (screenLoader) {
+      screenLoader.querySelector('.loader-text').textContent = "Capturing Horizontal A4 Wall Screenshots & Generating PDF...";
+      screenLoader.style.display = 'flex';
+    }
+
+    // Brief delay to allow loader overlay to render
+    await new Promise(resolve => setTimeout(resolve, 100));
+
     try {
-      isRecording = true;
-      
-      // Store original auto-rotate state
+      // Temporarily pause auto-rotate & backup original canvas/camera settings
       const originalAutoRotate = autoRotate;
       autoRotate = false;
-      
-      // Store original camera position
-      const originalCameraPosition = camera.position.clone();
+
+      const originalCamPos = camera.position.clone();
       const originalTarget = controls.target.clone();
-      
-      // Setup audio infrastructure ahead of time
-      const audio = new Audio("/audio/background.mp3");
-      audio.crossOrigin = "anonymous";
-      audio.loop = true;
-      
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      const audioSource = audioContext.createMediaElementSource(audio);
-      const audioDestination = audioContext.createMediaStreamDestination();
-      audioSource.connect(audioDestination);
-      audioSource.connect(audioContext.destination);
+      const originalUp = camera.up.clone();
+      const originalFov = camera.fov;
+      const originalAspect = camera.aspect;
+      const originalRotationY = gltfScene ? gltfScene.rotation.y : 0;
 
-      // Pre-warm the audio to prevent initial thread blocking
-      await audioContext.resume();
-      await audio.play();
-      
-      // Small pause (150ms) to let audio buffers fill and prevent any initial stutter
-      await new Promise(resolve => setTimeout(resolve, 150));
+      // Reset model rotation to baseline for accurate directional angles
+      if (gltfScene) gltfScene.rotation.y = 0;
 
-      // Capture stream - 30fps is universally accepted across devices
-      const videoStream = renderer.domElement.captureStream(30);
-      
-      // Combine video and audio tracks
-      const combinedStream = new MediaStream([
-        ...videoStream.getVideoTracks(),
-        ...audioDestination.stream.getAudioTracks()
-      ]);
-      
-      // Detect universally supported video format
-      let selectedMimeType = "video/webm;codecs=vp9";
-      let fileExtension = "webm";
-      
-      const types = [
-        "video/mp4;codecs=avc1.42E01E,mp4a.40.2", // Standard H.264 MP4 (iOS/Android friendly)
-        "video/mp4",
-        "video/webm;codecs=h264",
-        "video/webm;codecs=vp9",
-        "video/webm"
+      // Lock renderer to A4 Landscape Ratio (297mm / 210mm ≈ 1.414)
+      const exportWidth = 1920;
+      const exportHeight = 1357; // 1920 / (297 / 210)
+      renderer.setSize(exportWidth, exportHeight, false);
+      camera.aspect = exportWidth / exportHeight;
+      camera.fov = 65; // Wide view matching screenshot angle
+      camera.updateProjectionMatrix();
+
+      const target = controls.target.clone();
+      const dx = originalCamPos.x - target.x;
+      const dz = originalCamPos.z - target.z;
+      const radius = Math.sqrt(dx * dx + dz * dz) || 4.5;
+      const camY = originalCamPos.y;
+
+      // 1. Four Directional Walls (South, East, West, North)
+      const mainWallViews = [
+        { name: "South View", angle: 0 },
+        { name: "East View", angle: Math.PI / 2 },
+        { name: "West View", angle: (3 * Math.PI) / 2 },
+        { name: "North View", angle: Math.PI }
       ];
-      
-      for (const type of types) {
-        if (MediaRecorder.isTypeSupported(type)) {
-          selectedMimeType = type;
-          if (type.includes("mp4")) fileExtension = "mp4";
-          break;
+
+      // 2. Four Corners
+      const cornerViews = [
+        { name: "Corner 1 (South-East)", angle: Math.PI / 4 },
+        { name: "Corner 2 (North-East)", angle: (3 * Math.PI) / 4 },
+        { name: "Corner 3 (North-West)", angle: (5 * Math.PI) / 4 },
+        { name: "Corner 4 (South-West)", angle: (7 * Math.PI) / 4 }
+      ];
+
+      const capturedImages = [];
+
+      const captureSnapshot = () => {
+        if (mirrorMesh && gltfScene) {
+          mirrorMesh.updateMatrixWorld(true);
+          mirrorMesh.getWorldPosition(cubeCamera.position);
+          const normalVector = new THREE.Vector3(0, 0, 1).applyQuaternion(mirrorMesh.getWorldQuaternion(new THREE.Quaternion()));
+          cubeCamera.position.addScaledVector(normalVector, 0.02);
+          mirrorMesh.visible = false;
+          cubeCamera.update(renderer, scene);
+          mirrorMesh.visible = true;
         }
-      }
-      
-      const chunks = [];
-      const recorder = new MediaRecorder(combinedStream, { 
-        mimeType: selectedMimeType,
-        videoBitsPerSecond: 5000000 // Clear 5 Mbps output
-      });
-      
-      recorder.ondataavailable = (e) => { 
-        if (e.data.size > 0) chunks.push(e.data); 
+        renderer.render(scene, camera);
+        return renderer.domElement.toDataURL("image/jpeg", 0.95);
       };
-      
-      recorder.onstop = () => {
-        // Restore original state
-        autoRotate = originalAutoRotate;
-        camera.position.copy(originalCameraPosition);
-        controls.target.copy(originalTarget);
-        
-        audio.pause();
-        audio.currentTime = 0;
-        audioContext.close();
-        
-        const blob = new Blob(chunks, { type: fileExtension === "mp4" ? "video/mp4" : "video/webm" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `bathroom_design_${currentDesignIndex + 1 || 1}.${fileExtension}`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
-        isRecording = false;
-        console.log(`Recording completed. Length: 10s. Format: .${fileExtension}`);
-      };
-      
-      // Kick off recorder
-      recorder.start();
-      
-      // Smooth camera animation sequence parameters stretched out to exactly 10 seconds
-      const startPos = camera.position.clone();
-      const startTarget = controls.target.clone();
-      const animationDuration = 10000; // Perfect 10-second rendering timeline
-      const startTime = performance.now();
-      
-      function animateCamera() {
-        if (!isRecording) return;
-        
-        const elapsed = performance.now() - startTime;
-        const progress = Math.min(elapsed / animationDuration, 1);
-        
-        if (gltfScene) {
-          // Keep steady model rotation during the 10 seconds
-          gltfScene.rotation.y += 0.008; 
-        }
-        
-        let currentPos = startPos.clone();
-        
-        // Split the full 10 seconds into 4 proportional 2.5-second cinematic movements
-        if (progress < 0.25) {
-          const phaseProgress = progress / 0.25;
-          currentPos.x = startPos.x + (2 * phaseProgress);
-          currentPos.z = startPos.z - (1 * phaseProgress);
-        } else if (progress < 0.5) {
-          const phaseProgress = (progress - 0.25) / 0.25;
-          currentPos.x = startPos.x + 2;
-          currentPos.z = startPos.z - 1;
-          currentPos.y = startPos.y + (1.5 * phaseProgress);
-        } else if (progress < 0.75) {
-          const phaseProgress = (progress - 0.5) / 0.25;
-          currentPos.x = (startPos.x + 2) - (4 * phaseProgress);
-          currentPos.z = (startPos.z - 1) + (2 * phaseProgress);
-          currentPos.y = startPos.y + 1.5;
-        } else {
-          const phaseProgress = (progress - 0.75) / 0.25;
-          currentPos.x = startPos.x - 2;
-          currentPos.z = startPos.z + 1;
-          currentPos.y = (startPos.y + 1.5) - (1.5 * phaseProgress);
-        }
-        
-        camera.position.copy(currentPos);
-        camera.lookAt(startTarget);
+
+      // Step 1: Capture Main Side Walls
+      for (const view of mainWallViews) {
+        camera.up.set(0, 1, 0);
+        const x = target.x + radius * Math.sin(view.angle);
+        const z = target.z + radius * Math.cos(view.angle);
+
+        camera.position.set(x, camY, z);
+        camera.lookAt(target);
+        controls.target.copy(target);
         controls.update();
-        
-        if (progress < 1) {
-          requestAnimationFrame(animateCamera);
-        }
+
+        capturedImages.push(captureSnapshot());
       }
-      
-      // Execute camera animation path smoothly
-      requestAnimationFrame(animateCamera);
-      
-      // Stop recording automatically at exactly 10000ms
-      setTimeout(() => {
-        if (recorder.state !== "inactive") {
-          recorder.stop();
+
+      // Step 2: Capture Four Corners
+      for (const view of cornerViews) {
+        camera.up.set(0, 1, 0);
+        const x = target.x + radius * Math.sin(view.angle);
+        const z = target.z + radius * Math.cos(view.angle);
+
+        camera.position.set(x, camY, z);
+        camera.lookAt(target);
+        controls.target.copy(target);
+        controls.update();
+
+        capturedImages.push(captureSnapshot());
+      }
+
+      // Step 3: Capture Top View
+      camera.position.set(target.x, target.y + radius * 1.5, target.z + 0.001);
+      camera.up.set(0, 0, -1);
+      camera.lookAt(target);
+      controls.target.copy(target);
+      controls.update();
+
+      capturedImages.push(captureSnapshot());
+
+      // Restore original renderer size and camera projection state
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      camera.aspect = originalAspect;
+      camera.fov = originalFov;
+      camera.up.copy(originalUp);
+      camera.position.copy(originalCamPos);
+      controls.target.copy(originalTarget);
+      if (gltfScene) gltfScene.rotation.y = originalRotationY;
+      camera.updateProjectionMatrix();
+      controls.update();
+      autoRotate = originalAutoRotate;
+
+      // Compile images into A4 Landscape PDF
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+
+      capturedImages.forEach((imgData, index) => {
+        if (index > 0) {
+          pdf.addPage();
         }
-      }, animationDuration);
-      
+        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+      });
+
+      // 🔥 Android WebView Compatible Export 🔥
+      const pdfBase64 = pdf.output('datauristring');
+
+      const link = document.createElement('a');
+      link.href = pdfBase64;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
     } catch (e) {
-      console.error("Recording failed:", e);
-      isRecording = false;
-      alert("Recording failed: " + e.message);
+      console.error("PDF generation failed:", e);
+      alert("Failed to generate PDF: " + e.message);
+    } finally {
+      if (screenLoader) {
+        screenLoader.querySelector('.loader-text').textContent = "Loading 3D Scene... Please Wait";
+        screenLoader.style.display = 'none';
+      }
     }
   });
 
@@ -713,7 +775,7 @@ function enableDesignButtons() {
 (function startup() {
   initThree();
   setupUploadHandlers();
-  loadSavedTexturesFromStorage(); // Rehydrate textures from localStorage on start
+  loadSavedTexturesFromStorage();
   wireUI();
   createFooterButtons();
 })();

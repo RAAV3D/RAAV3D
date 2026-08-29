@@ -8,6 +8,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <!-- jsPDF Library for PDF generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <style>
     /* Global Screen Loading Overlay Styles */
@@ -339,14 +341,14 @@
   <div class="action-buttons" style="text-align:center;">
     <button id="generateBtn">Generate Model</button>
     <button id="fullscreenBtn">Full Screen</button>
-    <button id="downloadBtn">Download Video</button>
+    <button id="downloadBtn">Download PDF</button>
   </div>
 
   <div class="controls-row">
     <label><input type="checkbox" id="autoRotateToggle" checked /> Auto-rotate</label>
     <label>
       Rotation speed:
-      <input type="number" id="rotationSpeed" min="0" max="2" step="0.05" value="0.6" style="width:60px;text-align:center;" />
+      <input type="number" id="rotationSpeed" min="0" max="2" step="0.05" value="0.2" style="width:60px;text-align:center;" />
     </label>
   </div>
 
