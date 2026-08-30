@@ -3,14 +3,14 @@ let currentTileCategory = null;
 
 /* ========== Put your GLB filenames/URLs here (23 entries) ========== */
 const modelPaths = [
-  "/models/bathroom(18x12)1.glb", "/models/bathroom(18x12)2.glb", "/models/bathroom(18x12)3.glb",
+  "models/bathroom(18x12)1.glb", "/models/bathroom(18x12)2.glb", "/models/bathroom(18x12)3.glb",
   "/models/bathroom(18x12)4.glb", "/models/bathroom(18x12)5.glb", "/models/bathroom(18x12)6.glb",
   "/models/bathroom(18x12)7.glb", "/models/bathroom(18x12)8.glb", "/models/bathroom(18x12)9.glb",
   "/models/bathroom(18x12)10.glb", "/models/bathroom(18x12)11.glb", "/models/bathroom(18x12)12.glb",
-  "/models/bathroom(18x12)13.glb", "/models/bathroom(18x12)14.glb", "/models/bathroom(18x12)15.glb",
-  "/models/bathroom(18x12)16.glb", "/models/bathroom(18x12)17.glb", "/models/bathroom(18x12)18.glb",
-  "/models/bathroom(18x12)19.glb", "/models/bathroom(18x12)20.glb", "/models/bathroom(18x12)21.glb",
-  "/models/bathroom(18x12)22.glb", "/models/bathroom(18x12)23.glb", ""
+  "models/bathroom(18x12)13.glb", "/models/bathroom(18x12)14.glb", "/models/bathroom(18x12)15.glb",
+  "models/bathroom(18x12)16.glb", "/models/bathroom(18x12)17.glb", "/models/bathroom(18x12)18.glb",
+  "models/bathroom(18x12)19.glb", "/models/bathroom(18x12)20.glb", "/models/bathroom(18x12)21.glb",
+  "models/bathroom(18x12)22.glb", "/models/bathroom(18x12)23.glb", ""
 ];
 
 /* ========== Put your design image filenames/URLs here (23 entries) ========== */
@@ -99,8 +99,9 @@ let cubeRenderTarget, cubeCamera, mirrorMaterial, mirrorMesh = null;
 
 /* Auto rotation & clock */
 let autoRotate = true;
-let rotationSpeed = 0.2;
+let rotationSpeed = 0.1;
 const clock = new THREE.Clock();
+let mirrorFrameCounter = 0;
 
 /* Loading flag to prevent concurrent loads */
 let isLoading = false;
@@ -110,8 +111,8 @@ function initThree() {
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0xf0f0f0);
 
-  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
-  camera.position.set(1.5, 2, 7);
+camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+camera.position.set(1.5, 0.8, 7);
 
   // Added preserveDrawingBuffer: true for WebGL screenshot generation
   renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
@@ -137,11 +138,11 @@ function initThree() {
   scene.add(hemi);
 
   // High-Resolution & Crisp Mirror Setup (2048px without mipmap blur)
-  cubeRenderTarget = new THREE.WebGLCubeRenderTarget(2048, {
-    generateMipmaps: false,
-    minFilter: THREE.LinearFilter,
-    magFilter: THREE.LinearFilter,
-  });
+cubeRenderTarget = new THREE.WebGLCubeRenderTarget(1024, {
+  generateMipmaps: false,
+  minFilter: THREE.LinearFilter,
+  magFilter: THREE.LinearFilter,
+});
   cubeCamera = new THREE.CubeCamera(0.01, 100, cubeRenderTarget);
   scene.add(cubeCamera);
 
@@ -171,32 +172,47 @@ function initThree() {
   controls.dampingFactor = 0.07;
 
   // Animation loop with Dynamic Reflection Update
-  (function animate() {
-    requestAnimationFrame(animate);
-    const delta = clock.getDelta();
-    if (autoRotate && gltfScene) {
-      gltfScene.rotation.y += rotationSpeed * delta;
-    }
+(function animate() {
+  requestAnimationFrame(animate);
 
-    // Capture dynamic reflections into mirror continuously
-    if (mirrorMesh && gltfScene) {
+  const delta = clock.getDelta();
+
+  // Auto rotation
+  if (autoRotate && gltfScene) {
+    gltfScene.rotation.y += rotationSpeed * delta;
+  }
+
+  // Update controls
+  controls.update();
+
+  // Render normal scene first
+  renderer.render(scene, camera);
+
+  // Update mirror reflection at a lower frequency
+  // instead of rendering the expensive cube camera every frame
+  if (mirrorMesh && gltfScene) {
+    mirrorFrameCounter++;
+
+    if (mirrorFrameCounter >= 4) {
+      mirrorFrameCounter = 0;
+
       mirrorMesh.updateMatrixWorld(true);
-      
-      // Get mirror world position
+
       mirrorMesh.getWorldPosition(cubeCamera.position);
-      
-      // Offset camera slightly forward from mirror face to prevent clipping
-      const normalVector = new THREE.Vector3(0, 0, 1).applyQuaternion(mirrorMesh.getWorldQuaternion(new THREE.Quaternion()));
+
+      const normalVector = new THREE.Vector3(0, 0, 1)
+        .applyQuaternion(
+          mirrorMesh.getWorldQuaternion(new THREE.Quaternion())
+        );
+
       cubeCamera.position.addScaledVector(normalVector, 0.02);
 
       mirrorMesh.visible = false;
       cubeCamera.update(renderer, scene);
       mirrorMesh.visible = true;
     }
-
-    controls.update();
-    renderer.render(scene, camera);
-  })();
+  }
+})();
 
   // Window resize handler
   window.addEventListener('resize', () => {
@@ -240,6 +256,10 @@ function loadGLBByIndex(idx) {
       const center = new THREE.Vector3();
       boundingBox.getCenter(center);
       controls.target.copy(center);
+
+// Height offset (+0.18) tilts the view ~2° downward towards the floor
+      camera.position.set(1.5, center.y + 0.18, 7);
+      controls.update();
 
       const size = new THREE.Vector3();
       boundingBox.getSize(size);
@@ -656,9 +676,8 @@ function wireUI() {
         pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
       });
 
-      // 🔥 Android WebView Compatible Export 🔥
+      // Android WebView Compatible Export
       const pdfBase64 = pdf.output('datauristring');
-
       const link = document.createElement('a');
       link.href = pdfBase64;
       link.download = fileName;
@@ -676,6 +695,9 @@ function wireUI() {
       }
     }
   });
+
+  // Download Video Button Handler
+  document.getElementById("downloadVideoBtn").addEventListener("click", startVideoRecording);
 
   // Rotation toggle & speed
   document.getElementById('autoRotateToggle').addEventListener('change', (e) => {
@@ -699,6 +721,101 @@ function wireUI() {
       goToTopBtn.classList.remove('show');
     }
   });
+}
+
+/* ========== Video Recording Function ========== */
+async function startVideoRecording() {
+  if (!modelLoadedFlag) {
+    alert("Please generate a model first!");
+    return;
+  }
+
+  const screenLoader = document.getElementById('screenLoader');
+  if (screenLoader) {
+    screenLoader.querySelector('.loader-text').textContent = "Recording Wall-to-Wall Video Tour...";
+    screenLoader.style.display = 'flex';
+  }
+
+  const canvas = renderer.domElement;
+  const stream = canvas.captureStream(30);
+  const mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+  const chunks = [];
+
+  mediaRecorder.ondataavailable = (e) => {
+    if (e.data.size > 0) chunks.push(e.data);
+  };
+
+  mediaRecorder.onstop = () => {
+    const blob = new Blob(chunks, { type: 'video/webm' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Bathroom_Tour_Design_${currentDesignIndex + 1 || 1}.webm`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    if (screenLoader) {
+      screenLoader.querySelector('.loader-text').textContent = "Loading 3D Scene... Please Wait";
+      screenLoader.style.display = 'none';
+    }
+  };
+
+  const originalAutoRotate = autoRotate;
+  autoRotate = false;
+  const originalCamPos = camera.position.clone();
+  const target = controls.target.clone();
+
+  mediaRecorder.start();
+
+  const durationMs = 8000;
+  const startTime = performance.now();
+  const radius = Math.sqrt(Math.pow(originalCamPos.x - target.x, 2) + Math.pow(originalCamPos.z - target.z, 2)) || 5;
+
+  function animateTour(currentTime) {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / durationMs, 1);
+
+    if (progress < 0.3) {
+      // Phase 1: Move along X axis (0 to X offset)
+      const p1 = progress / 0.3;
+      camera.position.x = target.x + (radius * p1);
+      camera.position.z = target.z + radius;
+      camera.position.y = target.y + 0.5;
+    } else if (progress < 0.5) {
+      // Phase 2: Shift along Y axis
+      const p2 = (progress - 0.3) / 0.2;
+      camera.position.x = target.x + radius;
+      camera.position.y = target.y + 0.5 + (p2 * 1.5);
+    } else {
+      // Phase 3: Wall-to-wall rotation around target
+      const p3 = (progress - 0.5) / 0.5;
+      const angle = p3 * Math.PI * 2;
+      camera.position.x = target.x + radius * Math.sin(angle);
+      camera.position.z = target.z + radius * Math.cos(angle);
+    }
+
+    camera.lookAt(target);
+    controls.target.copy(target);
+    controls.update();
+
+    if (progress < 1) {
+      requestAnimationFrame(animateTour);
+    } else {
+      camera.position.copy(originalCamPos);
+      camera.lookAt(target);
+      controls.target.copy(target);
+      controls.update();
+      autoRotate = originalAutoRotate;
+
+      setTimeout(() => {
+        mediaRecorder.stop();
+      }, 300);
+    }
+  }
+
+  requestAnimationFrame(animateTour);
 }
 
 /* ========== Create footer buttons (28) ========== */

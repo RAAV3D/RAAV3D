@@ -3,7 +3,7 @@ let currentTileCategory = null;
 
 /* ========== Put your GLB filenames/URLs here (28 entries) ========== */
 const modelPaths = [
-  "/models/bathroom(2x4)1.glb", "/models/bathroom(2x4)2.glb", "/models/bathroom(2x4)3.glb",
+  "/public/models/bathroom(18x12)1test.glb", "/models/bathroom(2x4)2.glb", "/models/bathroom(2x4)3.glb",
   "/models/bathroom(2x4)4.glb", "/models/bathroom(2x4)5.glb", "/models/bathroom(2x4)6.glb",
   "/models/bathroom(2x4)7.glb", "/models/bathroom(2x4)8.glb", "/models/bathroom(2x4)9.glb",
   "/models/bathroom(2x4)10.glb", "/models/bathroom(2x4)11.glb", "/models/bathroom(2x4)12.glb",
@@ -206,11 +206,20 @@ function initThree() {
   document.body.appendChild(renderer.domElement);
   renderer.domElement.style.display = 'none';
 
-  // Lights
-  scene.add(new THREE.AmbientLight(0x404040, 0.5));
-  const dir = new THREE.DirectionalLight(0xffffff, 0.8); dir.position.set(1,1,1); scene.add(dir);
-  const pt = new THREE.PointLight(0xffffff, 0.6); pt.position.set(0,0,2); scene.add(pt);
-  const hemi = new THREE.HemisphereLight(0x87CEEB, 0x8B4513, 0.3); scene.add(hemi);
+  // Balanced Lighting Setup
+  scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+  
+  const dir = new THREE.DirectionalLight(0xffffff, 0.7); 
+  dir.position.set(0, 5, 5); 
+  scene.add(dir);
+
+  // Soft Point Light at specified position (x: 0, y: 0, z: 1)
+  const pt = new THREE.PointLight(0xffffff, 0.2); 
+  pt.position.set(0, 0, 1.5); 
+  scene.add(pt);
+
+  const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 0.4); 
+  scene.add(hemi);
 
   // Environment map
   try {
@@ -288,24 +297,69 @@ function loadGLBByIndex(idx) {
       controls.minDistance = Math.max(0.01, maxDim * 0.05);
       controls.maxDistance = Math.max(maxDim * 0.2, 1);
 
-      gltfScene.traverse((child) => {
-        if (!child.isMesh) return;
-        let mat = (child.material && child.material.clone) ? child.material.clone() : undefined;
-        if (!mat || mat.type !== "MeshStandardMaterial") mat = new THREE.MeshStandardMaterial({ color: 0xffffff });
-        const meshName = child.name || "";
-        if (fMeshes.includes(meshName)) {
-          mat.roughness = 1.0;
-          mat.metalness = 0.0;
-          mat.envMap = null;
-        } else {
-          if (scene.environment) mat.envMap = scene.environment;
-          mat.roughness = 0.1;
-          mat.metalness = 0.0;
-        }
-        mat.emissive = new THREE.Color(0x000000);
-        child.material = mat;
-        child.material.needsUpdate = true;
-      });
+gltfScene.traverse((child) => {
+  if (!child.isMesh) return;
+
+  const meshName = child.name || "";
+  const lowerName = meshName.toLowerCase();
+
+  // Target Glass / Cube.001 / Mirror mesh for Real-Time Reflection
+  if (lowerName === 'glass' || lowerName === 'cube.001' || lowerName.includes('glass') || lowerName.includes('mirror')) {
+    // 1. Calculate true bounding dimensions
+    const box = new THREE.Box3().setFromObject(child);
+    const size = new THREE.Vector3();
+    box.getSize(size);
+    const sortedDims = [size.x, size.y, size.z].sort((a, b) => b - a);
+
+    // 2. Create Real-Time Reflector
+    const reflector = new THREE.Reflector(
+      new THREE.PlaneGeometry(sortedDims[0] || 2, sortedDims[1] || 1.2),
+      {
+        clipBias: 0.003,
+        textureWidth: window.innerWidth * (window.devicePixelRatio || 1),
+        textureHeight: window.innerHeight * (window.devicePixelRatio || 1),
+        color: 0xaaaaaa
+      }
+    );
+
+    // 3. Align reflector with GLTF mesh position & hierarchy
+    reflector.position.copy(child.position);
+    reflector.quaternion.copy(child.quaternion);
+    reflector.scale.copy(child.scale);
+    reflector.translateZ(0.01); // Prevent Z-fighting
+
+    if (child.parent) {
+      child.parent.add(reflector);
+    } else {
+      gltfScene.add(reflector);
+    }
+
+    child.visible = false;
+    return;
+  }
+
+  // Clone existing material or instantiate new standard material
+  let mat = (child.material && child.material.clone) ? child.material.clone() : undefined;
+  if (!mat || mat.type !== "MeshStandardMaterial") {
+    const oldMap = child.material ? child.material.map : null;
+    mat = new THREE.MeshStandardMaterial({ color: 0xffffff, map: oldMap });
+  }
+
+  // Apply material settings based on tile category
+  if (fMeshes.includes(meshName)) {
+    mat.roughness = 1.0;
+    mat.metalness = 0.0;
+    mat.envMap = null;
+  } else {
+    if (scene.environment) mat.envMap = scene.environment;
+    mat.roughness = 0.35; // Roughness adjusted to eliminate white reflection spot on wall tiles
+    mat.metalness = 0.0;
+  }
+
+  mat.emissive = new THREE.Color(0x000000);
+  child.material = mat;
+  child.material.needsUpdate = true;
+});
 
       applyUploadedTexturesToModel(gltfScene);
 

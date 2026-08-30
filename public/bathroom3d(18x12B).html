@@ -280,6 +280,24 @@
       color: white;
       transform: translateX(-5px);
     }
+    #generateBtn, #fullscreenBtn, #downloadBtn, #downloadVideoBtn {
+      padding: 12px 18px;
+      border-radius: 24px;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+      margin: 12px;
+      transition: all 0.3s ease;
+    }
+    #generateBtn { background: linear-gradient(135deg, #8a2be2, #9370db); }
+    #generateBtn:hover { box-shadow: 0 6px 20px rgba(138, 43, 226, 0.5); transform: translateY(-2px); }
+    #fullscreenBtn { background: linear-gradient(135deg,#ff9800,#ff5722); }
+    #fullscreenBtn:hover { box-shadow: 0 6px 20px rgba(255, 152, 0, 0.5); transform: translateY(-2px); }
+    #downloadBtn { background: linear-gradient(135deg,#4caf50,#45a049); }
+    #downloadBtn:hover { box-shadow: 0 6px 20px rgba(76, 175, 80, 0.5); transform: translateY(-2px); }
+    #downloadVideoBtn { background: linear-gradient(135deg, #00bcd4, #00838f); }
+    #downloadVideoBtn:hover { box-shadow: 0 6px 20px rgba(0, 188, 212, 0.5); transform: translateY(-2px); }
   </style>
 </head>
 <body>
@@ -338,10 +356,11 @@
     </div>
   </div>
 
-  <div class="action-buttons" style="text-align:center;">
+<div class="action-buttons" style="text-align:center;">
     <button id="generateBtn">Generate Model</button>
     <button id="fullscreenBtn">Full Screen</button>
     <button id="downloadBtn">Download PDF</button>
+    <button id="downloadVideoBtn">Download Video</button>
   </div>
 
   <div class="controls-row">
